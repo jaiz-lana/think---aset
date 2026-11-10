@@ -1,16 +1,4 @@
-/**
- * Helper ekspor/impor spreadsheet via SheetJS.
- * Pustaka dimuat saat fitur spreadsheet pertama kali dipakai.
- */
 import { ensureXLSX } from './external-libs.js';
-
-/**
- * Ekspor data ke file .xlsx.
- * @param {Array<Object>} rows
- * @param {Array<{key:string,label:string,format?:(v:any)=>any}>} columns
- * @param {string} filename
- * @param {string} sheetName
- */
 export async function exportToXLSX(rows, columns, filename, sheetName = 'Data') {
   const XLSX = await ensureXLSX();
   const header = columns.map(c => c.label);
@@ -65,9 +53,21 @@ export function downloadBlob(blob, filename) {
 export async function readSpreadsheet(file) {
   const XLSX = await ensureXLSX();
   const buf = await file.arrayBuffer();
-  const wb = XLSX.read(buf, { type: 'array' });
+  const isCsv = /\.csv$/i.test(file.name || '');
+  const wb = XLSX.read(buf, { type: 'array', cellDates: !isCsv });
   if (!wb.SheetNames.length) throw new Error('Berkas kosong');
   const ws = wb.Sheets[wb.SheetNames[0]];
-  const json = XLSX.utils.sheet_to_json(ws, { defval: '', raw: false });
+  // Excel: angka tetap angka, tanggal jadi YYYY-MM-DD. CSV: tetap teks apa adanya.
+  const json = XLSX.utils.sheet_to_json(ws, { defval: '', raw: !isCsv });
+  const pad = n => String(n).padStart(2, '0');
+  for (const row of json) {
+    for (const k of Object.keys(row)) {
+      if (row[k] instanceof Date && !isNaN(row[k].getTime())) {
+        // +12 jam agar kebal selisih zona waktu/detik dari SheetJS
+        const d = new Date(row[k].getTime() + 12 * 3600 * 1000);
+        row[k] = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+      }
+    }
+  }
   return json;
 }
