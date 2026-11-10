@@ -1,11 +1,3 @@
-/**
- * Entry point Think Aset (Tahap 3).
- * Alur:
- *  1. Init tema.
- *  2. tryAutoLogin (mode lokal / token Google tersimpan).
- *  3. Jika belum login → layar login.
- *  4. Jika login → sinkron tema dari settings → onboarding → layout + router.
- */
 import { initTheme } from './theme.js';
 import { config } from './config.js';
 import { FEATURES } from './features.js';
@@ -83,7 +75,12 @@ function withLayout(fn) {
       </div>`;
   };
   try {
-    return Promise.resolve(fn()).catch(renderError);
+    const a = getAdapter();
+    // Mode Google: muat ulang data bila sudah >30 dtk (agar perubahan pengguna lain terlihat)
+    return Promise.resolve(a.refresh?.())
+      .catch(e => console.warn('Muat ulang data gagal:', e))
+      .then(() => fn())
+      .catch(renderError);
   } catch (e) {
     renderError(e);
   }
