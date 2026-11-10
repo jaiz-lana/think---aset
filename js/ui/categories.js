@@ -1,7 +1,3 @@
-/**
- * Halaman Kategori — CRUD 2 tingkat (induk & subkategori).
- * Hapus kategori yang masih punya subkategori akan ditolak.
- */
 import { getAdapter } from '../auth.js';
 import { esc, $ } from '../utils/dom.js';
 import { notify } from '../utils/toast.js';
@@ -124,6 +120,7 @@ export async function renderCategories(layout) {
     async function openForm(id) {
       const editing = id ? cats.find(c => c.id === id) : null;
       const parents = cats.filter(c => !c.parent_id && c.id !== id);
+      const hasChildren = !!editing && cats.some(c => c.parent_id === id);
 
       openModal({
         title: editing ? 'Edit Kategori' : 'Tambah Kategori',
@@ -136,7 +133,7 @@ export async function renderCategories(layout) {
           </div>
           <div class="form-group">
             <label class="form-label">Induk Kategori</label>
-            <select class="form-select" id="cat-parent">
+            <select class="form-select" id="cat-parent" ${hasChildren ? 'disabled title="Kategori ini memiliki subkategori"' : ''}>
               <option value="">— Tidak ada (kategori utama) —</option>
               ${parents.map(p => `
                 <option value="${esc(p.id)}" ${editing?.parent_id === p.id ? 'selected' : ''}>
