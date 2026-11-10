@@ -1,13 +1,3 @@
-/**
- * Adapter Penyimpanan Lokal (tanpa akun).
- * Data di IndexedDB; file (termasuk logo) di object store 'files' sebagai Blob.
- *
- * Catatan batching (perbaikan wajib i):
- *  - IndexedDB adalah API lokal yang O(1) — 1 put per operasi log tidak menambah
- *    latensi jaringan, jadi log ditulis langsung tanpa antrean batch.
- *  - Untuk penghematan transaksi, log ditulis di transaksi tersendiri yang
- *    sangat murah. Tidak ada request jaringan sama sekali.
- */
 import {
   StorageAdapter, TABLES, SCHEMAS, ID_KEY
 } from './adapter.js';
@@ -191,6 +181,30 @@ export class LocalAdapter extends StorageAdapter {
     }
   }
 
+  async createMany(tabel, list) {
+    const now = new Date().toISOString();
+    const key = ID_KEY[tabel] || 'id';
+    const rows = list.map(d => ({
+      ...d,
+      [key]: d[key] || uuid(),
+      version: 1,
+      created_at: now,
+      updated_at: now,
+      updated_by: this.user.email
+    }));
+    const { store, tx } = this._tx(tabel, 'readwrite');
+    rows.forEach(r => store.put(r));
+    await txDone(tx);
+    await this._logActivity('import', `${tabel}:${rows.length} baris`);
+    return rows;
+  }
+
+  async listRecent(tabel, n = 8) {
+    return (await this.list(tabel))
+      .sort((a, b) => String(b.waktu || '').localeCompare(String(a.waktu || '')))
+      .slice(0, n);
+  }
+
   // =========================================================
   // FILES
   // =========================================================
@@ -258,10 +272,12 @@ export class LocalAdapter extends StorageAdapter {
       tables: {}
     };
     for (const t of TABLES) dump.tables[t] = await this.list(t);
-    // Sertakan daftar file (tanpa blob) agar terlihat isinya
+    // Sertakan isi berkas (foto/lampiran/logo) sebagai data URL
     const filesStore = this._tx('files');
     const files = await reqToPromise(filesStore.store.getAll());
-    dump.files_meta = files.map(f => ({ id: f.id, name: f.name, type: f.type, size: f.size }));
+    dump.files = await Promise.all(files.map(async f => ({
+      id: f.id, name: f.name, type: f.type, size: f.size, data: await blobToDataURL(f.blob)
+    })));
     return dump;
   }
 
@@ -300,6 +316,21 @@ export class LocalAdapter extends StorageAdapter {
       throw e;
     }
     await done;
+
+    // Pulihkan berkas (backup lama tanpa `files` dilewati)
+    if (Array.isArray(dump.files)) {
+      const recs = [];
+      for (const f of dump.files) {
+        if (!f || typeof f.id !== 'string' || typeof f.data !== 'string' || !f.data.startsWith('data:')) continue;
+        const blob = await (await fetch(f.data)).blob();
+        recs.push({ id: f.id, name: f.name || '', type: f.type || blob.type, size: blob.size, blob, created_at: Date.now() });
+      }
+      if (recs.length) {
+        const { tx: ftx, store } = this._tx('files', 'readwrite');
+        recs.forEach(r => store.put(r));
+        await txDone(ftx);
+      }
+    }
   }
 
   async downloadBackup() {
@@ -319,6 +350,14 @@ export class LocalAdapter extends StorageAdapter {
 }
 
 // --- Utilitas IndexedDB ---
+function blobToDataURL(blob) {
+  return new Promise((resolve, reject) => {
+    const r = new FileReader();
+    r.onload = () => resolve(r.result);
+    r.onerror = () => reject(r.error);
+    r.readAsDataURL(blob);
+  });
+}
 function reqToPromise(req) {
   return new Promise((resolve, reject) => {
     req.onsuccess = () => resolve(req.result);
