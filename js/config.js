@@ -1,12 +1,8 @@
-/**
- * Konfigurasi global Think Aset.
- * Kredensial deployment diatur sekali oleh pengelola di deployment-config.js.
- */
 import { deploymentConfig } from './deployment-config.js';
 
 export const config = {
   APP_NAME: 'Think Aset',
-  APP_VERSION: '0.4.12',
+  APP_VERSION: '0.4.13',
 
   // Google OAuth
   GOOGLE_CLIENT_ID: deploymentConfig.GOOGLE_CLIENT_ID,
