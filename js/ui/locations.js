@@ -1,7 +1,3 @@
-/**
- * Halaman Lokasi — CRUD dengan dukungan induk (bertingkat).
- * Hapus lokasi yang masih punya anak akan ditolak.
- */
 import { getAdapter } from '../auth.js';
 import { esc, $ } from '../utils/dom.js';
 import { notify } from '../utils/toast.js';
@@ -119,6 +115,7 @@ export async function renderLocations(layout) {
     async function openForm(id) {
       const editing = id ? locs.find(l => l.id === id) : null;
       const parents = locs.filter(l => !l.parent_id && l.id !== id);
+      const hasChildren = !!editing && locs.some(l => l.parent_id === id);
 
       openModal({
         title: editing ? 'Edit Lokasi' : 'Tambah Lokasi',
@@ -131,7 +128,7 @@ export async function renderLocations(layout) {
           </div>
           <div class="form-group">
             <label class="form-label">Induk Lokasi</label>
-            <select class="form-select" id="loc-parent">
+            <select class="form-select" id="loc-parent" ${hasChildren ? 'disabled title="Lokasi ini memiliki sub-lokasi"' : ''}>
               <option value="">— Tidak ada (lokasi utama) —</option>
               ${parents.map(p => `
                 <option value="${esc(p.id)}" ${editing?.parent_id === p.id ? 'selected' : ''}>
