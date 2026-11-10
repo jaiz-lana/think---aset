@@ -1,18 +1,3 @@
-/**
- * Antarmuka Storage Adapter.
- * Semua adapter WAJIB extends kelas ini dan mengimplementasikan method-nya.
- *
- * ATURAN SKEMA (perbaikan wajib a):
- *  - Tabel biasa: id, version, created_at, updated_at, updated_by (untuk konflik & audit).
- *  - settings:   hanya (key, value) — penanganan khusus, upsert by key.
- *  - activity_log: (id, user, aksi, objek, waktu) — append only, tanpa version.
- *
- * Tahap 3 — tambahan:
- *  - assets mendapat kolom `jumlah` dan `custom_fields` (JSON string) sesuai
- *    spesifikasi form aset. Kolom ditambahkan di AKHIR agar tidak menggeser
- *    kolom audit yang sudah ada (baris lama → kosong untuk kolom baru).
- */
-
 export const TABLES = [
   'settings', 'categories', 'locations', 'holders', 'assets',
   'asset_files', 'asset_history', 'asset_finance', 'agendas', 'journals',
@@ -89,6 +74,9 @@ export class StorageAdapter {
   async create(tabel, data)          { throw new Error('create() belum diimplementasikan'); }
   async update(tabel, id, data)      { throw new Error('update() belum diimplementasikan'); }
   async remove(tabel, id)            { throw new Error('remove() belum diimplementasikan'); }
+  async createMany(tabel, list)      { throw new Error('createMany() belum diimplementasikan'); }
+  async listRecent(tabel, n = 8)     { return (await this.list(tabel)).slice(-n); }
+  async refresh()                    { /* default no-op */ }
   async uploadFile(file)             { throw new Error('uploadFile() belum diimplementasikan'); }
   async getFileUrl(id)               { throw new Error('getFileUrl() belum diimplementasikan'); }
   async shareWith(email, peran)      { throw new Error('shareWith() belum diimplementasikan'); }
