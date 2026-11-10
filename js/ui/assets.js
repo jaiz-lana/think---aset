@@ -1,7 +1,3 @@
-/**
- * Halaman Data Aset — daftar, filter, sort, pagination, aksi massal,
- * impor/ekspor Excel, dan form tambah/edit (dipakai juga oleh detail).
- */
 import { getAdapter } from '../auth.js';
 import { esc, $, $$ } from '../utils/dom.js';
 import { notify } from '../utils/toast.js';
@@ -37,11 +33,13 @@ const photoUrlCache = new Map();
 
 export async function renderAssets(layout, { query } = {}) {
   const adapter = getAdapter();
+  const myHash = window.location.hash;
   layout.setActive('/aset');
   layout.setTitle('Data Aset');
   layout.setActions('');
 
   await loadAll();
+  if (window.location.hash !== myHash) return;
 
   if (query?.get('aksi') === 'tambah' && adapter.canWrite()) {
     openAssetForm({ onSaved: reloadAndRender });
@@ -70,6 +68,7 @@ export async function renderAssets(layout, { query } = {}) {
   }
 
   function renderList() {
+    const keepFocus = document.activeElement?.id === 'f-search';
     const filtered = applyFilters(state.assets);
     const sorted = applySort(filtered);
     const totalPages = Math.max(1, Math.ceil(sorted.length / PAGE_SIZE));
@@ -115,7 +114,9 @@ export async function renderAssets(layout, { query } = {}) {
       ${state.selected.size > 0 && canWrite ? renderBulkBar() : ''}
 
       ${sorted.length === 0
-        ? renderEmpty(canWrite)
+        ? (state.assets.length === 0
+            ? renderEmpty(canWrite)
+            : '<div class="empty-state"><span class="empty-state-icon">🔍</span><div class="empty-state-title">Tidak ada aset yang cocok dengan filter</div></div>')
         : renderTable(pageRows, canWrite)}
 
       ${sorted.length > PAGE_SIZE ? renderPagination(state.page, totalPages, sorted.length) : ''}
@@ -165,6 +166,9 @@ export async function renderAssets(layout, { query } = {}) {
     $('#btn-add')?.addEventListener('click', () => openAssetForm({ onSaved: reloadAndRender }));
     $('#btn-export')?.addEventListener('click', () => doExport(sorted));
     $('#btn-import')?.addEventListener('click', () => doImport());
+    $('#empty-add')?.addEventListener('click', () => openAssetForm({ onSaved: reloadAndRender }));
+    $('#empty-import')?.addEventListener('click', () => doImport());
+    $('#bulk-clear')?.addEventListener('click', () => { state.selected.clear(); renderList(); });
 
     // Bulk actions
     $$('.bulk-btn').forEach(btn => {
@@ -220,6 +224,11 @@ export async function renderAssets(layout, { query } = {}) {
 
     // Muat thumbnail foto
     loadThumbs(pageRows);
+
+    if (keepFocus) {
+      const el = $('#f-search');
+      if (el) { el.focus(); el.setSelectionRange(el.value.length, el.value.length); }
+    }
   }
 
   function renderKategoriOptions() {
@@ -467,6 +476,7 @@ export async function renderAssets(layout, { query } = {}) {
     const usedCodes = new Set(state.assets.map(a => String(a.kode || '').trim().toLowerCase()).filter(Boolean));
 
     let created = 0, failed = 0, skipped = 0;
+    const batch = [];
     for (const [index, row] of rows.entries()) {
       if (!row || typeof row !== 'object' || Array.isArray(row)) {
         failed++;
@@ -518,7 +528,7 @@ export async function renderAssets(layout, { query } = {}) {
         if (!['aktif', 'nonaktif'].includes(statusInput)) {
           throw new Error('Status harus aktif atau nonaktif');
         }
-        const tglBeli = String(get('tglbeli', 'tanggalbeli') || '').trim();
+        const tglBeli = normalizeTanggal(String(get('tglbeli', 'tanggalbeli') || '').trim());
         if (tglBeli && !isValidDateOnly(tglBeli)) {
           throw new Error('Tanggal beli harus menggunakan format YYYY-MM-DD');
         }
@@ -546,13 +556,16 @@ export async function renderAssets(layout, { query } = {}) {
           custom_fields: '{}',
           qr_token: generateQrToken()
         };
-        await adapter.create('assets', data);
+        batch.push(data);
         usedCodes.add(normalizedCode);
-        created++;
       } catch (e) {
         failed++;
         console.warn(`Baris ${index + 2} gagal diimpor:`, e);
       }
+    }
+    if (batch.length) {
+      await adapter.createMany('assets', batch);
+      created = batch.length;
     }
     if (created > 0) notify.success(`${created} aset berhasil diimpor`);
     if (failed > 0) notify.warning(`${failed} baris gagal diimpor`);
@@ -563,7 +576,8 @@ export async function renderAssets(layout, { query } = {}) {
   }
 
   async function doBulk(action, filtered) {
-    const ids = Array.from(state.selected);
+    const visible = new Set(filtered.map(a => a.id));
+    const ids = Array.from(state.selected).filter(id => visible.has(id));
     if (ids.length === 0) return;
 
     if (action === 'qr') {
@@ -849,6 +863,13 @@ export async function openAssetForm({ asset = null, onSaved } = {}) {
 
           if (!payload.nama) { notify.error('Nama aset wajib diisi'); return false; }
           if (!payload.kode) { notify.error('Kode aset wajib diisi'); return false; }
+          const kodeDipakai = (await adapter.list('assets')).some(a => a.id !== asset?.id &&
+            String(a.kode).trim().toLowerCase() === payload.kode.toLowerCase());
+          if (kodeDipakai) { notify.error('Kode aset sudah digunakan'); return false; }
+          if (payload.harga < 0 || payload.nilai_residu < 0 || payload.nilai_residu > payload.harga ||
+              payload.jumlah < 1 || !Number.isInteger(payload.jumlah)) {
+            notify.error('Harga, nilai residu, atau jumlah tidak valid'); return false;
+          }
 
           try {
             if (editing) {
@@ -871,6 +892,16 @@ export async function openAssetForm({ asset = null, onSaved } = {}) {
         }
       }
     ]
+  });
+
+  // Default umur ekonomis & metode susut dari kategori
+  document.getElementById('a-category')?.addEventListener('change', (ev) => {
+    const cat = categories.find(c => c.id === ev.target.value);
+    if (!cat) return;
+    const umur = document.getElementById('a-umur');
+    const metode = document.getElementById('a-metode');
+    if (!Number(umur.value) && cat.umur_ekonomis) umur.value = cat.umur_ekonomis;
+    if (!editing && cat.metode_susut) metode.value = cat.metode_susut;
   });
 
   // Wire foto upload & preview
@@ -996,6 +1027,13 @@ function getImportValue(row, keys) {
   const wanted = new Set(keys.map(normalizeImportKey));
   const key = Object.keys(row).find(name => wanted.has(normalizeImportKey(name)));
   return key == null ? '' : row[key];
+}
+
+/** Terima juga format dd/mm/yyyy (dd-mm-yyyy, dd.mm.yyyy) → YYYY-MM-DD. */
+function normalizeTanggal(v) {
+  const m = /^(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{4})$/.exec(v);
+  if (!m) return v;
+  return `${m[3]}-${m[2].padStart(2, '0')}-${m[1].padStart(2, '0')}`;
 }
 
 function isValidDateOnly(value) {
