@@ -1,12 +1,5 @@
-/**
- * Service Worker Think Aset.
- * - Cache-first untuk aset statis.
- * - Network-first untuk dokumen HTML.
- * - Hanya tangani permintaan GET same-origin.
- * - Pustaka CDN dimuat terpisah saat fitur grafik/impor-ekspor dipakai.
- */
 const CACHE_PREFIX = 'thinkaset-';
-const CACHE_VERSION = 'thinkaset-v0.4.12';
+const CACHE_VERSION = 'thinkaset-v0.4.13';
 const STATIC_ASSETS = [
   './',
   './index.html',
@@ -54,7 +47,10 @@ const STATIC_ASSETS = [
   './pages/kontak.html',
   './pages/privasi.html',
   './icons/icon.svg',
-  './icons/logo.svg'
+  './icons/logo.svg',
+  './icons/icon-192.png',
+  './icons/icon-512.png',
+  './icons/apple-touch-icon.png'
 ];
 const STATIC_PATHS = new Set(
   STATIC_ASSETS.map(asset => new URL(asset, self.registration.scope).pathname)
@@ -115,17 +111,16 @@ self.addEventListener('fetch', (e) => {
     return;
   }
 
-  // Aset lain: cache-first
+  // Aset lain: network-first, cache sebagai cadangan offline
   e.respondWith(
-    cachePromise.then(cache => cache.match(e.request)).then(r => {
-      if (r) return r;
-      return fetch(e.request).then(res => {
-        if (res.ok) {
-          const copy = res.clone();
-          cachePromise.then(cache => cache.put(e.request, copy)).catch(() => {});
-        }
-        return res;
-      });
-    })
+    fetch(e.request).then(res => {
+      if (res.ok) {
+        const copy = res.clone();
+        cachePromise.then(cache => cache.put(e.request, copy)).catch(() => {});
+      }
+      return res;
+    }).catch(() =>
+      cachePromise.then(cache => cache.match(e.request)).then(r => r || Response.error())
+    )
   );
 });
