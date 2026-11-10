@@ -1,5 +1,5 @@
 import {
-  StorageAdapter, TABLES, SCHEMAS, ID_KEY
+  StorageAdapter, TABLES, SCHEMAS, ID_KEY, buildAssetHistory
 } from './adapter.js';
 import { uuid } from '../utils/uuid.js';
 import { config as GLOBAL_CONFIG, ssIdKey, folderIdKey } from '../config.js';
@@ -8,7 +8,8 @@ const API = {
   SHEETS:   'https://sheets.googleapis.com/v4/spreadsheets',
   DRIVE:    'https://www.googleapis.com/drive/v3',
   UPLOAD:   'https://www.googleapis.com/upload/drive/v3/files',
-  USERINFO: 'https://www.googleapis.com/oauth2/v3/userinfo'
+  USERINFO: 'https://www.googleapis.com/oauth2/v3/userinfo',
+  CALENDAR: 'https://www.googleapis.com/calendar/v3'
 };
 
 const LOG_BATCH_SIZE = 20;
@@ -29,6 +30,7 @@ export class GoogleAdapter extends StorageAdapter {
     this._logTimer = null;
     this._isFlushing = false;
     this._roleDetected = false;
+    this.calendarReady = false;
   }
 
   // =========================================================
@@ -85,14 +87,14 @@ export class GoogleAdapter extends StorageAdapter {
     await this._signIn(opts.prompt ?? '');
   }
 
-  _signIn(prompt = 'consent') {
+  _signIn(prompt = 'consent', scope = this.config.SCOPES) {
     return new Promise((resolve, reject) => {
       if (!this.config.GOOGLE_CLIENT_ID) {
         return reject(new Error('Koneksi Google belum disiapkan oleh pengelola aplikasi.'));
       }
       const client = google.accounts.oauth2.initTokenClient({
         client_id: this.config.GOOGLE_CLIENT_ID,
-        scope: this.config.SCOPES,
+        scope,
         prompt,
         error_callback: (err) => reject(new Error('Login Google dibatalkan atau diblokir browser: ' + (err?.type || 'tidak diketahui'))),
         callback: (resp) => {
@@ -108,6 +110,46 @@ export class GoogleAdapter extends StorageAdapter {
       });
       client.requestAccessToken();
     });
+  }
+
+  async requestCalendarAccess() {
+    if (this.calendarReady) return;
+    const alreadyGranted = sessionStorage.getItem(GLOBAL_CONFIG.SS.CALENDAR_SCOPE) === '1';
+    await this._signIn(
+      alreadyGranted ? '' : 'consent',
+      `${this.config.SCOPES} ${this.config.CALENDAR_SCOPE}`
+    );
+    this.calendarReady = true;
+    try { sessionStorage.setItem(GLOBAL_CONFIG.SS.CALENDAR_SCOPE, '1'); } catch {}
+  }
+
+  async syncAgendaToCalendar(agenda) {
+    if (!this.canWrite()) throw new Error('Peran workspace Anda hanya dapat melihat data.');
+    await this.requestCalendarAccess();
+    const start = new Date(agenda.tanggal);
+    if (Number.isNaN(start.getTime())) throw new Error('Tanggal agenda tidak valid.');
+    const end = new Date(start.getTime() + 60 * 60 * 1000);
+    const recurrence = { mingguan: 'WEEKLY', bulanan: 'MONTHLY', tahunan: 'YEARLY' }[agenda.berulang];
+    const event = {
+      summary: agenda.judul,
+      start: { dateTime: start.toISOString() },
+      end: { dateTime: end.toISOString() },
+      ...(recurrence ? { recurrence: [`RRULE:FREQ=${recurrence}`] } : {})
+    };
+    const url = `${API.CALENDAR}/calendars/primary/events${agenda.google_event_id ? `/${encodeURIComponent(agenda.google_event_id)}` : ''}`;
+    const result = await this._fetch(url, {
+      method: agenda.google_event_id ? 'PATCH' : 'POST',
+      body: JSON.stringify(event)
+    });
+    if (!result.id) throw new Error('Google Calendar tidak mengembalikan ID acara.');
+    if (result.id !== agenda.google_event_id) {
+      try {
+        await this.update('agendas', agenda.id, { google_event_id: result.id, version: agenda.version });
+      } catch (error) {
+        throw new Error(`Agenda terkirim ke Google Calendar, tetapi ID acara gagal disimpan: ${error.message}`);
+      }
+    }
+    return result;
   }
 
   async _loadUserInfo() {
@@ -332,7 +374,9 @@ export class GoogleAdapter extends StorageAdapter {
   async _fetch(url, opts = {}, retryCount = 0) {
     if (!this.token || Date.now() >= this.tokenExpiry - 30_000) {
       try {
-        await this._signIn('');
+        await this._signIn('', this.calendarReady
+          ? `${this.config.SCOPES} ${this.config.CALENDAR_SCOPE}`
+          : this.config.SCOPES);
       } catch (e) {
         throw new Error('Sesi Google berakhir. Silakan login ulang.');
       }
@@ -357,7 +401,11 @@ export class GoogleAdapter extends StorageAdapter {
 
     // 401 — refresh dan ulang sekali
     if (res.status === 401) {
-      try { await this._signIn(''); }
+      try {
+        await this._signIn('', this.calendarReady
+          ? `${this.config.SCOPES} ${this.config.CALENDAR_SCOPE}`
+          : this.config.SCOPES);
+      }
       catch { throw new Error('Sesi Google berakhir. Silakan login ulang.'); }
       headers['Authorization'] = 'Bearer ' + this.token;
       res = await fetch(url, { ...opts, headers });
@@ -532,6 +580,10 @@ export class GoogleAdapter extends StorageAdapter {
     };
     await this._appendRow(tabel, row);
     await this._logActivity('create', `${tabel}:${row[key]}`);
+    if (tabel === 'assets') {
+      try { await this.createMany('asset_history', buildAssetHistory(null, row, this.user?.email || '')); }
+      catch (error) { throw new Error(`Aset tersimpan, tetapi riwayat awal gagal disimpan: ${error.message}`); }
+    }
     return row;
   }
 
@@ -558,6 +610,15 @@ export class GoogleAdapter extends StorageAdapter {
       this._cache[tabel].rows.push(...arrs);
     }
     this._logActivity('import', `${tabel}:${rows.length} baris`);
+    if (tabel === 'assets') {
+      try {
+        await this.createMany('asset_history', rows.flatMap(row =>
+          buildAssetHistory(null, row, this.user?.email || '')
+        ));
+      } catch (error) {
+        throw new Error(`Aset tersimpan, tetapi riwayat awal impor gagal disimpan: ${error.message}`);
+      }
+    }
     return rows;
   }
 
@@ -687,6 +748,13 @@ export class GoogleAdapter extends StorageAdapter {
       { method: 'PUT', body: JSON.stringify({ values: [arr] }) }
     );
     this._cacheUpsert(tabel, id, arr);
+    if (tabel === 'assets') {
+      const history = buildAssetHistory(existing, merged, this.user?.email || '');
+      if (history.length) {
+        try { await this.createMany('asset_history', history); }
+        catch (error) { throw new Error(`Aset tersimpan, tetapi riwayat perubahan gagal disimpan: ${error.message}`); }
+      }
+    }
     await this._logActivity('update', `${tabel}:${id}`);
     return merged;
   }

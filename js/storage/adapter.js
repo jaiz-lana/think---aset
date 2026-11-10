@@ -36,7 +36,7 @@ export const SCHEMAS = {
                    'version', 'created_at', 'updated_at', 'updated_by'],
   asset_finance:  ['id', 'asset_id', 'tanggal', 'jenis', 'kategori', 'nominal', 'catatan', 'bukti_id',
                    'version', 'created_at', 'updated_at', 'updated_by'],
-  agendas:        ['id', 'asset_id', 'judul', 'tanggal', 'berulang', 'pengingat_hari', 'selesai',
+  agendas:        ['id', 'asset_id', 'judul', 'tanggal', 'berulang', 'pengingat_hari', 'selesai', 'google_event_id',
                    'version', 'created_at', 'updated_at', 'updated_by'],
   journals:       ['id', 'asset_id', 'tanggal', 'judul', 'isi', 'foto_id',
                    'version', 'created_at', 'updated_at', 'updated_by'],
@@ -55,7 +55,38 @@ export const ID_KEY = {
   settings: 'key'
 };
 
-export const SCHEMA_VERSION = 2;
+export const SCHEMA_VERSION = 3;
+
+export function buildAssetHistory(previous, current, user) {
+  const now = new Date().toISOString();
+  if (!previous) {
+    return [{
+      asset_id: current.id,
+      jenis: 'pencatatan',
+      dari: '',
+      ke: current.nama || current.kode || '',
+      tanggal: now,
+      catatan: 'Aset ditambahkan',
+      user
+    }];
+  }
+  const tracked = [
+    ['location_id', 'perpindahan', 'Lokasi'],
+    ['holder_id', 'penanggung_jawab', 'Penanggung jawab'],
+    ['kondisi', 'kondisi', 'Kondisi'],
+    ['status', 'status', 'Status']
+  ];
+  return tracked.filter(([key]) => String(previous[key] || '') !== String(current[key] || ''))
+    .map(([key, jenis, label]) => ({
+      asset_id: current.id,
+      jenis,
+      dari: String(previous[key] || '—'),
+      ke: String(current[key] || '—'),
+      tanggal: now,
+      catatan: `${label} aset berubah`,
+      user
+    }));
+}
 
 /**
  * Base class Storage Adapter.

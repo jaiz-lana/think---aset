@@ -42,6 +42,8 @@ export function renderLayout(root, router) {
       </div>
     </div>`;
 
+  applyWorkspaceBranding(adapter).catch(error => console.warn('Branding workspace gagal dimuat:', error));
+
   const sidebar = document.getElementById('app-sidebar');
   const overlay = document.getElementById('sidebar-overlay');
   const toggle = document.getElementById('sidebar-toggle');
@@ -91,6 +93,29 @@ export function renderLayout(root, router) {
       return FEATURES.filter(item => !isFeatureAvailable(item, router));
     }
   };
+}
+
+async function applyWorkspaceBranding(adapter) {
+  const settings = await adapter.list('settings');
+  const get = key => settings.find(row => row.key === key)?.value || '';
+  const name = get('branding_name');
+  const logoId = get('branding_logo_id');
+  const brand = document.querySelector('.sidebar-brand');
+  if (!brand) return;
+  if (name) {
+    const heading = document.createElement('strong');
+    heading.textContent = name;
+    brand.prepend(heading);
+    document.title = `${name} — Aplikasi`;
+  }
+  if (logoId) {
+    const url = await adapter.getFileUrl(logoId);
+    const logo = brand.querySelector('img');
+    if (url && logo) {
+      logo.src = url;
+      logo.alt = name || 'Logo organisasi';
+    }
+  }
 }
 
 function renderMenuItem(item, router) {

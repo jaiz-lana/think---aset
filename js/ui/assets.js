@@ -581,7 +581,7 @@ export async function renderAssets(layout, { query } = {}) {
     if (ids.length === 0) return;
 
     if (action === 'qr') {
-      notify.info('Cetak QR massal belum tersedia.');
+      window.location.hash = `/qr?assets=${encodeURIComponent(ids.join(','))}&print=1`;
       return;
     }
     if (action === 'export') {
@@ -695,7 +695,8 @@ export async function openAssetForm({ asset = null, onSaved } = {}) {
     }
   } catch {}
 
-  const defaultKode = editing ? (asset.kode || '') : await generateNextKode(adapter);
+  const codeFormat = localStorage.getItem('ta_asset_code_format') || 'INV/{YYYY}/{SEQ:4}';
+  const defaultKode = editing ? (asset.kode || '') : await generateNextKode(adapter, codeFormat);
 
   const catOptions = renderKategoriSelect(categories, asset?.category_id || '');
   const locOptions = renderFlatSelect(locations, asset?.location_id || '', '— Pilih lokasi —');
@@ -712,7 +713,7 @@ export async function openAssetForm({ asset = null, onSaved } = {}) {
           <div class="form-group">
             <label class="form-label">Kode <span style="color:var(--accent-danger)">*</span></label>
             <input class="form-input" id="a-kode" maxlength="60" value="${esc(defaultKode)}" placeholder="INV/2025/0001" />
-            <div class="form-hint">Otomatis dibuat. Bisa diubah manual.</div>
+            <div class="form-hint">Format kode: <input class="form-input" id="a-code-format" maxlength="50" value="${esc(codeFormat)}" aria-label="Format kode otomatis" style="max-width:260px;display:inline-block" /> Gunakan {YYYY}, {MM}, {SEQ:4}. <button type="button" class="btn btn-ghost btn-sm" id="a-code-next">Terapkan &amp; buat kode</button></div>
           </div>
           <div class="form-group">
             <label class="form-label">Serial / Kode Produksi</label>
@@ -894,6 +895,18 @@ export async function openAssetForm({ asset = null, onSaved } = {}) {
     ]
   });
 
+  document.getElementById('a-code-next')?.addEventListener('click', async () => {
+    try {
+      const format = document.getElementById('a-code-format').value.trim();
+      const next = await generateNextKode(adapter, format);
+      localStorage.setItem('ta_asset_code_format', format);
+      document.getElementById('a-kode').value = next;
+      notify.success('Format disimpan; kode berikutnya dibuat');
+    } catch (error) {
+      notify.error(error.message);
+    }
+  });
+
   // Default umur ekonomis & metode susut dari kategori
   document.getElementById('a-category')?.addEventListener('change', (ev) => {
     const cat = categories.find(c => c.id === ev.target.value);
@@ -1046,23 +1059,31 @@ function isValidDateOnly(value) {
     date.getDate() === Number(day);
 }
 
-async function generateNextKode(adapter) {
-  try {
-    const assets = await adapter.list('assets');
-    const year = new Date().getFullYear();
-    const prefix = `INV/${year}/`;
-    let max = 0;
-    for (const a of assets) {
-      const k = String(a.kode || '');
-      if (k.startsWith(prefix)) {
-        const n = parseInt(k.slice(prefix.length), 10);
-        if (!isNaN(n) && n > max) max = n;
-      }
-    }
-    return prefix + String(max + 1).padStart(4, '0');
-  } catch {
-    return 'INV/' + new Date().getFullYear() + '/0001';
+async function generateNextKode(adapter, format) {
+  const match = /^\{SEQ:(\d{1,2})\}$/.exec((format.match(/\{SEQ:\d{1,2}\}/g) || [])[0] || '');
+  if (!match || (format.match(/\{SEQ:\d{1,2}\}/g) || []).length !== 1) {
+    throw new Error('Format harus memiliki tepat satu placeholder {SEQ:4}.');
   }
+  const width = Number(match[1]);
+  if (width < 1 || width > 12) throw new Error('Lebar nomor urut harus 1–12 digit.');
+  const date = new Date();
+  const base = format.replace('{YYYY}', String(date.getFullYear()))
+    .replace('{MM}', String(date.getMonth() + 1).padStart(2, '0'))
+    .replace('{SEQ:' + match[1] + '}', '');
+  const marker = format.replace('{YYYY}', String(date.getFullYear()))
+    .replace('{MM}', String(date.getMonth() + 1).padStart(2, '0'))
+    .replace('{SEQ:' + match[1] + '}', '\u0000');
+  const [prefix, suffix] = marker.split('\u0000');
+  if (base.length > 60 || /\{[^}]+\}/.test(base)) throw new Error('Format memuat placeholder yang tidak didukung atau terlalu panjang.');
+  const assets = await adapter.list('assets');
+  let max = 0;
+  for (const asset of assets) {
+    const code = String(asset.kode || '');
+    if (!code.startsWith(prefix) || (suffix && !code.endsWith(suffix))) continue;
+    const digits = code.slice(prefix.length, suffix ? -suffix.length : undefined);
+    if (/^\d+$/.test(digits)) max = Math.max(max, Number(digits));
+  }
+  return prefix + String(max + 1).padStart(width, '0') + suffix;
 }
 
 function renderKategoriSelect(categories, selected) {

@@ -34,7 +34,7 @@ export async function renderDashboard(layout) {
     window.location.hash = '/aset?aksi=tambah';
   });
   $('#dash-scan')?.addEventListener('click', () => {
-    notify.info('Fitur pemindaian belum tersedia.');
+    window.location.hash = '/scan';
   });
 
   try {

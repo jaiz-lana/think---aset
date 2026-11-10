@@ -17,6 +17,7 @@ import { renderCategories } from './ui/categories.js';
 import { renderLocations } from './ui/locations.js';
 import { renderHolders } from './ui/holders.js';
 import { renderSettings } from './ui/settings.js';
+import { renderWorkflow } from './ui/workflows.js';
 
 initTheme();
 enableGlobalRipple();
@@ -34,7 +35,20 @@ const routeHandlers = {
   categories: () => withLayout(() => renderCategories(layout)),
   locations: () => withLayout(() => renderLocations(layout)),
   holders: () => withLayout(() => renderHolders(layout)),
-  settings: () => withLayout(() => renderSettings(layout.content))
+  settings: () => withLayout(() => renderSettings(layout.content)),
+  'qr-cards': ({ query }) => withLayout(() => renderWorkflow(layout, 'qr-cards', { query })),
+  scan: ({ query }) => withLayout(() => renderWorkflow(layout, 'scan', { query })),
+  history: ({ query }) => withLayout(() => renderWorkflow(layout, 'history', { query })),
+  finance: ({ query }) => withLayout(() => renderWorkflow(layout, 'finance', { query })),
+  agenda: ({ query }) => withLayout(() => renderWorkflow(layout, 'agenda', { query })),
+  'calendar-sync': ({ query }) => withLayout(() => renderWorkflow(layout, 'calendar-sync', { query })),
+  journal: ({ query }) => withLayout(() => renderWorkflow(layout, 'journal', { query })),
+  audit: ({ query }) => withLayout(() => renderWorkflow(layout, 'audit', { query })),
+  loans: ({ query }) => withLayout(() => renderWorkflow(layout, 'loans', { query })),
+  reports: ({ query }) => withLayout(() => renderWorkflow(layout, 'reports', { query })),
+  members: ({ query }) => withLayout(() => renderWorkflow(layout, 'members', { query })),
+  branding: ({ query }) => withLayout(() => renderWorkflow(layout, 'branding', { query })),
+  reminders: ({ query }) => withLayout(() => renderWorkflow(layout, 'reminders', { query }))
 };
 FEATURES.filter(feature => feature.availability === 'ready' && feature.path).forEach(feature => {
   const handler = routeHandlers[feature.id];

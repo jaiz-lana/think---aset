@@ -219,6 +219,30 @@
   opacity: 0.45;
   cursor: not-allowed;
 }
+
+.workflow-fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+  gap: 0 16px;
+}
+
+.asset-label {
+  display: inline-grid;
+  grid-template-columns: 128px 1fr;
+  gap: 12px;
+  align-items: center;
+  padding: 16px;
+  margin: 8px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  break-inside: avoid;
+}
+
+@media print {
+  body * { visibility: hidden !important; }
+  .asset-label, .asset-label * { visibility: visible !important; }
+  .asset-label { position: relative; margin: 10px; }
+}
 .sidebar-icon {
   width: 20px;
   text-align: center;

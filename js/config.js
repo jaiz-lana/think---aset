@@ -2,7 +2,7 @@ import { deploymentConfig } from './deployment-config.js';
 
 export const config = {
   APP_NAME: 'Think Aset',
-  APP_VERSION: '0.4.13',
+  APP_VERSION: '0.4.14',
 
   // Google OAuth
   GOOGLE_CLIENT_ID: deploymentConfig.GOOGLE_CLIENT_ID,
@@ -15,6 +15,7 @@ export const config = {
     'https://www.googleapis.com/auth/userinfo.email',
     'https://www.googleapis.com/auth/userinfo.profile'
   ].join(' '),
+  CALENDAR_SCOPE: 'https://www.googleapis.com/auth/calendar.events',
 
   SHEET_TITLE:  'Think Aset - Data',
   FOLDER_TITLE: 'Think Aset - Lampiran',
@@ -35,7 +36,8 @@ export const config = {
   SS: {
     TOKEN: 'ta_g_token',
     TOKEN_EXP: 'ta_g_exp',
-    EMAIL: 'ta_g_email'
+    EMAIL: 'ta_g_email',
+    CALENDAR_SCOPE: 'ta_calendar_scope'
   }
 };
 

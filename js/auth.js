@@ -46,6 +46,7 @@ export async function signOut() {
     sessionStorage.removeItem(config.SS.TOKEN);
     sessionStorage.removeItem(config.SS.TOKEN_EXP);
     sessionStorage.removeItem(config.SS.EMAIL);
+    sessionStorage.removeItem(config.SS.CALENDAR_SCOPE);
   } catch {}
 }
 

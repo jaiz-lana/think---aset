@@ -7,6 +7,7 @@ import {
   getFirstPhotoId
 } from './assets.js';
 import { computeDepreciation, formatRupiahFull } from '../utils/depreciation.js';
+import { renderAssetTab } from './workflows.js';
 
 export async function renderAssetDetail(layout, { params, query }) {
   const adapter = getAdapter();
@@ -146,11 +147,11 @@ export async function renderAssetDetail(layout, { params, query }) {
   });
 
   document.getElementById('btn-qr')?.addEventListener('click', () => {
-    notify.info('Fitur QR belum tersedia.');
+    window.location.hash = `/qr?asset=${encodeURIComponent(asset.id)}`;
   });
 
   document.getElementById('btn-kartu')?.addEventListener('click', () => {
-    notify.info('Cetak Kartu Aset PDF belum tersedia.');
+    window.location.hash = `/qr?asset=${encodeURIComponent(asset.id)}&print=1`;
   });
 
   document.getElementById('btn-nonaktif')?.addEventListener('click', async () => {
@@ -189,7 +190,7 @@ export async function renderAssetDetail(layout, { params, query }) {
     case 'agenda':
     case 'jurnal':
     case 'lampiran':
-      renderComingSoon(body, activeTab);
+      await renderAssetTab(body, activeTab, asset);
       break;
     default: renderInfoTab(body, { asset, cat, loc, hold, dep });
   }
@@ -253,23 +254,4 @@ function renderInfoTab(container, { asset, cat, loc, hold, dep }) {
       </div>
     </div>
   `;
-}
-
-function renderComingSoon(container, tab) {
-  const labels = {
-    riwayat: { icon: '⏱️', title: 'Riwayat Aset' },
-    keuangan: { icon: '💵', title: 'Keuangan Aset' },
-    agenda: { icon: '📅', title: 'Agenda' },
-    jurnal: { icon: '📖', title: 'Jurnal' },
-    lampiran: { icon: '📎', title: 'Lampiran' }
-  };
-  const cfg = labels[tab] || { icon: '🚧', title: 'Segera hadir' };
-  container.innerHTML = `
-    <div class="card">
-      <div class="empty-state" style="padding:32px">
-        <span class="empty-state-icon">${cfg.icon}</span>
-        <div class="empty-state-title">${esc(cfg.title)}</div>
-        <div class="empty-state-desc">Fitur ini belum tersedia.</div>
-      </div>
-    </div>`;
 }

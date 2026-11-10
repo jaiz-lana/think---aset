@@ -23,6 +23,7 @@ if (featureGrid) {
       <h3>${escapeFeatureText(feature.title)}</h3>
       <p>${escapeFeatureText(feature.description)}</p>
       <span class="feature-status">${status}</span>
+      ${available && feature.path ? `<a class="btn btn-ghost btn-sm" href="app.html#${escapeFeatureText(feature.path)}">Buka fitur</a>` : ''}
     </article>`;
   }).join('');
 }

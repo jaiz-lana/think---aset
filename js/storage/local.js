@@ -1,5 +1,5 @@
 import {
-  StorageAdapter, TABLES, SCHEMAS, ID_KEY
+  StorageAdapter, TABLES, SCHEMAS, ID_KEY, buildAssetHistory
 } from './adapter.js';
 import { uuid } from '../utils/uuid.js';
 import { config as GLOBAL_CONFIG } from '../config.js';
@@ -109,6 +109,10 @@ export class LocalAdapter extends StorageAdapter {
     store.put(row);
     await txDone(tx);
     await this._logActivity('create', `${tabel}:${row[key]}`);
+    if (tabel === 'assets') {
+      try { await this.createMany('asset_history', buildAssetHistory(null, row, this.user.email)); }
+      catch (error) { throw new Error(`Aset tersimpan, tetapi riwayat awal gagal disimpan: ${error.message}`); }
+    }
     return row;
   }
 
@@ -127,6 +131,7 @@ export class LocalAdapter extends StorageAdapter {
     const key = ID_KEY[tabel] || 'id';
     const { store, tx } = this._tx(tabel, 'readwrite');
     let merged;
+    let previous;
     let failure = null;
     const updated = new Promise((resolve, reject) => {
       tx.oncomplete = () => resolve(merged);
@@ -139,6 +144,7 @@ export class LocalAdapter extends StorageAdapter {
           tx.abort();
           return;
         }
+        previous = existing;
         if (data.version != null && Number(data.version) !== Number(existing.version || 1)) {
           failure = new Error('CONFLICT');
           failure.code = 'CONFLICT';
@@ -166,6 +172,13 @@ export class LocalAdapter extends StorageAdapter {
     });
     await updated;
     await this._logActivity('update', `${tabel}:${id}`);
+    if (tabel === 'assets') {
+      const history = buildAssetHistory(previous, merged, this.user.email);
+      if (history.length) {
+        try { await this.createMany('asset_history', history); }
+        catch (error) { throw new Error(`Aset tersimpan, tetapi riwayat perubahan gagal disimpan: ${error.message}`); }
+      }
+    }
     return merged;
   }
 
@@ -196,6 +209,15 @@ export class LocalAdapter extends StorageAdapter {
     rows.forEach(r => store.put(r));
     await txDone(tx);
     await this._logActivity('import', `${tabel}:${rows.length} baris`);
+    if (tabel === 'assets') {
+      try {
+        await this.createMany('asset_history', rows.flatMap(row =>
+          buildAssetHistory(null, row, this.user.email)
+        ));
+      } catch (error) {
+        throw new Error(`Aset tersimpan, tetapi riwayat awal impor gagal disimpan: ${error.message}`);
+      }
+    }
     return rows;
   }
 

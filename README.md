@@ -4,18 +4,24 @@ Aplikasi manajemen aset & inventaris kantor yang **open source (MIT)**, PWA stat
 
 ## Status Fitur
 
-Fitur aktif mencakup penyimpanan lokal, PWA, dashboard, pengelolaan aset,
-kategori/lokasi/penanggung jawab, impor/ekspor, dan perhitungan nilai penyusutan. Google Drive
-memerlukan OAuth Client ID deployment. Status dashboard, menu, dan halaman utama dibangkitkan dari
-satu katalog di `js/features.js`; route yang dinyatakan tersedia juga harus memiliki handler aplikasi.
-Fitur lain yang belum tersedia ditampilkan sebagai roadmap.
+Fitur aktif mencakup penyimpanan lokal, PWA, dashboard, aset, kategori/lokasi/penanggung jawab,
+impor/ekspor, QR dan kartu cetak, riwayat, keuangan, agenda, jurnal, audit stok opname,
+peminjaman, laporan, branding, serta pengingat notifikasi browser saat aplikasi terbuka. Google
+Drive dan undangan anggota memerlukan OAuth Client ID deployment. Status dashboard, menu, dan
+halaman utama dibangkitkan dari satu katalog di `js/features.js`; setiap route tersedia memiliki
+handler aplikasi.
 
 - **Tahap 1** — Fondasi: tema, autentikasi, storage adapter (Google & lokal), onboarding, PWA, konfigurasi Google per deployment, Backup/Restore (lokal).
 - **Tahap 2** — Halaman profil publik: Home, Manfaat, Fitur, Panduan, Kontak, Privasi, FAQ.
 - **Tahap 3** — Dashboard + grafik, Kategori/Lokasi/Penanggung Jawab, Data Aset (CRUD, filter, import/export), Detail Aset.
-- **Tahap 4** — QR & Kartu Aset, scan kamera, Riwayat, Keuangan.
-- **Tahap 5** — Agenda/Kalender/Jurnal, Audit, Peminjaman, Laporan.
-- **Tahap 6** — Anggota & berbagi, Pengaturan lengkap (logo, white-label), Apps Script pengingat, uji akhir.
+- **Tahap 4** — QR & kartu aset, pemindaian kamera (browser yang mendukungnya), riwayat, keuangan.
+- **Tahap 5** — Agenda, ekspor iCalendar, sinkronisasi Google Calendar satu arah, jurnal, audit, peminjaman, laporan.
+- **Tahap 6** — Anggota & berbagi (mode Google), branding workspace, pengingat browser saat aplikasi terbuka.
+
+Sinkronisasi agenda Google Calendar berjalan satu arah dari Think Aset dan meminta izin Calendar
+saat pengguna memilihnya. Sinkronisasi balik dan pengingat saat aplikasi tertutup belum tersedia.
+Pemindaian kamera memerlukan HTTPS (atau localhost) dan dukungan `BarcodeDetector`; masukkan kode
+secara manual bila browser tidak mendukung kamera.
 
 ## Cara Self-Host
 
@@ -38,7 +44,7 @@ python3 -m http.server 8080
 ```
 
 > PWA membutuhkan HTTPS (kecuali `localhost`).
-> Service Worker mulai menyimpan aset aplikasi setelah kunjungan pertama. Grafik dan impor/ekspor Excel dimuat dari CDN saat dibutuhkan; fitur-fitur tersebut memerlukan koneksi internet.
+> Service Worker mulai menyimpan aset aplikasi setelah kunjungan pertama. Grafik, QR, dan impor/ekspor Excel dimuat dari CDN saat dibutuhkan; fitur-fitur tersebut memerlukan koneksi internet.
 
 ## Menyiapkan koneksi Google (sekali per deployment)
 
@@ -50,11 +56,12 @@ membuat API Key. Pengelola aplikasi perlu menyiapkan OAuth Client ID satu kali:
 3. **APIs & Services → Library** — aktifkan:
    - Google Sheets API
    - Google Drive API
+   - Google Calendar API (opsional, untuk sinkronisasi agenda)
    - Google Picker API (opsional, untuk membuka workspace yang dibagikan)
 4. **APIs & Services → OAuth consent screen**:
    - User type: **External**
    - Isi nama aplikasi, email dukungan, domain (mis. `username.github.io`)
-   - Scope: tambahkan `drive.file`, `userinfo.email`, `userinfo.profile`
+   - Scope: tambahkan `drive.file`, `userinfo.email`, `userinfo.profile`; `calendar.events` diminta saat pengguna memilih sinkronisasi kalender.
    - Tambahkan diri Anda sebagai Test User (jika mode testing)
 5. **APIs & Services → Credentials → Create credentials → OAuth client ID**:
    - Application type: **Web application**
@@ -71,9 +78,10 @@ sendiri. Untuk mengizinkan pengguna membuka workspace yang sudah dibagikan melal
 3. Isi `GOOGLE_API_KEY` dan `GOOGLE_APP_ID` pada `js/deployment-config.js`, lalu deploy ulang.
 
 Mode Google membutuhkan koneksi internet dan OAuth yang disiapkan pengelola deployment. Scope
-`drive.file` membatasi akses ke file yang dibuat atau dibuka melalui aplikasi. Izin Kalender belum
-diminta karena fitur Kalender belum tersedia; scope hanya ditambahkan saat fitur tersebut dirilis.
-Tanpa konfigurasi Google pada deployment, gunakan mode Penyimpanan Lokal.
+`drive.file` membatasi akses ke file yang dibuat atau dibuka melalui aplikasi. Scope
+`calendar.events` hanya diminta atas tindakan pengguna pada halaman kalender; sinkronisasi berjalan
+satu arah dari aplikasi. Tanpa konfigurasi Google pada deployment, gunakan mode Penyimpanan Lokal
+dan ekspor agenda sebagai `.ics`.
 
 ## Mode Penyimpanan
 
@@ -82,7 +90,7 @@ Tanpa konfigurasi Google pada deployment, gunakan mode Penyimpanan Lokal.
 | **Google Drive/Sheets** | Spreadsheet + folder lampiran di Drive Anda | ✅ Setelah workspace yang sama dibuka di perangkat lain | Unduh sheet dari Google |
 | **Penyimpanan Lokal** | IndexedDB browser | ❌ | Tombol Backup JSON di Pengaturan |
 
-Backup JSON lokal tidak menyertakan isi berkas lampiran. Restore mengganti data tabel dalam satu transaksi dan mempertahankan berkas lokal yang telah tersimpan.
+Backup JSON lokal menyertakan data tabel dan isi berkas (foto/lampiran/logo). Restore mengganti data tabel dan memulihkan berkas yang ada di backup.
 
 ## Struktur Data
 

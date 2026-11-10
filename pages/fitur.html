@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Fitur — Think Aset</title>
-  <meta name="description" content="Fitur Think Aset yang tersedia saat ini dan roadmap pengembangan." />
+  <meta name="description" content="Fitur Think Aset untuk inventaris, audit, keuangan, dan pemantauan aset." />
   <link rel="manifest" href="../manifest.json" />
   <link rel="icon" type="image/svg+xml" href="../icons/icon.svg" />
   <link rel="stylesheet" href="../css/variables.css" />
@@ -38,13 +38,12 @@
       <span class="hero-tag">Fitur</span>
       <h1 style="font-size:2.25rem;margin-top:12px">Semua yang Anda butuhkan untuk menata aset</h1>
       <p class="hero-subtitle">
-        Versi saat ini menyediakan pencatatan aset dan dashboard. Bagian yang berlabel roadmap
-        menjelaskan rencana pengembangan dan belum dapat digunakan di aplikasi.
+        Kelola siklus aset dari pencatatan dan pemantauan hingga audit serta pelaporan.
       </p>
       <div class="notice mt-4">
-        <strong>Tersedia:</strong> dashboard, kategori/lokasi/penanggung jawab, data aset, impor/ekspor,
-        dan perhitungan nilai buku. <strong>Belum tersedia:</strong> QR, riwayat aset, keuangan,
-        agenda, audit, peminjaman, laporan lanjutan, dan pengelolaan anggota.
+        Tersedia: dashboard, pengelolaan aset, QR dan kartu cetak, riwayat, keuangan, agenda,
+        jurnal, audit, peminjaman, laporan, branding, serta pengingat browser. Google Drive, Picker,
+        undangan anggota, dan sinkronisasi Google Calendar memerlukan konfigurasi deployment.
       </div>
     </div>
   </section>
@@ -81,7 +80,7 @@
         <div class="feature-card">
           <div class="icon-wrap">👤</div>
           <h3>Penanggung jawab</h3>
-          <p>Nama, jabatan, unit, dan kontak. Riwayat perpindahan penanggung jawab belum tersedia.</p>
+          <p>Nama, jabatan, unit, dan kontak. Perpindahan dapat dicatat pada Riwayat Aset.</p>
         </div>
       </div>
 
@@ -90,46 +89,46 @@
         <div class="feature-card">
           <div class="icon-wrap">📉</div>
           <h3>Penyusutan otomatis</h3>
-          <p>Nilai buku dan akumulasi penyusutan dihitung pada dashboard dan detail aset. Jadwal per periode belum tersedia.</p>
+          <p>Nilai buku dan akumulasi penyusutan dihitung pada dashboard dan detail aset. Laporan mengekspor nilai buku ke CSV.</p>
         </div>
         <div class="feature-card">
           <div class="icon-wrap">💵</div>
-          <h3>Roadmap: Keuangan per aset</h3>
-          <p>Pencatatan pemasukan, pengeluaran, dan bukti transaksi belum tersedia.</p>
+          <h3>Keuangan per aset</h3>
+          <p>Catat pemasukan dan pengeluaran berdasarkan aset, tanggal, kategori, nominal, dan catatan.</p>
         </div>
         <div class="feature-card">
           <div class="icon-wrap">📤</div>
-          <h3>Roadmap: Ekspor laporan</h3>
-          <p>Ekspor jadwal penyusutan dan rekap keuangan belum tersedia.</p>
+          <h3>Laporan lanjutan</h3>
+          <p>Lihat ringkasan nilai aset, kategori, lokasi, keuangan, audit, dan peminjaman; ekspor data aset ke CSV.</p>
         </div>
       </div>
 
-      <h2 class="section-title" style="text-align:left">Roadmap: 🔲 QR &amp; Kartu Aset</h2>
+      <h2 class="section-title" style="text-align:left">🔲 QR &amp; Kartu Aset</h2>
       <div class="feature-grid" style="margin-bottom:48px">
         <div class="feature-card">
           <div class="icon-wrap">🔲</div>
           <h3>QR unik aman</h3>
-          <p>Token acak 128-bit (bukan nomor urut). URL membuka detail aset setelah login.</p>
+          <p>Token acak 128-bit tidak menampilkan ID. Pindai dari Think Aset untuk membuka detail setelah login.</p>
         </div>
         <div class="feature-card">
           <div class="icon-wrap">🖨️</div>
           <h3>Cetak label massal</h3>
-          <p>Grid A4 siap gunting, unduh QR PNG satuan atau batch.</p>
+          <p>Cetak kartu satuan melalui dialog cetak browser.</p>
         </div>
         <div class="feature-card">
           <div class="icon-wrap">📄</div>
           <h3>Kartu Aset PDF</h3>
-          <p>Logo, foto, kode, nama, detail utama, QR. Siap diserahkan ke pengguna aset.</p>
+          <p>Kartu berisi QR, nama, kode, dan serial aset.</p>
         </div>
         <div class="feature-card">
           <div class="icon-wrap">📷</div>
           <h3>Scan kamera</h3>
-          <p>Scan QR dari HP langsung buka detail atau catat riwayat cepat.</p>
+          <p>Gunakan kamera pada browser yang mendukung BarcodeDetector, atau masukkan kode aset.</p>
         </div>
         <div class="feature-card">
           <div class="icon-wrap">🔄</div>
           <h3>Catat cepat</h3>
-          <p>Setelah scan, langsung catat: pindah lokasi, ubah kondisi, atau ganti penanggung jawab.</p>
+          <p>Detail aset terbuka setelah QR dikenali; perubahan dicatat dari halaman Riwayat Aset.</p>
         </div>
         <div class="feature-card">
           <div class="icon-wrap">🔒</div>
@@ -138,7 +137,7 @@
         </div>
       </div>
 
-      <h2 class="section-title" style="text-align:left">Roadmap: ⏱️ Riwayat, Agenda, Jurnal</h2>
+      <h2 class="section-title" style="text-align:left">⏱️ Riwayat, Agenda, Jurnal</h2>
       <div class="feature-grid" style="margin-bottom:48px">
         <div class="feature-card">
           <div class="icon-wrap">⏱️</div>
@@ -148,46 +147,46 @@
         <div class="feature-card">
           <div class="icon-wrap">📅</div>
           <h3>Agenda &amp; kalender</h3>
-          <p>Agenda berulang, pengingat, kalender FullCalendar (bulan/minggu), warna per jenis kegiatan.</p>
+          <p>Catat agenda dan pengulangan, sinkronkan satu arah ke Google Calendar, atau ekspor iCalendar (.ics).</p>
         </div>
         <div class="feature-card">
           <div class="icon-wrap">📖</div>
           <h3>Jurnal kejadian</h3>
-          <p>Catat kejadian penting dengan foto — servis, insiden, atau momen bersejarah aset.</p>
+          <p>Catat kegiatan, servis, dan kejadian penting terkait aset.</p>
         </div>
       </div>
 
-      <h2 class="section-title" style="text-align:left">Roadmap: 🔎 Audit, Peminjaman, Laporan</h2>
+      <h2 class="section-title" style="text-align:left">🔎 Audit, Peminjaman, Laporan</h2>
       <div class="feature-grid">
         <div class="feature-card">
           <div class="icon-wrap">🔎</div>
           <h3>Audit / stock opname</h3>
-          <p>Buat sesi audit per lokasi/periode. Scan QR → Ditemukan / Tidak ditemukan / Kondisi berubah.</p>
+          <p>Buat sesi audit per lokasi, lalu catat aset sesuai, rusak, hilang, atau tidak terdaftar.</p>
         </div>
         <div class="feature-card">
           <div class="icon-wrap">📊</div>
           <h3>Hasil audit</h3>
-          <p>Persentase kecocokan, daftar selisih, laporan PDF siap tanda tangan.</p>
+          <p>Ringkasan pemeriksaan tersimpan bersama sesi audit.</p>
         </div>
         <div class="feature-card">
           <div class="icon-wrap">📤</div>
           <h3>Peminjaman</h3>
-          <p>Alur ajukan → setujui → serah terima → kembali. Status otomatis: Dipinjam / Terlambat / Kembali.</p>
+          <p>Catat peminjam, tanggal pinjam dan jatuh tempo, lalu tandai pengembalian.</p>
         </div>
         <div class="feature-card">
           <div class="icon-wrap">📄</div>
           <h3>Laporan lengkap</h3>
-          <p>Daftar aset, per kategori/lokasi/penanggung jawab, nonaktif, penyusutan, keuangan, riwayat, audit. PDF &amp; Excel.</p>
+          <p>Ringkasan aset, kategori/lokasi, nilai, keuangan, audit, dan peminjaman; ekspor aset ke CSV.</p>
         </div>
         <div class="feature-card">
           <div class="icon-wrap">🎨</div>
           <h3>Kop laporan custom</h3>
-          <p>Logo organisasi, nama, alamat — siap sesuai identitas instansi Anda.</p>
+          <p>Atur nama workspace dan logo yang tampil di dalam aplikasi.</p>
         </div>
         <div class="feature-card">
           <div class="icon-wrap">📧</div>
-          <h3>Pengingat email</h3>
-          <p>Google Apps Script opsional untuk email pengingat agenda harian dari Spreadsheet Anda.</p>
+          <h3>Pengingat browser</h3>
+          <p>Notifikasi agenda diperiksa saat aplikasi terbuka dan izin notifikasi diberikan.</p>
         </div>
       </div>
     </div>
@@ -204,8 +203,8 @@
         </div>
         <div class="feature-card">
           <div class="icon-wrap">👥</div>
-          <h3>Roadmap: Berbagi anggota</h3>
-          <p>Undangan dan pengelolaan anggota belum tersedia di UI. Akses workspace dapat diatur langsung melalui Google Drive.</p>
+          <h3>Berbagi anggota</h3>
+          <p>Pemilik workspace Google dapat mengundang anggota dengan peran editor atau viewer.</p>
         </div>
         <div class="feature-card">
           <div class="icon-wrap">⚠️</div>
