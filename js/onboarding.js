@@ -1,9 +1,3 @@
-/**
- * Onboarding setelah login:
- *  1) Pilih tema (Terang / Gelap) — disimpan ke settings + localStorage.
- *  2) Nama organisasi.
- *  Jika settings sudah punya keduanya, langsung panggil onComplete.
- */
 import { getAdapter } from './auth.js';
 import { applyTheme, getTheme, saveTheme } from './theme.js';
 import { notify } from './utils/toast.js';
@@ -11,19 +5,22 @@ import { $, esc } from './utils/dom.js';
 
 export async function runOnboarding(root, { onComplete } = {}) {
   const adapter = getAdapter();
+  const skipKey = 'ta_onboarding_org_skipped_' + (adapter.user?.email || 'anon');
 
   const settings = await adapter.list('settings');
 
   const themeVal = settings.find(s => s.key === 'theme')?.value;
   const orgVal   = settings.find(s => s.key === 'org_name')?.value;
   const orgSkipped = (() => {
-    try { return localStorage.getItem('ta_onboarding_org_skipped') === 'true'; }
+    try { return localStorage.getItem(skipKey) === 'true'; }
     catch { return false; }
   })();
-  const hasTheme = themeVal === 'dark' || themeVal === 'light';
+  const localTheme = (() => { try { return localStorage.getItem('ta_theme'); } catch { return null; } })();
+  const hasTheme = themeVal === 'dark' || themeVal === 'light'
+    || (!adapter.canWrite() && (localTheme === 'dark' || localTheme === 'light'));
   const needsOrg = adapter.canWrite() && !orgVal && !orgSkipped;
 
-  if (hasTheme) {
+  if (themeVal === 'dark' || themeVal === 'light') {
     applyTheme(themeVal);
   }
 
@@ -31,9 +28,9 @@ export async function runOnboarding(root, { onComplete } = {}) {
     if (val) {
       await saveOrgName(adapter, val);
       try { localStorage.setItem('ta_org_name', val); } catch {}
-      try { localStorage.removeItem('ta_onboarding_org_skipped'); } catch {}
+      try { localStorage.removeItem(skipKey); } catch {}
     } else {
-      try { localStorage.setItem('ta_onboarding_org_skipped', 'true'); } catch {}
+      try { localStorage.setItem(skipKey, 'true'); } catch {}
     }
     onComplete?.();
   };
