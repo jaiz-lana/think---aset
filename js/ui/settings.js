@@ -1,12 +1,3 @@
-/**
- * Halaman Pengaturan (Tahap 1 — direvisi Tahap 3 untuk layout shell).
- * - Status koneksi Google, Tema, Nama Organisasi
- * - Backup/Restore (lokal)
- * - Keluar
- *
- * Di Tahap 6, halaman ini diperluas: logo organisasi, white-label nama aplikasi,
- * default penyusutan, mata uang, format tanggal, dsb.
- */
 import { getAdapter, signOut } from '../auth.js';
 import { config } from '../config.js';
 import { notify } from '../utils/toast.js';
@@ -21,7 +12,7 @@ export async function renderSettings(root) {
 
   const orgName = settings.find(s => s.key === 'org_name')?.value || '';
   const themeVal = settings.find(s => s.key === 'theme')?.value || getTheme();
-  const hasFolder = adapter.mode === 'google' && !!adapter.folderId;
+  const hasFolder = adapter.mode === 'google' && (!!adapter.folderId || adapter.role === 'owner');
 
   root.innerHTML = `
     <div class="settings-page">
@@ -74,7 +65,7 @@ export async function renderSettings(root) {
         <div class="settings-section">
           <h2>Backup &amp; Restore</h2>
           <p class="text-sm text-muted">Data lokal tersimpan di browser ini. Backup rutin untuk berjaga-jaga.</p>
-          <p class="text-xs text-muted">Catatan: isi berkas lampiran/logo tidak disertakan. Restore mengganti data tabel, tetapi berkas lokal yang tersimpan tetap dipertahankan.</p>
+          <p class="text-xs text-muted">Backup menyertakan data tabel beserta isi foto/lampiran/logo. Restore mengganti data tabel dan memulihkan berkas dari backup.</p>
           <div class="row mt-3">
             <button class="btn btn-secondary" id="btn-backup">⬇ Unduh Backup (JSON)</button>
             <label class="btn btn-ghost" style="cursor:pointer">
