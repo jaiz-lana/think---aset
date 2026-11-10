@@ -1,7 +1,3 @@
-/**
- * Dashboard: kartu ringkasan, grafik (Chart.js), agenda 7 hari, aktivitas terakhir.
- * Chart dimusnahkan & dirender ulang setiap kali halaman dirender.
- */
 import { getAdapter } from '../auth.js';
 import { esc, $ } from '../utils/dom.js';
 import { escapeFeatureText } from '../features.js';
@@ -16,6 +12,7 @@ let charts = { donut: null, bar: null, line: null };
 
 export async function renderDashboard(layout) {
   const adapter = getAdapter();
+  const myHash = window.location.hash;
   layout.setActive('/dashboard');
   layout.setTitle('Dashboard');
   layout.setActions(`
@@ -46,7 +43,7 @@ export async function renderDashboard(layout) {
       adapter.list('categories'),
       adapter.list('locations'),
       adapter.list('agendas'),
-      adapter.list('activity_log'),
+      adapter.listRecent('activity_log', 8),
       adapter.list('holders')
     ]);
 
@@ -59,6 +56,7 @@ export async function renderDashboard(layout) {
       }
     }
 
+    if (window.location.hash !== myHash) return;
     renderDashboardHTML({
       assets, categories, locations, agendas, activity, holders, chartError,
       canWrite: adapter.canWrite(),
@@ -66,6 +64,7 @@ export async function renderDashboard(layout) {
     });
   } catch (e) {
     console.error(e);
+    if (window.location.hash !== myHash) return;
     layout.content.innerHTML = `
       <div class="empty-state">
         <span class="empty-state-icon">⚠️</span>
@@ -216,10 +215,20 @@ function destroyCharts() {
   });
 }
 
+// ---------- Tema grafik (ikut tema terang/gelap) ----------
+function chartTheme() {
+  const css = getComputedStyle(document.documentElement);
+  const v = (name, fallback) => css.getPropertyValue(name).trim() || fallback;
+  Chart.defaults.color = v('--text-muted', '#6B7280');
+  Chart.defaults.borderColor = v('--border', '#E5E7EB');
+  return { surface: v('--surface', '#ffffff') };
+}
+
 // ---------- Grafik Donat (per kategori) ----------
 function renderDonutChart(assets, categories) {
   const canvas = document.getElementById('chart-donut');
   if (!canvas) return;
+  const { surface } = chartTheme();
 
   const catMap = new Map();
   categories.forEach(c => catMap.set(c.id, c));
@@ -246,7 +255,7 @@ function renderDonutChart(assets, categories) {
         data,
         backgroundColor: labels.map((_, i) => palette[i % palette.length]),
         borderWidth: 2,
-        borderColor: '#ffffff'
+        borderColor: surface
       }]
     },
     options: {
@@ -263,6 +272,7 @@ function renderDonutChart(assets, categories) {
 function renderBarChart(assets, locations) {
   const canvas = document.getElementById('chart-bar');
   if (!canvas) return;
+  chartTheme();
 
   const locMap = new Map();
   locations.forEach(l => locMap.set(l.id, l));
@@ -308,6 +318,7 @@ function renderBarChart(assets, locations) {
 function renderLineChart(assets) {
   const canvas = document.getElementById('chart-line');
   if (!canvas) return;
+  chartTheme();
 
   const now = new Date();
   const labels = [];
