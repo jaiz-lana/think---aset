@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Manfaat — Think Aset</title>
+  <meta name="description" content="Manfaat Think Aset untuk perusahaan, sekolah, rumah sakit, dan instansi: hemat biaya, transparan, mudah diaudit." />
+  <link rel="manifest" href="../manifest.json" />
+  <link rel="icon" type="image/svg+xml" href="../icons/icon.svg" />
+  <link rel="stylesheet" href="../css/variables.css" />
+  <link rel="stylesheet" href="../css/base.css" />
+  <link rel="stylesheet" href="../css/components.css" />
+  <link rel="stylesheet" href="../profile.css" />
+  <script src="../js/theme-init.js"></script>
+</head>
+<body>
+  <nav class="profile-nav">
+    <div class="profile-nav-inner">
+      <a href="../index.html" class="profile-logo">
+        <img src="../icons/logo.svg" alt="Think Aset" />
+      </a>
+      <button class="profile-nav-mobile-toggle" id="mobile-toggle" aria-label="Buka menu navigasi">☰</button>
+      <div class="profile-nav-links" id="nav-links">
+        <a href="../index.html" data-page="index.html">Home</a>
+        <a href="manfaat.html" data-page="manfaat.html">Manfaat</a>
+        <a href="fitur.html" data-page="fitur.html">Fitur</a>
+        <a href="panduan.html" data-page="panduan.html">Panduan</a>
+        <a href="kontak.html" data-page="kontak.html">Kontak</a>
+        <button class="theme-toggle" id="theme-toggle" aria-label="Ubah tema terang atau gelap">☾</button>
+        <a href="../app.html" class="btn btn-ghost btn-sm">Masuk</a>
+        <a href="../app.html" class="btn btn-primary btn-sm">Buka Aplikasi</a>
+      </div>
+    </div>
+  </nav>
+
+  <section class="profile-hero" style="padding:48px 0 32px">
+    <div class="profile-container">
+      <span class="hero-tag">Manfaat</span>
+      <h1 style="font-size:2.25rem;margin-top:12px">Kenapa mengelola aset dengan Think Aset?</h1>
+      <p class="hero-subtitle">
+        Bukan sekadar mencatat. Think Aset mengubah cara Anda memikirkan aset — dari beban administratif
+        menjadi keputusan berbasis data, tanpa biaya server.
+      </p>
+      <div class="notice mt-4">
+        Versi aplikasi saat ini berfokus pada pencatatan aset dan dashboard. Riwayat terperinci,
+        audit QR, keuangan aset, serta alur kolaborasi masih dalam roadmap.
+      </div>
+    </div>
+  </section>
+
+  <section class="value-section" style="padding-top:0">
+    <div class="profile-container">
+
+      <div class="card card-hover" style="margin-bottom:24px">
+        <h2 style="margin-top:0">💸 Hemat biaya operasional</h2>
+        <p style="color:var(--text-muted);margin:0">
+          Tidak perlu berlangganan aplikasi manajemen aset (biasanya jutaan rupiah per tahun),
+          tidak perlu menyewa VPS, tidak perlu membayar developer untuk maintain server.
+          Semua berjalan di browser pengguna, gratis, dengan lisensi MIT.
+        </p>
+      </div>
+
+      <div class="card card-hover" style="margin-bottom:24px">
+        <h2 style="margin-top:0">🔍 Perubahan mudah ditelusuri</h2>
+        <p style="color:var(--text-muted);margin:0">
+          Aktivitas tambah, ubah, dan hapus dicatat pada log. Riwayat perpindahan aset dan
+          fitur audit formal belum tersedia.
+        </p>
+      </div>
+
+      <div class="card card-hover" style="margin-bottom:24px">
+        <h2 style="margin-top:0">📈 Keputusan berbasis data</h2>
+        <p style="color:var(--text-muted);margin:0">
+          Dashboard menampilkan nilai perolehan, nilai kini, total penyusutan, dan sebaran aset
+          per kategori/lokasi. Anda tahu aset mana yang sudah waktunya diganti, mana yang
+          jarang dipakai, dan di mana uang organisasi paling banyak "tertanam".
+        </p>
+      </div>
+
+      <div class="card card-hover" style="margin-bottom:24px">
+        <h2 style="margin-top:0">🤝 Workspace Google</h2>
+        <p style="color:var(--text-muted);margin:0">
+          Anda dapat menyimpan data pada Google Drive dan mengatur izin file melalui Google Drive.
+          Undangan anggota dari dalam aplikasi belum tersedia.
+        </p>
+      </div>
+
+      <div class="card card-hover" style="margin-bottom:24px">
+        <h2 style="margin-top:0">🔒 Tidak ada backend aplikasi</h2>
+        <p style="color:var(--text-muted);margin:0">
+          Data aplikasi disimpan di IndexedDB atau Google Drive sesuai mode yang Anda pilih.
+          Think Aset tidak menjalankan server aplikasi atau analytics; Google dipakai untuk OAuth
+          dan penyimpanan mode Google, sementara pustaka grafik/spreadsheet dimuat dari CDN saat dibutuhkan.
+        </p>
+      </div>
+
+      <div class="card card-hover">
+        <h2 style="margin-top:0">♻️ Bebas vendor lock-in</h2>
+        <p style="color:var(--text-muted);margin:0">
+          Data tersimpan sebagai Spreadsheet (format terbuka) — bisa diunduh ke Excel/CSV kapan saja.
+          Backup JSON untuk mode lokal. Kode sumber terbuka: siapa pun boleh memodifikasi,
+          memfork, dan meng-host versi sendiri.
+        </p>
+      </div>
+
+    </div>
+  </section>
+
+  <section class="value-section bg-alt">
+    <div class="profile-container">
+      <h2 class="section-title">Manfaat per jenis pengguna</h2>
+      <p class="section-subtitle">Kebutuhan tiap organisasi berbeda — begini Think Aset menjawabnya.</p>
+      <div class="target-grid" style="grid-template-columns:repeat(2,1fr)">
+        <div class="target-card" style="text-align:left;padding:24px">
+          <span class="icon">🏢</span><strong>Perusahaan</strong>
+          <p style="font-size:13px;color:var(--text-muted);margin:8px 0 0">
+            Laba-rugi aset per departemen, penyusutan untuk laporan keuangan,
+            peminjaman laptop/proyektor antar-tim.
+          </p>
+        </div>
+        <div class="target-card" style="text-align:left;padding:24px">
+          <span class="icon">🏫</span><strong>Sekolah</strong>
+          <p style="font-size:13px;color:var(--text-muted);margin:8px 0 0">
+            Inventaris kelas, lab, perpustakaan. Penanggung jawab per ruang.
+            Audit tahunan tinggal scan QR.
+          </p>
+        </div>
+        <div class="target-card" style="text-align:left;padding:24px">
+          <span class="icon">🏥</span><strong>Rumah Sakit</strong>
+          <p style="font-size:13px;color:var(--text-muted);margin:8px 0 0">
+            Alat medis dengan nomor seri, jadwal kalibrasi (agenda), riwayat servis (keuangan).
+          </p>
+        </div>
+        <div class="target-card" style="text-align:left;padding:24px">
+          <span class="icon">🕌</span><strong>Tempat Ibadah</strong>
+          <p style="font-size:13px;color:var(--text-muted);margin:8px 0 0">
+            Aset inventaris sederhana, peminjaman kursi/tenda, dokumentasi kegiatan (jurnal).
+          </p>
+        </div>
+        <div class="target-card" style="text-align:left;padding:24px">
+          <span class="icon">🤝</span><strong>Yayasan</strong>
+          <p style="font-size:13px;color:var(--text-muted);margin:8px 0 0">
+            Multi-unit, transparansi ke donatur, laporan per program, backup mandiri.
+          </p>
+        </div>
+        <div class="target-card" style="text-align:left;padding:24px">
+          <span class="icon">🏛️</span><strong>Instansi Pemerintah</strong>
+          <p style="font-size:13px;color:var(--text-muted);margin:8px 0 0">
+            Self-host di domain resmi, OAuth Client ID milik sendiri, kepatuhan data di dalam negeri.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="cta-closing">
+    <div class="profile-container">
+      <h2>Mulai hemat waktu dan biaya hari ini.</h2>
+      <p>Gratis, open source, tanpa langganan.</p>
+      <a href="../app.html" class="btn btn-primary btn-lg">Gunakan Sekarang</a>
+    </div>
+  </section>
+
+  <footer class="profile-footer">
+    <div class="profile-container">
+      <div class="footer-grid">
+        <div>
+          <div class="profile-logo" style="margin-bottom:12px">
+            <img src="../icons/logo.svg" alt="Think Aset" />
+          </div>
+          <p style="font-size:13px;color:var(--text-muted);margin:0">
+            Manajemen aset &amp; inventaris kantor. Open source, MIT, tanpa server.
+          </p>
+        </div>
+        <div>
+          <h4>Tentang</h4>
+          <a href="panduan.html">Panduan</a>
+          <a href="privasi.html">Privasi</a>
+          <a href="../LICENSE.txt">Lisensi (MIT)</a>
+          <a href="https://github.com/" target="_blank" rel="noopener">GitHub</a>
+        </div>
+        <div>
+          <h4>Kontak</h4>
+          <a href="kontak.html">Kontak</a>
+          <a href="https://github.com/" target="_blank" rel="noopener">Laporkan Bug</a>
+          <a href="fitur.html">Fitur</a>
+          <a href="manfaat.html">Manfaat</a>
+        </div>
+      </div>
+      <p class="footer-copy">© 2026 Think Aset · MIT License · Data tersimpan di penyimpanan Anda sendiri.</p>
+    </div>
+  </footer>
+
+  <script src="../js/pwa.js" defer></script>
+  <script src="../js/ui/profile.js" defer></script>
+</body>
+</html>

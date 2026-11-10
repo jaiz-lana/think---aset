@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Kontak — Think Aset</title>
+  <meta name="description" content="Hubungi tim Think Aset melalui GitHub Issues, diskusi, atau email. Kami tidak menyimpan data pengguna." />
+  <link rel="manifest" href="../manifest.json" />
+  <link rel="icon" type="image/svg+xml" href="../icons/icon.svg" />
+  <link rel="stylesheet" href="../css/variables.css" />
+  <link rel="stylesheet" href="../css/base.css" />
+  <link rel="stylesheet" href="../css/components.css" />
+  <link rel="stylesheet" href="../profile.css" />
+  <script src="../js/theme-init.js"></script>
+</head>
+<body>
+  <nav class="profile-nav">
+    <div class="profile-nav-inner">
+      <a href="../index.html" class="profile-logo">
+        <img src="../icons/logo.svg" alt="Think Aset" />
+      </a>
+      <button class="profile-nav-mobile-toggle" id="mobile-toggle" aria-label="Buka menu navigasi">☰</button>
+      <div class="profile-nav-links" id="nav-links">
+        <a href="../index.html" data-page="index.html">Home</a>
+        <a href="manfaat.html" data-page="manfaat.html">Manfaat</a>
+        <a href="fitur.html" data-page="fitur.html">Fitur</a>
+        <a href="panduan.html" data-page="panduan.html">Panduan</a>
+        <a href="kontak.html" data-page="kontak.html">Kontak</a>
+        <button class="theme-toggle" id="theme-toggle" aria-label="Ubah tema terang atau gelap">☾</button>
+        <a href="../app.html" class="btn btn-ghost btn-sm">Masuk</a>
+        <a href="../app.html" class="btn btn-primary btn-sm">Buka Aplikasi</a>
+      </div>
+    </div>
+  </nav>
+
+  <section class="profile-hero" style="padding:48px 0 32px">
+    <div class="profile-container">
+      <span class="hero-tag">Kontak</span>
+      <h1 style="font-size:2.25rem;margin-top:12px">Ada pertanyaan atau masukan?</h1>
+      <p class="hero-subtitle">
+        Think Aset adalah proyek open source. Kami tidak punya tim customer support
+        berbayar — tapi komunitasnya aktif dan kami senang membantu.
+      </p>
+    </div>
+  </section>
+
+  <section class="value-section" style="padding-top:0">
+    <div class="profile-container">
+      <div class="feature-grid" style="grid-template-columns:repeat(2,1fr);margin-bottom:32px">
+        <div class="feature-card">
+          <div class="icon-wrap">🐞</div>
+          <h3>Laporkan bug</h3>
+          <p style="margin-bottom:12px">Menemukan bug? Buka issue di GitHub dengan langkah reproduksi.</p>
+          <a href="https://github.com/" target="_blank" rel="noopener" class="btn btn-secondary btn-sm">Buka GitHub Issues</a>
+        </div>
+        <div class="feature-card">
+          <div class="icon-wrap">💡</div>
+          <h3>Usulkan fitur</h3>
+          <p style="margin-bottom:12px">Ada ide fitur yang berguna? Diskusikan di GitHub Discussions.</p>
+          <a href="https://github.com/" target="_blank" rel="noopener" class="btn btn-secondary btn-sm">Buka Discussions</a>
+        </div>
+        <div class="feature-card">
+          <div class="icon-wrap">📖</div>
+          <h3>Panduan dulu</h3>
+          <p style="margin-bottom:12px">Banyak pertanyaan sudah dijawab di panduan &amp; FAQ.</p>
+          <a href="panduan.html" class="btn btn-secondary btn-sm">Buka Panduan</a>
+        </div>
+        <div class="feature-card">
+          <div class="icon-wrap">🤝</div>
+          <h3>Kontribusi</h3>
+          <p style="margin-bottom:12px">Ingin ikut mengembangkan? Baca dulu panduan kontribusi.</p>
+          <a href="../CONTRIBUTING.md" class="btn btn-secondary btn-sm">Panduan Kontribusi</a>
+        </div>
+      </div>
+
+      <div class="card" style="max-width:720px;margin:0 auto">
+        <h2 style="margin-top:0">Email</h2>
+        <p style="color:var(--text-muted)">
+          Untuk urusan yang tidak cocok di GitHub (mis. kerja sama, terjemahan, atau
+          penggunaan komersial khusus), hubungi:
+        </p>
+        <p style="font-size:1.125rem;font-weight:600">
+          <a href="mailto:hello@thinkaset.example">hello@thinkaset.example</a>
+        </p>
+        <p class="text-xs text-muted">
+          Alamat di atas adalah placeholder. Ganti dengan email asli Anda saat self-host
+          (lihat <code>pages/kontak.html</code>).
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="value-section bg-alt">
+    <div class="profile-container">
+      <div class="data-owned">
+        <h2>Soal data &amp; privasi</h2>
+        <p>
+          Kami tidak menyimpan data pengguna. Jika pertanyaan Anda terkait data yang
+          tersimpan di Google Drive atau IndexedDB browser, silakan buka halaman privasi
+          untuk penjelasan lengkap.
+        </p>
+        <a href="privasi.html" class="btn btn-secondary">Baca Kebijakan Privasi</a>
+      </div>
+    </div>
+  </section>
+
+  <footer class="profile-footer">
+    <div class="profile-container">
+      <div class="footer-grid">
+        <div>
+          <div class="profile-logo" style="margin-bottom:12px">
+            <img src="../icons/logo.svg" alt="Think Aset" />
+          </div>
+          <p style="font-size:13px;color:var(--text-muted);margin:0">
+            Manajemen aset &amp; inventaris kantor. Open source, MIT, tanpa server.
+          </p>
+        </div>
+        <div>
+          <h4>Tentang</h4>
+          <a href="panduan.html">Panduan</a>
+          <a href="privasi.html">Privasi</a>
+          <a href="../LICENSE.txt">Lisensi (MIT)</a>
+          <a href="https://github.com/" target="_blank" rel="noopener">GitHub</a>
+        </div>
+        <div>
+          <h4>Kontak</h4>
+          <a href="kontak.html">Kontak</a>
+          <a href="https://github.com/" target="_blank" rel="noopener">Laporkan Bug</a>
+          <a href="fitur.html">Fitur</a>
+          <a href="manfaat.html">Manfaat</a>
+        </div>
+      </div>
+      <p class="footer-copy">© 2026 Think Aset · MIT License · Data tersimpan di penyimpanan Anda sendiri.</p>
+    </div>
+  </footer>
+
+  <script src="../js/pwa.js" defer></script>
+  <script src="../js/ui/profile.js" defer></script>
+</body>
+</html>

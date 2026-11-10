@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Fitur — Think Aset</title>
+  <meta name="description" content="Fitur Think Aset yang tersedia saat ini dan roadmap pengembangan." />
+  <link rel="manifest" href="../manifest.json" />
+  <link rel="icon" type="image/svg+xml" href="../icons/icon.svg" />
+  <link rel="stylesheet" href="../css/variables.css" />
+  <link rel="stylesheet" href="../css/base.css" />
+  <link rel="stylesheet" href="../css/components.css" />
+  <link rel="stylesheet" href="../profile.css" />
+  <script src="../js/theme-init.js"></script>
+</head>
+<body>
+  <nav class="profile-nav">
+    <div class="profile-nav-inner">
+      <a href="../index.html" class="profile-logo">
+        <img src="../icons/logo.svg" alt="Think Aset" />
+      </a>
+      <button class="profile-nav-mobile-toggle" id="mobile-toggle" aria-label="Buka menu navigasi">☰</button>
+      <div class="profile-nav-links" id="nav-links">
+        <a href="../index.html" data-page="index.html">Home</a>
+        <a href="manfaat.html" data-page="manfaat.html">Manfaat</a>
+        <a href="fitur.html" data-page="fitur.html">Fitur</a>
+        <a href="panduan.html" data-page="panduan.html">Panduan</a>
+        <a href="kontak.html" data-page="kontak.html">Kontak</a>
+        <button class="theme-toggle" id="theme-toggle" aria-label="Ubah tema terang atau gelap">☾</button>
+        <a href="../app.html" class="btn btn-ghost btn-sm">Masuk</a>
+        <a href="../app.html" class="btn btn-primary btn-sm">Buka Aplikasi</a>
+      </div>
+    </div>
+  </nav>
+
+  <section class="profile-hero" style="padding:48px 0 32px">
+    <div class="profile-container">
+      <span class="hero-tag">Fitur</span>
+      <h1 style="font-size:2.25rem;margin-top:12px">Semua yang Anda butuhkan untuk menata aset</h1>
+      <p class="hero-subtitle">
+        Versi saat ini menyediakan pencatatan aset dan dashboard. Bagian yang berlabel roadmap
+        menjelaskan rencana pengembangan dan belum dapat digunakan di aplikasi.
+      </p>
+      <div class="notice mt-4">
+        <strong>Tersedia:</strong> dashboard, kategori/lokasi/penanggung jawab, data aset, impor/ekspor,
+        dan perhitungan nilai buku. <strong>Belum tersedia:</strong> QR, riwayat aset, keuangan,
+        agenda, audit, peminjaman, laporan lanjutan, dan pengelolaan anggota.
+      </div>
+    </div>
+  </section>
+
+  <section class="value-section" style="padding-top:0">
+    <div class="profile-container">
+      <h2 class="section-title" style="text-align:left">📋 Pencatatan Aset</h2>
+      <div class="feature-grid" style="margin-bottom:48px">
+        <div class="feature-card">
+          <div class="icon-wrap">📋</div>
+          <h3>Data lengkap</h3>
+          <p>Foto multi, kode, nama, kategori 2 tingkat, lokasi, penanggung jawab, kondisi, status, harga, vendor, merk, tipe, serial, jumlah, keterangan, kolom custom.</p>
+        </div>
+        <div class="feature-card">
+          <div class="icon-wrap">🔎</div>
+          <h3>Pencarian &amp; filter</h3>
+          <p>Cari bebas, filter per kategori/lokasi/kondisi/status/rentang tanggal, urutkan, dan pagination.</p>
+        </div>
+        <div class="feature-card">
+          <div class="icon-wrap">📥</div>
+          <h3>Impor &amp; ekspor</h3>
+          <p>Impor Excel/CSV + unduh template. Ekspor hasil filter ke Excel untuk analisis lanjutan.</p>
+        </div>
+        <div class="feature-card">
+          <div class="icon-wrap">🧹</div>
+          <h3>Aksi massal</h3>
+          <p>Pilih beberapa aset untuk diekspor, dinonaktifkan, atau dihapus dengan konfirmasi.</p>
+        </div>
+        <div class="feature-card">
+          <div class="icon-wrap">🗂️</div>
+          <h3>Kategori &amp; lokasi</h3>
+          <p>Kategori 2 tingkat (induk–anak) dengan umur ekonomis &amp; metode susut default. Lokasi bertingkat.</p>
+        </div>
+        <div class="feature-card">
+          <div class="icon-wrap">👤</div>
+          <h3>Penanggung jawab</h3>
+          <p>Nama, jabatan, unit, dan kontak. Riwayat perpindahan penanggung jawab belum tersedia.</p>
+        </div>
+      </div>
+
+      <h2 class="section-title" style="text-align:left">📉 Penyusutan &amp; Keuangan</h2>
+      <div class="feature-grid" style="margin-bottom:48px">
+        <div class="feature-card">
+          <div class="icon-wrap">📉</div>
+          <h3>Penyusutan otomatis</h3>
+          <p>Nilai buku dan akumulasi penyusutan dihitung pada dashboard dan detail aset. Jadwal per periode belum tersedia.</p>
+        </div>
+        <div class="feature-card">
+          <div class="icon-wrap">💵</div>
+          <h3>Roadmap: Keuangan per aset</h3>
+          <p>Pencatatan pemasukan, pengeluaran, dan bukti transaksi belum tersedia.</p>
+        </div>
+        <div class="feature-card">
+          <div class="icon-wrap">📤</div>
+          <h3>Roadmap: Ekspor laporan</h3>
+          <p>Ekspor jadwal penyusutan dan rekap keuangan belum tersedia.</p>
+        </div>
+      </div>
+
+      <h2 class="section-title" style="text-align:left">Roadmap: 🔲 QR &amp; Kartu Aset</h2>
+      <div class="feature-grid" style="margin-bottom:48px">
+        <div class="feature-card">
+          <div class="icon-wrap">🔲</div>
+          <h3>QR unik aman</h3>
+          <p>Token acak 128-bit (bukan nomor urut). URL membuka detail aset setelah login.</p>
+        </div>
+        <div class="feature-card">
+          <div class="icon-wrap">🖨️</div>
+          <h3>Cetak label massal</h3>
+          <p>Grid A4 siap gunting, unduh QR PNG satuan atau batch.</p>
+        </div>
+        <div class="feature-card">
+          <div class="icon-wrap">📄</div>
+          <h3>Kartu Aset PDF</h3>
+          <p>Logo, foto, kode, nama, detail utama, QR. Siap diserahkan ke pengguna aset.</p>
+        </div>
+        <div class="feature-card">
+          <div class="icon-wrap">📷</div>
+          <h3>Scan kamera</h3>
+          <p>Scan QR dari HP langsung buka detail atau catat riwayat cepat.</p>
+        </div>
+        <div class="feature-card">
+          <div class="icon-wrap">🔄</div>
+          <h3>Catat cepat</h3>
+          <p>Setelah scan, langsung catat: pindah lokasi, ubah kondisi, atau ganti penanggung jawab.</p>
+        </div>
+        <div class="feature-card">
+          <div class="icon-wrap">🔒</div>
+          <h3>Privat</h3>
+          <p>QR tidak membocorkan ID. Data hanya bisa dilihat pengguna yang login &amp; berhak.</p>
+        </div>
+      </div>
+
+      <h2 class="section-title" style="text-align:left">Roadmap: ⏱️ Riwayat, Agenda, Jurnal</h2>
+      <div class="feature-grid" style="margin-bottom:48px">
+        <div class="feature-card">
+          <div class="icon-wrap">⏱️</div>
+          <h3>Riwayat aset</h3>
+          <p>Timeline: pindah lokasi, ganti penanggung jawab, ubah kondisi, perawatan, nonaktif (dijual/dibuang/dihibahkan).</p>
+        </div>
+        <div class="feature-card">
+          <div class="icon-wrap">📅</div>
+          <h3>Agenda &amp; kalender</h3>
+          <p>Agenda berulang, pengingat, kalender FullCalendar (bulan/minggu), warna per jenis kegiatan.</p>
+        </div>
+        <div class="feature-card">
+          <div class="icon-wrap">📖</div>
+          <h3>Jurnal kejadian</h3>
+          <p>Catat kejadian penting dengan foto — servis, insiden, atau momen bersejarah aset.</p>
+        </div>
+      </div>
+
+      <h2 class="section-title" style="text-align:left">Roadmap: 🔎 Audit, Peminjaman, Laporan</h2>
+      <div class="feature-grid">
+        <div class="feature-card">
+          <div class="icon-wrap">🔎</div>
+          <h3>Audit / stock opname</h3>
+          <p>Buat sesi audit per lokasi/periode. Scan QR → Ditemukan / Tidak ditemukan / Kondisi berubah.</p>
+        </div>
+        <div class="feature-card">
+          <div class="icon-wrap">📊</div>
+          <h3>Hasil audit</h3>
+          <p>Persentase kecocokan, daftar selisih, laporan PDF siap tanda tangan.</p>
+        </div>
+        <div class="feature-card">
+          <div class="icon-wrap">📤</div>
+          <h3>Peminjaman</h3>
+          <p>Alur ajukan → setujui → serah terima → kembali. Status otomatis: Dipinjam / Terlambat / Kembali.</p>
+        </div>
+        <div class="feature-card">
+          <div class="icon-wrap">📄</div>
+          <h3>Laporan lengkap</h3>
+          <p>Daftar aset, per kategori/lokasi/penanggung jawab, nonaktif, penyusutan, keuangan, riwayat, audit. PDF &amp; Excel.</p>
+        </div>
+        <div class="feature-card">
+          <div class="icon-wrap">🎨</div>
+          <h3>Kop laporan custom</h3>
+          <p>Logo organisasi, nama, alamat — siap sesuai identitas instansi Anda.</p>
+        </div>
+        <div class="feature-card">
+          <div class="icon-wrap">📧</div>
+          <h3>Pengingat email</h3>
+          <p>Google Apps Script opsional untuk email pengingat agenda harian dari Spreadsheet Anda.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="value-section bg-alt">
+    <div class="profile-container">
+      <h2 class="section-title">🔐 Keamanan &amp; kolaborasi</h2>
+      <div class="feature-grid" style="grid-template-columns:repeat(3,1fr)">
+        <div class="feature-card">
+          <div class="icon-wrap">🔑</div>
+          <h3>Login Google</h3>
+          <p>OAuth Token Model, scope minimal <code>drive.file</code> + profil. Token hanya di memori tab.</p>
+        </div>
+        <div class="feature-card">
+          <div class="icon-wrap">👥</div>
+          <h3>Roadmap: Berbagi anggota</h3>
+          <p>Undangan dan pengelolaan anggota belum tersedia di UI. Akses workspace dapat diatur langsung melalui Google Drive.</p>
+        </div>
+        <div class="feature-card">
+          <div class="icon-wrap">⚠️</div>
+          <h3>Versi data</h3>
+          <p>Catatan menyimpan versi dan waktu perubahan. Google Sheets tidak menjamin deteksi konflik atomik untuk edit bersamaan.</p>
+        </div>
+        <div class="feature-card">
+          <div class="icon-wrap">📝</div>
+          <h3>Log aktivitas</h3>
+          <p>Siapa mengubah apa dan kapan. Untuk audit internal maupun troubleshooting.</p>
+        </div>
+        <div class="feature-card">
+          <div class="icon-wrap">💾</div>
+          <h3>Backup &amp; restore</h3>
+          <p>Mode lokal: backup JSON tabel (tanpa isi lampiran). Mode Google: unduh salinan Spreadsheet dari Drive.</p>
+        </div>
+        <div class="feature-card">
+          <div class="icon-wrap">🌙</div>
+          <h3>Tema terang/gelap</h3>
+          <p>Sesuai selera, tersimpan di settings, ikut ke perangkat lain saat login.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="cta-closing">
+    <div class="profile-container">
+      <h2>Coba sendiri, gratis.</h2>
+      <p>Tanpa kartu kredit, tanpa langganan, tanpa server.</p>
+      <a href="../app.html" class="btn btn-primary btn-lg">Gunakan Sekarang</a>
+    </div>
+  </section>
+
+  <footer class="profile-footer">
+    <div class="profile-container">
+      <div class="footer-grid">
+        <div>
+          <div class="profile-logo" style="margin-bottom:12px">
+            <img src="../icons/logo.svg" alt="Think Aset" />
+          </div>
+          <p style="font-size:13px;color:var(--text-muted);margin:0">
+            Manajemen aset &amp; inventaris kantor. Open source, MIT, tanpa server.
+          </p>
+        </div>
+        <div>
+          <h4>Tentang</h4>
+          <a href="panduan.html">Panduan</a>
+          <a href="privasi.html">Privasi</a>
+          <a href="../LICENSE.txt">Lisensi (MIT)</a>
+          <a href="https://github.com/" target="_blank" rel="noopener">GitHub</a>
+        </div>
+        <div>
+          <h4>Kontak</h4>
+          <a href="kontak.html">Kontak</a>
+          <a href="https://github.com/" target="_blank" rel="noopener">Laporkan Bug</a>
+          <a href="fitur.html">Fitur</a>
+          <a href="manfaat.html">Manfaat</a>
+        </div>
+      </div>
+      <p class="footer-copy">© 2026 Think Aset · MIT License · Data tersimpan di penyimpanan Anda sendiri.</p>
+    </div>
+  </footer>
+
+  <script src="../js/pwa.js" defer></script>
+  <script src="../js/ui/profile.js" defer></script>
+</body>
+</html>

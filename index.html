@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Think Aset — Manajemen Aset & Inventaris Open Source</title>
+  <meta name="description" content="Think Aset adalah aplikasi manajemen aset & inventaris kantor open source (MIT). Data tersimpan di penyimpanan Anda sendiri — Google Drive atau perangkat lokal. Tanpa server, tanpa langganan." />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" type="image/svg+xml" href="icons/icon.svg" />
+  <link rel="stylesheet" href="css/variables.css" />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/components.css" />
+  <link rel="stylesheet" href="profile.css" />
+  <script src="js/theme-init.js"></script>
+</head>
+<body>
+
+  <!-- ================= NAVBAR ================= -->
+  <nav class="profile-nav">
+    <div class="profile-nav-inner">
+      <a href="index.html" class="profile-logo">
+        <img src="icons/logo.svg" alt="Think Aset" />
+      </a>
+      <button class="profile-nav-mobile-toggle" id="mobile-toggle" aria-label="Buka menu navigasi">☰</button>
+      <div class="profile-nav-links" id="nav-links">
+        <a href="index.html" data-page="index.html">Home</a>
+        <a href="pages/manfaat.html" data-page="manfaat.html">Manfaat</a>
+        <a href="pages/fitur.html" data-page="fitur.html">Fitur</a>
+        <a href="pages/panduan.html" data-page="panduan.html">Panduan</a>
+        <a href="pages/kontak.html" data-page="kontak.html">Kontak</a>
+        <button class="theme-toggle" id="theme-toggle" aria-label="Ubah tema terang atau gelap">☾</button>
+        <a href="app.html" class="btn btn-ghost btn-sm">Masuk</a>
+        <a href="app.html" class="btn btn-primary btn-sm">Buka Aplikasi</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ================= HERO ================= -->
+  <section class="profile-hero">
+    <div class="profile-container profile-hero-grid">
+      <div>
+        <span class="hero-tag">🌱 Open Source · MIT</span>
+        <h1>Think Aset</h1>
+        <p class="hero-subtitle">
+          Manajemen aset & inventaris kantor, <strong>tanpa server dan tanpa langganan</strong>.
+          Data Anda tersimpan di penyimpanan milik Anda sendiri — Google Drive atau perangkat lokal.
+        </p>
+        <div class="hero-ctas">
+          <a href="app.html" class="btn btn-primary btn-lg">Gunakan Sekarang</a>
+          <a href="pages/panduan.html" class="btn btn-secondary btn-lg">Lihat Panduan</a>
+        </div>
+      </div>
+      <div class="mockup" aria-hidden="true">
+        <div class="mockup-chrome">
+          <span class="mockup-dot"></span>
+          <span class="mockup-dot"></span>
+          <span class="mockup-dot"></span>
+        </div>
+        <div class="mockup-body">
+          <div class="mockup-sidebar">
+            <div class="mockup-sidebar-item active"></div>
+            <div class="mockup-sidebar-item"></div>
+            <div class="mockup-sidebar-item"></div>
+            <div class="mockup-sidebar-item"></div>
+            <div class="mockup-sidebar-item"></div>
+            <div class="mockup-sidebar-item"></div>
+          </div>
+          <div class="mockup-main">
+            <div class="mockup-title"></div>
+            <div class="mockup-stats">
+              <div class="mockup-stat">
+                <span class="mockup-stat-value">124</span>
+                <span class="mockup-stat-label">Aset</span>
+              </div>
+              <div class="mockup-stat">
+                <span class="mockup-stat-value">Rp 1,2 M</span>
+                <span class="mockup-stat-label">Nilai kini</span>
+              </div>
+              <div class="mockup-stat">
+                <span class="mockup-stat-value">98%</span>
+                <span class="mockup-stat-label">Aktif</span>
+              </div>
+            </div>
+            <div class="mockup-chart">
+              <div class="mockup-bar" style="height: 40%"></div>
+              <div class="mockup-bar" style="height: 65%"></div>
+              <div class="mockup-bar" style="height: 50%"></div>
+              <div class="mockup-bar" style="height: 80%"></div>
+              <div class="mockup-bar" style="height: 55%"></div>
+              <div class="mockup-bar" style="height: 90%"></div>
+              <div class="mockup-bar" style="height: 70%"></div>
+            </div>
+            <div class="mockup-chart pie">
+              <div class="mockup-pie"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="value-section" aria-label="Status fitur aplikasi">
+    <div class="profile-container">
+      <div id="feature-announcement" class="notice feature-announcement" aria-live="polite">
+        Memuat status fitur…
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= VALUE PROPOSITION (4 sections selang-seling) ================= -->
+  <section class="value-section">
+    <div class="profile-container">
+      <h2 class="section-title">Kenapa pakai Think Aset?</h2>
+      <p class="section-subtitle">Empat masalah yang paling sering dihadapi pengelola aset — dan bagaimana Think Aset menyelesaikannya.</p>
+    </div>
+  </section>
+
+  <section class="value-section" style="padding-top:0">
+    <div class="profile-container value-grid">
+      <div class="value-text">
+        <span class="hero-tag">01 · Mendata</span>
+        <h2>Mendata aset dalam hitungan menit</h2>
+        <p>
+          Buat daftar aset lengkap dengan foto, kategori, lokasi, penanggung jawab, dan nilai.
+          Impor dari Excel/CSV sekaligus, atau tambah satu per satu.
+        </p>
+        <p>
+          Kode aset bisa otomatis dengan format yang Anda tentukan (mis. <code>INV/KANTOR/2025/0001</code>).
+        </p>
+      </div>
+      <div class="illustration" aria-hidden="true">
+        <div class="ill-card">
+          <div class="ill-dot"></div>
+          <div class="ill-lines">
+            <div class="ill-line"></div>
+            <div class="ill-line short"></div>
+          </div>
+        </div>
+        <div class="ill-card">
+          <div class="ill-dot"></div>
+          <div class="ill-lines">
+            <div class="ill-line"></div>
+            <div class="ill-line short"></div>
+          </div>
+        </div>
+        <div class="ill-card">
+          <div class="ill-dot"></div>
+          <div class="ill-lines">
+            <div class="ill-line"></div>
+            <div class="ill-line short"></div>
+          </div>
+        </div>
+        <div class="ill-card">
+          <div class="ill-dot"></div>
+          <div class="ill-lines">
+            <div class="ill-line"></div>
+            <div class="ill-line short"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="value-section">
+    <div class="profile-container value-grid reverse">
+      <div class="value-text">
+        <span class="hero-tag">Roadmap · Memantau</span>
+        <h2>Memantau perpindahan &amp; penanggung jawab</h2>
+        <p>
+          Riwayat perpindahan dan perubahan kondisi per aset belum tersedia pada versi saat ini.
+          Informasi lokasi dan penanggung jawab dapat dicatat pada data aset.
+        </p>
+        <p>Timeline perubahan aset direncanakan untuk tahap pengembangan berikutnya.</p>
+      </div>
+      <div class="illustration" aria-hidden="true">
+        <div class="ill-timeline">
+          <div class="ill-timeline-item">
+            <div class="ill-line"></div>
+            <div class="ill-line short"></div>
+          </div>
+          <div class="ill-timeline-item">
+            <div class="ill-line"></div>
+            <div class="ill-line short"></div>
+          </div>
+          <div class="ill-timeline-item">
+            <div class="ill-line"></div>
+            <div class="ill-line short"></div>
+          </div>
+          <div class="ill-timeline-item">
+            <div class="ill-line"></div>
+            <div class="ill-line short"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="value-section">
+    <div class="profile-container value-grid">
+      <div class="value-text">
+        <span class="hero-tag">03 · Menghitung</span>
+        <h2>Hitung penyusutan otomatis</h2>
+        <p>
+          Metode <strong>garis lurus</strong> atau <strong>saldo menurun</strong> digunakan untuk
+          menghitung beban bulanan, akumulasi penyusutan, dan nilai buku aset.
+        </p>
+        <p>Jadwal penyusutan lengkap dan ekspor laporan penyusutan belum tersedia.</p>
+      </div>
+      <div class="illustration" aria-hidden="true">
+        <div class="ill-bars">
+          <div class="ill-bar" style="height: 30%"></div>
+          <div class="ill-bar" style="height: 45%"></div>
+          <div class="ill-bar" style="height: 55%"></div>
+          <div class="ill-bar" style="height: 65%"></div>
+          <div class="ill-bar" style="height: 78%"></div>
+          <div class="ill-bar" style="height: 88%"></div>
+          <div class="ill-bar" style="height: 95%"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="value-section">
+    <div class="profile-container value-grid reverse">
+      <div class="value-text">
+        <span class="hero-tag">Roadmap · QR</span>
+        <h2>Cegah aset hilang dengan QR</h2>
+        <p>
+          Pembuatan QR, pencetakan label, dan pemindaian kamera belum tersedia pada versi saat ini.
+          Fitur tersebut direncanakan untuk tahap pengembangan berikutnya.
+        </p>
+        <p>Kartu aset siap cetak juga masih termasuk roadmap.</p>
+      </div>
+      <div class="illustration" aria-hidden="true">
+        <div class="ill-qr-wrap">
+          <svg class="ill-qr" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+            <rect x="5" y="5" width="25" height="25" fill="none" stroke="currentColor" stroke-width="5"/>
+            <rect x="10" y="10" width="15" height="15" fill="currentColor"/>
+            <rect x="70" y="5" width="25" height="25" fill="none" stroke="currentColor" stroke-width="5"/>
+            <rect x="75" y="10" width="15" height="15" fill="currentColor"/>
+            <rect x="5" y="70" width="25" height="25" fill="none" stroke="currentColor" stroke-width="5"/>
+            <rect x="10" y="75" width="15" height="15" fill="currentColor"/>
+            <rect x="40" y="5" width="5" height="5" fill="currentColor"/>
+            <rect x="50" y="5" width="5" height="5" fill="currentColor"/>
+            <rect x="40" y="15" width="5" height="5" fill="currentColor"/>
+            <rect x="55" y="20" width="5" height="5" fill="currentColor"/>
+            <rect x="5" y="40" width="5" height="5" fill="currentColor"/>
+            <rect x="15" y="50" width="5" height="5" fill="currentColor"/>
+            <rect x="40" y="40" width="5" height="5" fill="currentColor"/>
+            <rect x="50" y="45" width="5" height="5" fill="currentColor"/>
+            <rect x="40" y="55" width="5" height="5" fill="currentColor"/>
+            <rect x="55" y="55" width="5" height="5" fill="currentColor"/>
+            <rect x="70" y="40" width="5" height="5" fill="currentColor"/>
+            <rect x="85" y="50" width="5" height="5" fill="currentColor"/>
+            <rect x="70" y="70" width="5" height="5" fill="currentColor"/>
+            <rect x="85" y="80" width="5" height="5" fill="currentColor"/>
+            <rect x="40" y="85" width="5" height="5" fill="currentColor"/>
+            <rect x="55" y="90" width="5" height="5" fill="currentColor"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= APA ITU + 3 LANGKAH ================= -->
+  <section class="value-section bg-alt">
+    <div class="profile-container">
+      <h2 class="section-title">Apa itu Think Aset?</h2>
+      <p class="section-subtitle">
+        Aplikasi web open source (PWA) untuk mendata, memantau, dan menyusutkan aset.
+        Berjalan di browser — tidak perlu install server, tidak perlu langganan.
+      </p>
+      <div class="steps">
+        <div class="step-card">
+          <div class="step-number">1</div>
+          <h3>Pilih penyimpanan</h3>
+          <p>Pilih akun Google untuk menyimpan di Drive/Sheets tanpa membuat API Key, atau gunakan Penyimpanan Lokal tanpa akun.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-number">2</div>
+          <h3>Catat aset</h3>
+          <p>Isi form, impor Excel/CSV, atau tempel foto. Kategori, lokasi, penanggung jawab lengkap.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-number">3</div>
+          <h3>Pantau data</h3>
+          <p>Kelola aset, kategori, lokasi, dan penanggung jawab; lihat ringkasan serta grafik di dashboard.</p>
+        </div>
+      </div>
+      <p class="notice-success center" style="max-width:600px;margin:0 auto">
+        <strong>Data tersimpan di penyimpanan Anda sendiri.</strong>
+        Kami tidak menyimpan apa pun di server.
+      </p>
+    </div>
+  </section>
+
+  <!-- ================= TARGET PENGGUNA ================= -->
+  <section class="value-section">
+    <div class="profile-container">
+      <h2 class="section-title">Untuk siapa?</h2>
+      <p class="section-subtitle">Cocok untuk siapa saja yang perlu menata aset tanpa ribet.</p>
+      <div class="target-grid">
+        <div class="target-card"><span class="icon">🏢</span><strong>Perusahaan</strong></div>
+        <div class="target-card"><span class="icon">🏫</span><strong>Sekolah</strong></div>
+        <div class="target-card"><span class="icon">🏥</span><strong>Rumah Sakit</strong></div>
+        <div class="target-card"><span class="icon">🕌</span><strong>Tempat Ibadah</strong></div>
+        <div class="target-card"><span class="icon">🤝</span><strong>Yayasan</strong></div>
+        <div class="target-card"><span class="icon">🏛️</span><strong>Instansi Pemerintah</strong></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= STATUS FITUR ================= -->
+  <section class="value-section bg-alt">
+    <div class="profile-container">
+      <h2 class="section-title" id="fitur">Status fitur</h2>
+      <p class="section-subtitle">Kemampuan yang tersedia dan fitur yang masih direncanakan.</p>
+      <div class="feature-grid" data-feature-grid>Memuat fitur…</div>
+    </div>
+  </section>
+
+  <!-- ================= DATA MILIK ANDA ================= -->
+  <section class="value-section">
+    <div class="profile-container">
+      <div class="data-owned">
+        <h2>Data Milik Anda</h2>
+        <p>
+          Think Aset tidak punya backend. Semua data hidup di akun Google Anda
+          atau di perangkat yang Anda pakai. Kami tidak pernah melihat, apalagi menyimpan.
+        </p>
+        <ul>
+          <li>Tidak ada analytics pihak ketiga.</li>
+          <li>Tidak ada langganan, tidak ada iklan.</li>
+          <li>Kode sumber terbuka — diaudit siapa saja.</li>
+          <li>Lisensi MIT — boleh dimodifikasi &amp; didistribusikan.</li>
+          <li>Bisa di-self-host: GitHub Pages, Cloudflare, atau PC sendiri.</li>
+        </ul>
+        <a href="https://github.com/" target="_blank" rel="noopener" class="btn btn-secondary">
+          Lihat di GitHub
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= FAQ ================= -->
+  <section class="value-section bg-alt">
+    <div class="profile-container faq-container">
+      <h2 class="section-title">Pertanyaan umum</h2>
+      <p class="section-subtitle">Jawaban singkat untuk pertanyaan yang sering muncul.</p>
+
+      <details>
+        <summary>Apakah data saya aman?</summary>
+        <p>
+          Anda memilih mode penyimpanan saat membuka aplikasi. Mode Google memakai akun Anda sendiri
+          (scope <code>drive.file</code>):
+          aplikasi hanya bisa mengakses file yang dibuat/dibuka oleh aplikasi ini. Mode lokal menyimpan
+          data di IndexedDB browser Anda. Pengembang tidak memiliki akses ke data siapa pun.
+        </p>
+      </details>
+      <details>
+        <summary>Apa bedanya Google Drive dan Penyimpanan Lokal?</summary>
+        <p>
+          Google Drive: data berada di Spreadsheet Anda. Pengelola aplikasi menyiapkan koneksi Google sekali
+          untuk semua pengguna. Buka workspace yang sama lewat Picker
+          pada perangkat lain untuk mengakses data yang sama.
+          Lokal: data di browser saja, tidak tersinkron, cocok untuk personal atau uji coba tanpa akun.
+        </p>
+      </details>
+      <details>
+        <summary>Apakah berbayar?</summary>
+        <p>
+          Tidak. Think Aset gratis selamanya dengan lisensi MIT. Anda hanya perlu akun Google gratis
+          bila memilih mode Google Drive. Anda cukup memilih akun dan menyetujui izin aplikasi;
+          API Key hanya diperlukan pengelola bila mengaktifkan Google Picker.
+        </p>
+      </details>
+      <details>
+        <summary>Bisa dipakai offline?</summary>
+        <p>
+          Setelah halaman dimuat sekali, aplikasi bekerja offline berkat service worker. Mode lokal
+          berjalan 100% offline; mode Google butuh koneksi untuk sinkronisasi.
+        </p>
+      </details>
+      <details>
+        <summary>Bagaimana cara install di HP?</summary>
+        <p>
+          Buka aplikasi di Chrome/Safari HP, lalu pilih menu <em>Install app</em> atau
+          <em>Tambahkan ke layar utama</em>. Ikon Think Aset akan muncul seperti aplikasi biasa.
+        </p>
+      </details>
+      <details>
+        <summary>Bagaimana cara menambah anggota tim?</summary>
+        <p>
+          Undangan anggota melalui aplikasi belum tersedia. Untuk saat ini, pemilik workspace dapat
+          mengatur akses langsung dari Google Drive; anggota dapat memilih workspace melalui Picker
+          jika pengelola deployment mengaktifkannya.
+        </p>
+      </details>
+      <details>
+        <summary>Bisakah saya menghapus semua data saya?</summary>
+        <p>
+          Tentu. Mode Google: hapus Spreadsheet &amp; folder di Drive Anda. Mode Lokal: klik
+          <strong>Keluar</strong> dan bersihkan data situs di browser Anda. Aplikasi tidak menyimpan
+          salinan apa pun.
+        </p>
+      </details>
+    </div>
+  </section>
+
+  <!-- ================= CTA PENUTUP ================= -->
+  <section class="cta-closing">
+    <div class="profile-container">
+      <h2>Siap menata aset kantor Anda?</h2>
+      <p>Mulai sekarang — tanpa registrasi server, tanpa biaya, tanpa komitmen.</p>
+      <a href="app.html" class="btn btn-primary btn-lg">Gunakan Sekarang</a>
+    </div>
+  </section>
+
+  <!-- ================= FOOTER ================= -->
+  <footer class="profile-footer">
+    <div class="profile-container">
+      <div class="footer-grid">
+        <div>
+          <div class="profile-logo" style="margin-bottom:12px">
+            <img src="icons/logo.svg" alt="Think Aset" />
+          </div>
+          <p style="font-size:13px;color:var(--text-muted);margin:0">
+            Manajemen aset &amp; inventaris kantor. Open source, MIT, tanpa server.
+          </p>
+        </div>
+        <div>
+          <h4>Tentang</h4>
+          <a href="pages/panduan.html">Panduan</a>
+          <a href="pages/privasi.html">Privasi</a>
+          <a href="LICENSE.txt">Lisensi (MIT)</a>
+          <a href="https://github.com/" target="_blank" rel="noopener">GitHub</a>
+        </div>
+        <div>
+          <h4>Kontak</h4>
+          <a href="pages/kontak.html">Kontak</a>
+          <a href="https://github.com/" target="_blank" rel="noopener">Laporkan Bug</a>
+          <a href="pages/fitur.html">Fitur</a>
+          <a href="pages/manfaat.html">Manfaat</a>
+        </div>
+      </div>
+      <p class="footer-copy">© 2026 Think Aset · MIT License · Data tersimpan di penyimpanan Anda sendiri.</p>
+    </div>
+  </footer>
+
+  <script src="js/pwa.js" defer></script>
+  <script type="module" src="js/public-features.js"></script>
+  <script src="js/ui/profile.js" defer></script>
+</body>
+</html>

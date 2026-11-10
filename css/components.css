@@ -1,0 +1,125 @@
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  padding: var(--space-5);
+  box-shadow: var(--shadow-sm);
+}
+.card-hover {
+  transition: transform var(--dur-base) var(--ease-out),
+              box-shadow var(--dur-base) var(--ease-out);
+}
+.card-hover:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-lg);
+}
+
+.badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 12px; font-weight: 600;
+  background: var(--surface-2);
+  color: var(--text);
+}
+.badge-success { background: var(--primary-light); color: var(--primary-dark); }
+.badge-warning { background: #FEF3C7; color: #92400E; }
+.badge-danger  { background: var(--accent-danger-bg); color: var(--accent-danger); }
+.badge-muted   { background: var(--surface-2); color: var(--text-muted); }
+
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(17, 24, 39, 0.55);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 1000;
+  padding: var(--space-4);
+  animation: ta-fade-in var(--dur-base) var(--ease-out);
+}
+.modal {
+  background: var(--surface);
+  border-radius: var(--radius-card);
+  padding: var(--space-6);
+  width: 100%;
+  max-width: 480px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: var(--shadow-lg);
+  animation: ta-slide-up var(--dur-slow) var(--ease-out);
+}
+.modal-title {
+  margin: 0 0 var(--space-4);
+  font-size: 1.25rem;
+}
+.modal-actions {
+  display: flex; gap: var(--space-3);
+  justify-content: flex-end;
+  margin-top: var(--space-5);
+}
+
+#ta-toast-container {
+  position: fixed;
+  top: 16px; right: 16px;
+  z-index: 2000;
+  display: flex; flex-direction: column;
+  gap: var(--space-2);
+  max-width: 92vw;
+}
+.ta-toast {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 12px 16px;
+  border-radius: var(--radius-btn);
+  background: var(--surface);
+  color: var(--text);
+  border-left: 4px solid var(--primary);
+  box-shadow: var(--shadow-md);
+  font-size: 14px;
+  animation: ta-toast-in var(--dur-slow) var(--ease-out);
+  min-width: 240px;
+}
+.ta-toast.error   { border-left-color: var(--accent-danger); }
+.ta-toast.warning { border-left-color: var(--accent-amber); }
+.ta-toast.success { border-left-color: var(--primary); }
+
+.skeleton {
+  background: linear-gradient(90deg, var(--surface-2) 0%, var(--surface-3) 50%, var(--surface-2) 100%);
+  background-size: 200% 100%;
+  animation: ta-skeleton 1.4s ease-in-out infinite;
+  border-radius: 8px;
+}
+
+.text-muted { color: var(--text-muted); }
+.text-sm    { font-size: 13px; }
+.text-xs    { font-size: 12px; }
+.text-center { text-align: center; }
+.mt-3 { margin-top: var(--space-3); }
+.mt-4 { margin-top: var(--space-4); }
+.mt-5 { margin-top: var(--space-5); }
+.hidden { display: none !important; }
+.stack { display: flex; flex-direction: column; gap: var(--space-4); }
+.row   { display: flex; gap: var(--space-3); align-items: center; }
+.row-between { display: flex; gap: var(--space-3); align-items: center; justify-content: space-between; }
+
+.notice {
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-input);
+  background: #FEF3C7;
+  color: #92400E;
+  font-size: 13px;
+  border-left: 3px solid var(--accent-amber);
+  margin-bottom: var(--space-4);
+}
+.notice-danger { background: var(--accent-danger-bg); color: var(--accent-danger); border-left-color: var(--accent-danger); }
+.notice-success { background: var(--primary-light); color: var(--primary-dark); border-left-color: var(--primary); }
+[data-theme="dark"] .notice { background: #3A2A05; color: #FCD34D; }
+[data-theme="dark"] .notice-danger { background: #3A1414; color: #FCA5A5; }
+[data-theme="dark"] .notice-success { background: #0E2A1A; color: #86EFAC; }
+.feature-announcement { margin: 0 0 24px; }
+.feature-announcement strong { display: block; margin-bottom: 8px; }
+.feature-status-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 4px 20px;
+  margin: 0 0 10px;
+  padding-left: 20px;
+}
+.feature-announcement a { color: inherit; font-weight: 700; }

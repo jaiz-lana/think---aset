@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#16A34A" />
+  <title>Think Aset — Aplikasi</title>
+  <meta name="description" content="Aplikasi manajemen aset & inventaris. Data tersimpan di penyimpanan Anda sendiri." />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" type="image/svg+xml" href="icons/icon.svg" />
+  <link rel="stylesheet" href="css/variables.css" />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/components.css" />
+  <link rel="stylesheet" href="css/app.css" />
+  <script src="js/theme-init.js"></script>
+</head>
+<body>
+  <div id="app-loading" class="app-loading">
+    <div class="spinner"></div>
+    <p class="text-muted">Memuat Think Aset…</p>
+  </div>
+  <div id="app-root"></div>
+
+  <!-- Chart.js and SheetJS are loaded on demand with verified integrity hashes. -->
+
+  <script src="js/pwa.js" defer></script>
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>

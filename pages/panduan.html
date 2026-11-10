@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Panduan — Think Aset</title>
+  <meta name="description" content="Cara setup Google OAuth Client ID, self-host Think Aset di GitHub Pages/Cloudflare/PC, dan panduan penggunaan dasar." />
+  <link rel="manifest" href="../manifest.json" />
+  <link rel="icon" type="image/svg+xml" href="../icons/icon.svg" />
+  <link rel="stylesheet" href="../css/variables.css" />
+  <link rel="stylesheet" href="../css/base.css" />
+  <link rel="stylesheet" href="../css/components.css" />
+  <link rel="stylesheet" href="../profile.css" />
+  <style>
+    .panduan-wrap { max-width: 800px; margin: 0 auto; }
+    .panduan-wrap h2 { margin-top: 48px; padding-top: 24px; border-top: 1px solid var(--border); }
+    .panduan-wrap h2:first-child { margin-top: 0; border-top: none; padding-top: 0; }
+    .panduan-wrap h3 { margin-top: 24px; }
+    .panduan-wrap ol, .panduan-wrap ul { padding-left: 20px; }
+    .panduan-wrap li { margin-bottom: 8px; color: var(--text); }
+    .panduan-wrap pre {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 16px;
+      overflow-x: auto;
+      font-family: var(--font-mono);
+      font-size: 13px;
+    }
+    .panduan-wrap code {
+      background: var(--surface-2);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: var(--font-mono);
+      font-size: 13px;
+    }
+    .panduan-wrap pre code { background: none; padding: 0; }
+    .toc {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-card);
+      padding: 20px 24px;
+      margin-bottom: 32px;
+    }
+    .toc ol { margin: 0; }
+    .toc a { font-weight: 500; }
+  </style>
+  <script src="../js/theme-init.js"></script>
+</head>
+<body>
+  <nav class="profile-nav">
+    <div class="profile-nav-inner">
+      <a href="../index.html" class="profile-logo">
+        <img src="../icons/logo.svg" alt="Think Aset" />
+      </a>
+      <button class="profile-nav-mobile-toggle" id="mobile-toggle" aria-label="Buka menu navigasi">☰</button>
+      <div class="profile-nav-links" id="nav-links">
+        <a href="../index.html" data-page="index.html">Home</a>
+        <a href="manfaat.html" data-page="manfaat.html">Manfaat</a>
+        <a href="fitur.html" data-page="fitur.html">Fitur</a>
+        <a href="panduan.html" data-page="panduan.html">Panduan</a>
+        <a href="kontak.html" data-page="kontak.html">Kontak</a>
+        <button class="theme-toggle" id="theme-toggle" aria-label="Ubah tema terang atau gelap">☾</button>
+        <a href="../app.html" class="btn btn-ghost btn-sm">Masuk</a>
+        <a href="../app.html" class="btn btn-primary btn-sm">Buka Aplikasi</a>
+      </div>
+    </div>
+  </nav>
+
+  <section class="profile-hero" style="padding:48px 0 32px">
+    <div class="profile-container">
+      <span class="hero-tag">Panduan</span>
+      <h1 style="font-size:2.25rem;margin-top:12px">Panduan penggunaan &amp; self-host</h1>
+      <p class="hero-subtitle">
+        Dari membuat Google Client ID sampai deploy ke GitHub Pages — semua langkah di sini.
+      </p>
+    </div>
+  </section>
+
+  <section class="value-section" style="padding-top:0">
+    <div class="profile-container">
+      <div class="panduan-wrap">
+
+        <div class="toc">
+          <strong>Daftar isi</strong>
+          <ol>
+            <li><a href="#mulai-cepat">Mulai cepat (mode lokal)</a></li>
+            <li><a href="#google-client">Setup Google OAuth Client ID</a></li>
+            <li><a href="#self-host">Self-host (GitHub Pages, Cloudflare, PC)</a></li>
+            <li><a href="#penggunaan">Penggunaan dasar aplikasi</a></li>
+            <li><a href="#berbagi">Berbagi dengan anggota tim</a></li>
+            <li><a href="#backup">Backup &amp; restore</a></li>
+            <li><a href="#faq-teknis">FAQ teknis</a></li>
+          </ol>
+        </div>
+
+        <h2 id="mulai-cepat">1. Mulai cepat (mode lokal)</h2>
+        <p>Jika Anda hanya ingin mencoba tanpa setup Google:</p>
+        <ol>
+          <li>Buka <a href="../app.html">aplikasi</a>.</li>
+          <li>Klik <strong>Penyimpanan Lokal</strong>.</li>
+          <li>Pilih tema, isi nama organisasi.</li>
+          <li>Selesai. Data tersimpan di IndexedDB browser Anda.</li>
+        </ol>
+        <div class="notice">
+          Mode lokal <strong>tidak tersinkron</strong> antar perangkat. Backup rutin via
+          <strong>Pengaturan → Backup &amp; Restore</strong>.
+        </div>
+
+        <h2 id="google-client">2. Setup Google OAuth Client ID</h2>
+        <p>Dibutuhkan untuk mode Google Drive/Sheets. Gratis, sekali setup.</p>
+
+        <h3>2.1 Buat project di Google Cloud</h3>
+        <ol>
+          <li>Buka <a href="https://console.cloud.google.com/" target="_blank" rel="noopener">Google Cloud Console</a>.</li>
+          <li>Klik dropdown project → <strong>New Project</strong>.</li>
+          <li>Beri nama mis. <code>Think Aset</code> → <strong>Create</strong>.</li>
+        </ol>
+
+        <h3>2.2 Aktifkan API</h3>
+        <ol>
+          <li>Menu → <strong>APIs &amp; Services → Library</strong>.</li>
+          <li>Cari dan aktifkan:
+            <ul>
+              <li><strong>Google Sheets API</strong></li>
+              <li><strong>Google Drive API</strong></li>
+              <li><strong>Google Picker API</strong> (opsional, untuk buka workspace yang dibagikan)</li>
+            </ul>
+          </li>
+        </ol>
+
+        <h3>2.3 Konfigurasi OAuth consent screen</h3>
+        <ol>
+          <li>Menu → <strong>APIs &amp; Services → OAuth consent screen</strong>.</li>
+          <li>User type: <strong>External</strong> → <strong>Create</strong>.</li>
+          <li>Isi App name (mis. <code>Think Aset</code>), User support email, Developer contact.</li>
+          <li>Di <em>Scopes</em>, tambahkan:
+            <ul>
+              <li><code>https://www.googleapis.com/auth/drive.file</code></li>
+              <li><code>https://www.googleapis.com/auth/userinfo.email</code></li>
+              <li><code>https://www.googleapis.com/auth/userinfo.profile</code></li>
+            </ul>
+          </li>
+          <li>Di <em>Test users</em>, tambahkan email Anda (jika mode testing).</li>
+        </ol>
+
+        <h3>2.4 Buat OAuth Client ID</h3>
+        <ol>
+          <li>Menu → <strong>APIs &amp; Services → Credentials</strong>.</li>
+          <li>Klik <strong>Create credentials → OAuth client ID</strong>.</li>
+          <li>Application type: <strong>Web application</strong>.</li>
+          <li>Di <em>Authorized JavaScript origins</em>, tambahkan:
+            <ul>
+              <li><code>http://localhost:8080</code> (untuk testing lokal)</li>
+              <li><code>https://username.github.io</code> (jika self-host GitHub Pages)</li>
+              <li>Domain produksi Anda yang lain</li>
+            </ul>
+          </li>
+          <li>Authorized redirect URIs <strong>tidak perlu</strong> diisi (kita pakai token model).</li>
+          <li>Klik <strong>Create</strong> → salin <strong>Client ID</strong>.</li>
+        </ol>
+
+        <h3>2.5 API Key (opsional, untuk Picker)</h3>
+        <ol>
+          <li>Di <strong>Credentials</strong> → <strong>Create credentials → API key</strong>.</li>
+          <li>Klik <strong>Restrict key</strong> → HTTP referrers → masukkan domain Anda.</li>
+          <li>API restriction → pilih hanya <strong>Google Picker API</strong>.</li>
+          <li>Salin API Key.</li>
+        </ol>
+
+        <h3>2.6 Konfigurasi deployment</h3>
+        <p>Pengelola aplikasi menyalin Client ID ke <code>GOOGLE_CLIENT_ID</code> di
+        <code>js/deployment-config.js</code>, lalu deploy ulang. Pengguna tidak perlu membuat
+        Client ID atau API Key sendiri: mereka cukup memilih akun Google dan menyetujui izin.</p>
+        <p>API Key dan nomor project (App ID) hanya opsional untuk mengaktifkan Google Picker agar pengguna dapat
+        membuka workspace yang sudah dibagikan. Tanpa Picker, pengguna tetap dapat membuat workspace
+        Drive/Sheets miliknya sendiri.</p>
+
+        <h2 id="self-host">3. Self-host</h2>
+
+        <h3>3.1 GitHub Pages</h3>
+        <ol>
+          <li>Fork / clone repo ke akun GitHub Anda.</li>
+          <li>Buka <strong>Settings → Pages</strong>.</li>
+          <li>Source: branch <code>main</code>, folder <code>/ (root)</code> → <strong>Save</strong>.</li>
+          <li>Buka <code>https://username.github.io/think-aset/</code>.</li>
+          <li>Ingat: tambahkan origin ini di OAuth Client ID.</li>
+        </ol>
+
+        <h3>3.2 Cloudflare Pages</h3>
+        <ol>
+          <li>Login ke Cloudflare Pages → <strong>Create project</strong>.</li>
+          <li>Pilih <strong>Direct Upload</strong>, unggah folder repo.</li>
+          <li>Selesai. Anda dapat URL HTTPS.</li>
+          <li>Tambahkan URL tersebut ke Authorized origins di Google Cloud.</li>
+        </ol>
+
+        <h3>3.3 PC sendiri (localhost)</h3>
+        <pre><code>git clone https://github.com/username/think-aset.git
+cd think-aset
+python3 -m http.server 8080</code></pre>
+        <p>Buka <code>http://localhost:8080</code>. PWA tetap berfungsi di localhost meski tanpa HTTPS.</p>
+
+        <h2 id="penggunaan">4. Penggunaan dasar</h2>
+        <ol>
+          <li><strong>Login</strong> → pilih mode Google atau lokal.</li>
+          <li><strong>Onboarding</strong> → pilih tema, isi nama organisasi.</li>
+          <li><strong>Dashboard</strong> → ringkasan aset dan grafik. Agenda hanya dapat dilihat bila datanya tersedia.</li>
+          <li><strong>Data Aset</strong> → klik <em>Tambah Aset</em>, isi form, atau impor Excel.</li>
+          <li><strong>Kategori, Lokasi, Penanggung Jawab</strong> → kelola data pendukung aset.</li>
+          <li><strong>Pengaturan</strong> → atur tema, nama organisasi, dan backup lokal.</li>
+        </ol>
+
+        <h2 id="berbagi">5. Berbagi dengan anggota tim</h2>
+        <p>Pengelolaan undangan anggota belum tersedia di aplikasi. Jika workspace Google dibagikan
+        langsung melalui Google Drive, anggota dapat login Google lalu memilih
+        <strong>Buka workspace yang dibagikan</strong> dari layar masuk jika pengelola deployment
+        mengaktifkan Google Picker. Picker memerlukan API Key dan App ID yang disiapkan sekali oleh
+        pengelola, bukan oleh setiap pengguna.</p>
+
+        <h2 id="backup">6. Backup &amp; restore</h2>
+        <p><strong>Mode lokal:</strong> Pengaturan → <strong>Unduh Backup (JSON)</strong>.
+        Untuk restore: Pengaturan → <strong>Pulihkan Backup</strong> → pilih file.</p>
+        <p><strong>Mode Google:</strong> data sudah di Spreadsheet Drive Anda. Untuk backup ekstra,
+        buka Google Sheets → <em>File → Download → Microsoft Excel</em>.</p>
+
+        <h2 id="faq-teknis">7. FAQ teknis</h2>
+        <details>
+          <summary>Kenapa butuh API Key untuk Picker?</summary>
+          <p>Google Picker API memerlukan API Key dan App ID yang disiapkan pengelola deployment. Pengguna tidak memerlukannya untuk membuat workspace Google sendiri; operasi data tetap memakai izin OAuth akun pengguna.</p>
+        </details>
+        <details>
+          <summary>Token disimpan di mana?</summary>
+          <p>Hanya di <code>sessionStorage</code> tab aktif. Tertutup tab = hilang. Refresh halaman = login ulang bila token kedaluwarsa.</p>
+        </details>
+        <details>
+          <summary>Bagaimana kalau muncul error 403/429?</summary>
+          <p>Aplikasi otomatis retry bertahap. Jika masih gagal, artinya kuota Google API Anda habis atau permintaan ditolak. Tunggu beberapa menit lalu coba lagi.</p>
+        </details>
+        <details>
+          <summary>Bisakah saya memakai domain sendiri?</summary>
+          <p>Bisa. Host di domain mana pun yang mendukung static hosting (Cloudflare Pages, Netlify, Vercel). Jangan lupa tambahkan origin ke OAuth Client ID.</p>
+        </details>
+        <details>
+          <summary>Apa bedanya dengan aplikasi manajemen aset SaaS?</summary>
+          <p>SaaS menyimpan data Anda di server mereka. Think Aset tidak punya server — data di Drive/browser Anda. Tidak ada langganan, tidak ada vendor lock-in, kode sumber terbuka.</p>
+        </details>
+
+      </div>
+    </div>
+  </section>
+
+  <footer class="profile-footer">
+    <div class="profile-container">
+      <div class="footer-grid">
+        <div>
+          <div class="profile-logo" style="margin-bottom:12px">
+            <img src="../icons/logo.svg" alt="Think Aset" />
+          </div>
+          <p style="font-size:13px;color:var(--text-muted);margin:0">
+            Manajemen aset &amp; inventaris kantor. Open source, MIT, tanpa server.
+          </p>
+        </div>
+        <div>
+          <h4>Tentang</h4>
+          <a href="panduan.html">Panduan</a>
+          <a href="privasi.html">Privasi</a>
+          <a href="../LICENSE.txt">Lisensi (MIT)</a>
+          <a href="https://github.com/" target="_blank" rel="noopener">GitHub</a>
+        </div>
+        <div>
+          <h4>Kontak</h4>
+          <a href="kontak.html">Kontak</a>
+          <a href="https://github.com/" target="_blank" rel="noopener">Laporkan Bug</a>
+          <a href="fitur.html">Fitur</a>
+          <a href="manfaat.html">Manfaat</a>
+        </div>
+      </div>
+      <p class="footer-copy">© 2026 Think Aset · MIT License · Data tersimpan di penyimpanan Anda sendiri.</p>
+    </div>
+  </footer>
+
+  <script src="../js/pwa.js" defer></script>
+  <script src="../js/ui/profile.js" defer></script>
+</body>
+</html>

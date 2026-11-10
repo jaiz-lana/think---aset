@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 200" role="img" aria-label="Think Aset">
+  <g id="ikon" transform="rotate(-3 96 100)">
+    <path fill="#166534" opacity=".28" fill-rule="evenodd"
+      d="M57 34C49 34 43 40 43 48L43 156C43 164 49 170 57 170L145 170C153 170 159 164 159 156L159 72C159 68 157 64 154 61L132 39C129 36 125 34 121 34Z M137 62m-6 0a6 6 0 1 0 12 0a6 6 0 1 0-12 0"/>
+    <path fill="#16A34A" fill-rule="evenodd"
+      d="M52 28C44 28 38 34 38 42L38 150C38 158 44 164 52 164L140 164C148 164 154 158 154 150L154 66C154 62 152 58 149 55L127 33C124 30 120 28 116 28Z M132 56m-6 0a6 6 0 1 0 12 0a6 6 0 1 0-12 0"/>
+    <g fill="none" stroke="#fff" stroke-width="14" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M62 80C80 76 104 77 126 81"/>
+      <path d="M94 82C92 104 96 126 93 148"/>
+    </g>
+    <circle cx="148" cy="38" r="5.5" fill="#4ADE80"/>
+    <circle cx="160" cy="25" r="3.5" fill="#86EFAC"/>
+  </g>
+  <text x="178" y="124" font-family="'Nunito','Poppins',system-ui,sans-serif" font-size="70" font-weight="800" letter-spacing="-1.5">
+    <tspan fill="#166534">think</tspan><tspan fill="#16A34A" dx="8">aset</tspan>
+  </text>
+</svg>

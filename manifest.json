@@ -1,0 +1,20 @@
+{
+  "name": "Think Aset",
+  "short_name": "Think Aset",
+  "description": "Manajemen aset & inventaris kantor open source. Data tersimpan di penyimpanan Anda sendiri.",
+  "start_url": "./app.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#F9FAFB",
+  "theme_color": "#16A34A",
+  "lang": "id",
+  "icons": [
+    {
+      "src": "icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

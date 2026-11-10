@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Privasi — Think Aset</title>
+  <meta name="description" content="Kebijakan privasi Think Aset: tanpa server, tanpa analytics, data di penyimpanan Anda sendiri." />
+  <link rel="manifest" href="../manifest.json" />
+  <link rel="icon" type="image/svg+xml" href="../icons/icon.svg" />
+  <link rel="stylesheet" href="../css/variables.css" />
+  <link rel="stylesheet" href="../css/base.css" />
+  <link rel="stylesheet" href="../css/components.css" />
+  <link rel="stylesheet" href="../profile.css" />
+  <style>
+    .privasi-wrap { max-width: 760px; margin: 0 auto; }
+    .privasi-wrap h2 { margin-top: 40px; padding-top: 20px; border-top: 1px solid var(--border); }
+    .privasi-wrap h2:first-child { margin-top: 0; border-top: none; padding-top: 0; }
+    .privasi-wrap ul { padding-left: 20px; }
+    .privasi-wrap li { margin-bottom: 8px; }
+    .privasi-wrap code {
+      background: var(--surface-2);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: var(--font-mono);
+      font-size: 13px;
+    }
+  </style>
+  <script src="../js/theme-init.js"></script>
+</head>
+<body>
+  <nav class="profile-nav">
+    <div class="profile-nav-inner">
+      <a href="../index.html" class="profile-logo">
+        <img src="../icons/logo.svg" alt="Think Aset" />
+      </a>
+      <button class="profile-nav-mobile-toggle" id="mobile-toggle" aria-label="Buka menu navigasi">☰</button>
+      <div class="profile-nav-links" id="nav-links">
+        <a href="../index.html" data-page="index.html">Home</a>
+        <a href="manfaat.html" data-page="manfaat.html">Manfaat</a>
+        <a href="fitur.html" data-page="fitur.html">Fitur</a>
+        <a href="panduan.html" data-page="panduan.html">Panduan</a>
+        <a href="kontak.html" data-page="kontak.html">Kontak</a>
+        <button class="theme-toggle" id="theme-toggle" aria-label="Ubah tema terang atau gelap">☾</button>
+        <a href="../app.html" class="btn btn-ghost btn-sm">Masuk</a>
+        <a href="../app.html" class="btn btn-primary btn-sm">Buka Aplikasi</a>
+      </div>
+    </div>
+  </nav>
+
+  <section class="profile-hero" style="padding:48px 0 32px">
+    <div class="profile-container">
+      <span class="hero-tag">Privasi</span>
+      <h1 style="font-size:2.25rem;margin-top:12px">Kebijakan Privasi</h1>
+      <p class="hero-subtitle">
+        Think Aset tidak mengoperasikan server aplikasi atau analytics. Aplikasi menggunakan
+        layanan Google dan CDN sesuai fitur yang Anda pilih.
+      </p>
+    </div>
+  </section>
+
+  <section class="value-section" style="padding-top:0">
+    <div class="profile-container">
+      <div class="privasi-wrap">
+
+        <p class="text-sm text-muted">
+          Terakhir diperbarui: 2026. Dokumen ini berlaku untuk aplikasi Think Aset dan
+          halaman profil publiknya.
+        </p>
+
+        <h2>1. Ringkasan</h2>
+        <p>Think Aset adalah aplikasi statis (PWA) yang di-hosting di layanan seperti
+        GitHub Pages, Cloudflare Pages, atau PC Anda sendiri. Aplikasi ini:</p>
+        <ul>
+          <li><strong>Tidak memiliki backend</strong> — tidak ada server aplikasi milik pengembang.</li>
+          <li><strong>Tidak menyimpan data pengguna</strong> di server pengembang.</li>
+          <li><strong>Tidak memakai analytics</strong> pihak ketiga (Google Analytics, Meta Pixel, dll).</li>
+          <li><strong>Tidak memakai cookie</strong> untuk pelacakan.</li>
+        </ul>
+        <p>Untuk login dan penyimpanan mode Google, aplikasi berkomunikasi langsung dengan Google.
+        Chart.js dan SheetJS dimuat dari CDN saat grafik atau impor/ekspor spreadsheet digunakan.
+        Penyedia layanan tersebut dapat menerima metadata koneksi seperti alamat IP dan permintaan
+        berkas browser; Think Aset tidak mengirimkan data aset kepada CDN.</p>
+
+        <h2>2. Data yang Anda buat</h2>
+        <p>Data yang Anda masukkan disimpan pada salah satu dari:</p>
+        <ul>
+          <li><strong>Google Drive/Sheets Anda</strong> (mode Google) — file dibuat di akun Google
+            pribadi/organisasi Anda. Hanya Anda dan pihak yang Anda undang yang dapat mengakses.</li>
+          <li><strong>IndexedDB browser Anda</strong> (mode lokal) — data tidak pernah meninggalkan
+            perangkat. Menghapus data situs di browser akan menghapus semua data Think Aset lokal.</li>
+        </ul>
+
+        <h2>3. Scope akses Google</h2>
+        <p>Jika Anda login dengan Google, aplikasi meminta scope:</p>
+        <ul>
+          <li><code>drive.file</code> — hanya file yang dibuat atau dibuka oleh aplikasi ini.
+            Think Aset <strong>tidak</strong> dapat melihat file lain di Drive Anda.</li>
+          <li><code>userinfo.email</code> dan <code>userinfo.profile</code> — untuk menampilkan
+            nama &amp; email Anda di UI.</li>
+        </ul>
+        <p>Aplikasi tidak meminta scope lebih dari itu.</p>
+
+        <h2>4. Token autentikasi</h2>
+        <p>Token Google (access token) disimpan di <code>sessionStorage</code> pada sesi tab
+        browser. Token dikirim hanya ke Google untuk mengakses layanan yang diminta dan tidak
+        dikirim ke pengembang.</p>
+
+        <h2>5. File yang diunggah</h2>
+        <p>Foto aset dan berkas yang diunggah ditempatkan di:</p>
+        <ul>
+          <li>Folder Drive Anda sendiri (mode Google), atau</li>
+          <li>IndexedDB browser (mode lokal).</li>
+        </ul>
+
+        <h2>6. Berbagi dengan anggota</h2>
+        <p>Pengelolaan undangan anggota dari dalam aplikasi belum tersedia. Jika Anda membagikan
+        file melalui Google Drive, Google memproses alamat email dan izin akses sesuai pengaturan
+        Drive. Think Aset tidak menyimpan daftar email di server pengembang.</p>
+
+        <h2>7. Log &amp; error</h2>
+        <p>Think Aset tidak mengirim log atau error ke server pengembang. Jika terjadi error,
+        pesan hanya muncul di konsol browser Anda.</p>
+
+        <h2>8. Hak Anda</h2>
+        <p>Anda dapat:</p>
+        <ul>
+          <li>Menghapus Spreadsheet/folder terkait di Google Drive kapan saja.</li>
+          <li>Menghapus data lokal dengan membersihkan data situs di browser.</li>
+          <li>Mencabut akses aplikasi lewat
+            <a href="https://myaccount.google.com/permissions" target="_blank" rel="noopener">Google Account Permissions</a>.</li>
+        </ul>
+
+        <h2>9. Anak-anak</h2>
+        <p>Think Aset tidak ditujukan untuk anak di bawah usia 13 tahun tanpa pengawasan orang tua.</p>
+
+        <h2>10. Perubahan kebijakan</h2>
+        <p>Perubahan pada dokumen ini akan disertakan di commit history repositori GitHub.
+        Kami tidak mengumpulkan email untuk mengirim pemberitahuan.</p>
+
+        <h2>11. Kontak</h2>
+        <p>Untuk pertanyaan tentang privasi, buka issue di GitHub atau lihat
+        <a href="kontak.html">halaman kontak</a>.</p>
+
+        <div class="notice mt-5">
+          Dokumen ini bersifat informatif, bukan nasihat hukum. Jika Anda meng-host Think Aset
+          untuk organisasi dengan kebutuhan kepatuhan khusus, konsultasikan dengan tim hukum Anda.
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <footer class="profile-footer">
+    <div class="profile-container">
+      <div class="footer-grid">
+        <div>
+          <div class="profile-logo" style="margin-bottom:12px">
+            <img src="../icons/logo.svg" alt="Think Aset" />
+          </div>
+          <p style="font-size:13px;color:var(--text-muted);margin:0">
+            Manajemen aset &amp; inventaris kantor. Open source, MIT, tanpa server.
+          </p>
+        </div>
+        <div>
+          <h4>Tentang</h4>
+          <a href="panduan.html">Panduan</a>
+          <a href="privasi.html">Privasi</a>
+          <a href="../LICENSE.txt">Lisensi (MIT)</a>
+          <a href="https://github.com/" target="_blank" rel="noopener">GitHub</a>
+        </div>
+        <div>
+          <h4>Kontak</h4>
+          <a href="kontak.html">Kontak</a>
+          <a href="https://github.com/" target="_blank" rel="noopener">Laporkan Bug</a>
+          <a href="fitur.html">Fitur</a>
+          <a href="manfaat.html">Manfaat</a>
+        </div>
+      </div>
+      <p class="footer-copy">© 2026 Think Aset · MIT License · Data tersimpan di penyimpanan Anda sendiri.</p>
+    </div>
+  </footer>
+
+  <script src="../js/pwa.js" defer></script>
+  <script src="../js/ui/profile.js" defer></script>
+</body>
+</html>
