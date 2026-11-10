@@ -1,9 +1,3 @@
-/**
- * Halaman Detail Aset.
- * Tahap 3: header + tab Info (field lengkap + nilai penyusutan saat ini).
- * Tab Riwayat/Keuangan/Agenda/Jurnal/Lampiran → Tahap 4/5.
- * Tombol QR, Cetak Kartu, Nonaktifkan alur lengkap → Tahap 4.
- */
 import { getAdapter } from '../auth.js';
 import { esc } from '../utils/dom.js';
 import { notify } from '../utils/toast.js';
@@ -16,6 +10,7 @@ import { computeDepreciation, formatRupiahFull } from '../utils/depreciation.js'
 
 export async function renderAssetDetail(layout, { params, query }) {
   const adapter = getAdapter();
+  const myHash = window.location.hash;
   layout.setActive('/aset');
   layout.setTitle('Detail Aset');
 
@@ -41,6 +36,8 @@ export async function renderAssetDetail(layout, { params, query }) {
     return;
   }
 
+  if (window.location.hash !== myHash) return;
+
   // Cari berdasarkan id ATAU qr_token
   const asset = assets.find(a => a.id === key) || assets.find(a => a.qr_token === key);
 
@@ -61,6 +58,8 @@ export async function renderAssetDetail(layout, { params, query }) {
     adapter.list('locations'),
     adapter.list('holders')
   ]);
+
+  if (window.location.hash !== myHash) return;
 
   const cat = categories.find(c => c.id === asset.category_id);
   const loc = locations.find(l => l.id === asset.location_id);
