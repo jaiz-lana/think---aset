@@ -1,14 +1,3 @@
-/**
- * Adapter Google Drive + Google Sheets.
- * - OAuth Token Model (Google Identity Services). Token & email di sessionStorage
- *   (perbaikan wajib d): token & email yang tersimpan terikat oleh sessionStorage
- *   yang memang unik per tab. ID Spreadsheet & Folder disimpan per akun di localStorage.
- * - Peran (role) dideteksi dari capabilities Drive; tidak pernah ditimpa jadi 'owner'.
- * - Picker dipakai untuk spreadsheet DAN folder lampiran saat join.
- * - Retry bertahap untuk 403/429; auto-refresh untuk 401.
- * - activity_log ditulis batch (bukan 1 request per CRUD).
- * - File & folder diakses lewat scope drive.file saja.
- */
 import {
   StorageAdapter, TABLES, SCHEMAS, ID_KEY
 } from './adapter.js';
@@ -93,7 +82,7 @@ export class GoogleAdapter extends StorageAdapter {
       this.tokenExpiry = exp;
       return;
     }
-    await this._signIn(opts.prompt ?? 'consent');
+    await this._signIn(opts.prompt ?? '');
   }
 
   _signIn(prompt = 'consent') {
@@ -105,6 +94,7 @@ export class GoogleAdapter extends StorageAdapter {
         client_id: this.config.GOOGLE_CLIENT_ID,
         scope: this.config.SCOPES,
         prompt,
+        error_callback: (err) => reject(new Error('Login Google dibatalkan atau diblokir browser: ' + (err?.type || 'tidak diketahui'))),
         callback: (resp) => {
           if (resp.error) return reject(new Error('Login Google: ' + resp.error));
           this.token = resp.access_token;
@@ -416,7 +406,7 @@ export class GoogleAdapter extends StorageAdapter {
 
   async _loadAllTables() {
     try {
-      const ranges = TABLES.map(t => `${t}!A1:ZZ100000`);
+      const ranges = TABLES.map(rangeOf);
       const qs = ranges.map(r => 'ranges=' + encodeURIComponent(r)).join('&');
       const res = await this._fetch(`${API.SHEETS}/${this.spreadsheetId}/values:batchGet?${qs}`);
       res.valueRanges.forEach((vr, idx) => {
@@ -434,10 +424,11 @@ export class GoogleAdapter extends StorageAdapter {
       console.warn('Batch load gagal, fallback ke per-tabel:', e.message);
       await Promise.all(TABLES.map(t => this._loadTable(t)));
     }
+    this._lastLoad = Date.now();
   }
 
   async _loadTable(tabel) {
-    const range = `${tabel}!A1:ZZ100000`;
+    const range = rangeOf(tabel);
     const res = await this._fetch(
       `${API.SHEETS}/${this.spreadsheetId}/values/${encodeURI(range)}`
     );
@@ -457,6 +448,11 @@ export class GoogleAdapter extends StorageAdapter {
       const c = this._cache[tabel];
       if (!c) continue;
       const mismatch = c.headers.join('\u0000') !== SCHEMAS[tabel].join('\u0000');
+      const isPrefix = c.headers.every((h, i) => h === SCHEMAS[tabel][i]);
+      if (!c.needHeaderFix && mismatch && !isPrefix) {
+        console.warn(`Header tabel "${tabel}" tidak cocok dengan skema; tidak ditimpa.`);
+        continue;
+      }
       if (c.needHeaderFix || mismatch) {
         await this._fetch(
           `${API.SHEETS}/${this.spreadsheetId}/values/${encodeURI(tabel + '!A1')}?valueInputOption=RAW`,
@@ -539,6 +535,81 @@ export class GoogleAdapter extends StorageAdapter {
     return row;
   }
 
+  /** Tambah banyak baris sekaligus (1 request per 200 baris). */
+  async createMany(tabel, list) {
+    if (!this.canWrite()) throw new Error('Anda tidak memiliki izin menulis');
+    if (!this._cache[tabel]) await this._loadTable(tabel);
+    const now = new Date().toISOString();
+    const key = ID_KEY[tabel] || 'id';
+    const rows = list.map(d => ({
+      ...d,
+      [key]: d[key] || uuid(),
+      version: 1,
+      created_at: now,
+      updated_at: now,
+      updated_by: this.user?.email || ''
+    }));
+    for (let i = 0; i < rows.length; i += 200) {
+      const arrs = rows.slice(i, i + 200).map(r => this._toArr(tabel, r));
+      await this._fetch(
+        `${API.SHEETS}/${this.spreadsheetId}/values/${encodeURI(tabel + '!A1')}:append?valueInputOption=RAW&insertDataOption=INSERT_ROWS`,
+        { method: 'POST', body: JSON.stringify({ values: arrs }) }
+      );
+      this._cache[tabel].rows.push(...arrs);
+    }
+    this._logActivity('import', `${tabel}:${rows.length} baris`);
+    return rows;
+  }
+
+  /** Cari nomor baris (indeks data, mulai 0) berdasarkan id langsung dari server. */
+  async _locateRow(tabel, id) {
+    const res = await this._fetch(
+      `${API.SHEETS}/${this.spreadsheetId}/values/${encodeURI(tabel + '!A2:A100000')}`
+    );
+    const idx = (res.values || []).map(r => r[0]).indexOf(id);
+    if (idx === -1) throw new Error('Data tidak ditemukan (mungkin sudah dihapus pengguna lain)');
+    return idx;
+  }
+
+  /** Baca satu baris terbaru dari server. */
+  async _readRow(tabel, idx) {
+    const n = idx + 2;
+    const last = colLetter(this._cache[tabel].headers.length);
+    const res = await this._fetch(
+      `${API.SHEETS}/${this.spreadsheetId}/values/${encodeURI(`${tabel}!A${n}:${last}${n}`)}`
+    );
+    return res.values?.[0] || [];
+  }
+
+  _cacheUpsert(tabel, id, arr) {
+    const rows = this._cache[tabel].rows;
+    const i = rows.findIndex(r => r[0] === id);
+    if (i === -1) rows.push(arr); else rows[i] = arr;
+  }
+
+  /** Muat ulang seluruh tabel dari server (dibatasi minimal minAgeMs sejak muat terakhir). */
+  async refresh(minAgeMs = 30000) {
+    if (!this.spreadsheetId) return;
+    if (Date.now() - (this._lastLoad || 0) < minAgeMs) return;
+    await this._loadAllTables();
+  }
+
+  /** Ambil n baris terakhir tanpa memuat seluruh tabel (untuk activity_log). */
+  async listRecent(tabel, n = 8) {
+    const col = await this._fetch(
+      `${API.SHEETS}/${this.spreadsheetId}/values/${encodeURI(tabel + '!A:A')}`
+    );
+    const last = (col.values || []).length;
+    if (last < 2) return [];
+    if (!this._cache[tabel]) await this._loadTable(tabel);
+    const from = Math.max(2, last - n + 1);
+    const endCol = colLetter(this._cache[tabel].headers.length);
+    const res = await this._fetch(
+      `${API.SHEETS}/${this.spreadsheetId}/values/${encodeURI(`${tabel}!A${from}:${endCol}${last}`)}`
+    );
+    return (res.values || []).map(r => this._toObj(tabel, r));
+  }
+
   async _appendRow(tabel, row) {
     const values = [this._toArr(tabel, row)];
     await this._fetch(
@@ -553,7 +624,8 @@ export class GoogleAdapter extends StorageAdapter {
     if (!this.canWrite()) throw new Error('Anda tidak memiliki izin menulis');
     if (!this._cache.settings) await this._loadTable('settings');
     const strVal = String(value ?? '');
-    const idx = this._cache.settings.rows.findIndex(r => r[0] === key);
+    let idx = -1;
+    try { idx = await this._locateRow('settings', key); } catch { idx = -1; }
     if (idx >= 0) {
       const rowNumber = idx + 2;
       const range = `settings!A${rowNumber}:B${rowNumber}`;
@@ -561,13 +633,13 @@ export class GoogleAdapter extends StorageAdapter {
         `${API.SHEETS}/${this.spreadsheetId}/values/${encodeURI(range)}?valueInputOption=RAW`,
         { method: 'PUT', body: JSON.stringify({ values: [[key, strVal]] }) }
       );
-      this._cache.settings.rows[idx] = [key, strVal];
+      this._cacheUpsert('settings', key, [key, strVal]);
     } else {
       await this._fetch(
         `${API.SHEETS}/${this.spreadsheetId}/values/${encodeURI('settings!A1')}:append?valueInputOption=RAW&insertDataOption=INSERT_ROWS`,
         { method: 'POST', body: JSON.stringify({ values: [[key, strVal]] }) }
       );
-      this._cache.settings.rows.push([key, strVal]);
+      this._cacheUpsert('settings', key, [key, strVal]);
     }
     return { key, value: strVal };
   }
@@ -585,10 +657,8 @@ export class GoogleAdapter extends StorageAdapter {
     if (!this._cache[tabel]) await this._loadTable(tabel);
 
     const key = ID_KEY[tabel] || 'id';
-    const idx = this._cache[tabel].rows.findIndex(r => r[0] === id);
-    if (idx === -1) throw new Error('Data tidak ditemukan');
-
-    const existing = this._toObj(tabel, this._cache[tabel].rows[idx]);
+    const idx = await this._locateRow(tabel, id);
+    const existing = this._toObj(tabel, await this._readRow(tabel, idx));
 
     // Cek konflik versi
     if (data.version != null && Number(data.version) !== Number(existing.version || 1)) {
@@ -616,7 +686,7 @@ export class GoogleAdapter extends StorageAdapter {
       `${API.SHEETS}/${this.spreadsheetId}/values/${encodeURI(range)}?valueInputOption=RAW`,
       { method: 'PUT', body: JSON.stringify({ values: [arr] }) }
     );
-    this._cache[tabel].rows[idx] = arr;
+    this._cacheUpsert(tabel, id, arr);
     await this._logActivity('update', `${tabel}:${id}`);
     return merged;
   }
@@ -625,9 +695,9 @@ export class GoogleAdapter extends StorageAdapter {
     if (tabel === 'settings') {
       if (!this.canWrite()) throw new Error('Anda tidak memiliki izin menulis');
       if (!this._cache.settings) await this._loadTable('settings');
-      const idx = this._cache.settings.rows.findIndex(r => r[0] === id);
-      if (idx === -1) return;
-      await this._deleteRowByIndex('settings', idx);
+      let idx;
+      try { idx = await this._locateRow('settings', id); } catch { return; }
+      await this._deleteRowByIndex('settings', idx, id);
       return;
     }
     if (tabel === 'activity_log') {
@@ -636,14 +706,14 @@ export class GoogleAdapter extends StorageAdapter {
     if (!this.canWrite()) throw new Error('Anda tidak memiliki izin menulis');
     if (!this._cache[tabel]) await this._loadTable(tabel);
 
-    const idx = this._cache[tabel].rows.findIndex(r => r[0] === id);
-    if (idx === -1) return;
+    let idx;
+    try { idx = await this._locateRow(tabel, id); } catch { return; }
 
-    await this._deleteRowByIndex(tabel, idx);
+    await this._deleteRowByIndex(tabel, idx, id);
     await this._logActivity('delete', `${tabel}:${id}`);
   }
 
-  async _deleteRowByIndex(tabel, idx) {
+  async _deleteRowByIndex(tabel, idx, id) {
     const sheetId = this._sheetIds[tabel];
     if (sheetId == null) throw new Error('Sheet ID tidak ditemukan untuk ' + tabel);
     await this._fetch(`${API.SHEETS}/${this.spreadsheetId}:batchUpdate`, {
@@ -661,13 +731,24 @@ export class GoogleAdapter extends StorageAdapter {
         }]
       })
     });
-    this._cache[tabel].rows.splice(idx, 1);
+    this._cache[tabel].rows = this._cache[tabel].rows.filter(r => r[0] !== id);
   }
 
   // =========================================================
   // FILES
   // =========================================================
   async uploadFile(file) {
+    if (!this.folderId && this.role === 'owner') {
+      const folder = await this._fetch(`${API.DRIVE}/files`, {
+        method: 'POST',
+        body: JSON.stringify({
+          name: this.config.FOLDER_TITLE,
+          mimeType: 'application/vnd.google-apps.folder'
+        })
+      });
+      this.folderId = folder.id;
+      this._saveWorkspaceIds(folder.id);
+    }
     if (!this.folderId) {
       throw new Error('Folder lampiran belum dipilih. Buka Pengaturan > Koneksi untuk memilih folder.');
     }
@@ -689,14 +770,24 @@ export class GoogleAdapter extends StorageAdapter {
         headers: { 'Content-Type': `multipart/related; boundary=${boundary}` }
       }
     );
-    return { id: res.id, url: res.webViewLink || res.webContentLink };
+    this._blobUrls ||= new Map();
+    const localUrl = URL.createObjectURL(file);
+    this._blobUrls.set(res.id, localUrl);
+    return { id: res.id, url: localUrl };
   }
 
+  /** URL gambar/berkas yang bisa dipakai <img>: unduh isi berkas dengan token, lalu buat blob URL. */
   async getFileUrl(id) {
-    const meta = await this._fetch(
-      `${API.DRIVE}/files/${id}?fields=id,webViewLink,webContentLink`
-    );
-    return meta.webViewLink || meta.webContentLink;
+    this._blobUrls ||= new Map();
+    if (this._blobUrls.has(id)) return this._blobUrls.get(id);
+    if (!this.token || Date.now() >= this.tokenExpiry - 30_000) await this._signIn('');
+    const res = await fetch(`${API.DRIVE}/files/${id}?alt=media`, {
+      headers: { Authorization: 'Bearer ' + this.token }
+    });
+    if (!res.ok) throw new Error('Gagal memuat berkas (' + res.status + ')');
+    const url = URL.createObjectURL(await res.blob());
+    this._blobUrls.set(id, url);
+    return url;
   }
 
   // =========================================================
@@ -832,6 +923,8 @@ export class GoogleAdapter extends StorageAdapter {
       }
     } catch {}
     this.token = null;
+    this._blobUrls?.forEach(u => { try { URL.revokeObjectURL(u); } catch {} });
+    this._blobUrls = null;
     try {
       sessionStorage.removeItem(GLOBAL_CONFIG.SS.TOKEN);
       sessionStorage.removeItem(GLOBAL_CONFIG.SS.TOKEN_EXP);
@@ -852,6 +945,11 @@ function loadScript(src) {
     s.onerror = () => reject(new Error('Gagal memuat ' + src));
     document.head.appendChild(s);
   });
+}
+
+/** activity_log hanya dimuat headernya (isinya bisa sangat besar). */
+function rangeOf(tabel) {
+  return tabel === 'activity_log' ? 'activity_log!A1:E1' : `${tabel}!A1:ZZ100000`;
 }
 
 function colLetter(n) {
