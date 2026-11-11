@@ -3,9 +3,10 @@
  * Dirender sekali, dipakai ulang oleh semua halaman.
  * Halaman TIDAK di-render di sini — halaman memakai `.content`.
  */
-import { getAdapter } from '../auth.js';
+import { getAdapter, signOut } from '../auth.js';
 import { esc } from '../utils/dom.js';
 import { notify } from '../utils/toast.js';
+import { toggleTheme, getTheme } from '../theme.js';
 import { FEATURES, isFeatureAvailable } from '../features.js';
 
 /**
@@ -14,6 +15,34 @@ import { FEATURES, isFeatureAvailable } from '../features.js';
  */
 export function renderLayout(root, router) {
   const adapter = getAdapter();
+  const userEmail = adapter.user?.email || 'Pengguna Lokal';
+  const userInitial = (userEmail[0] || 'U').toUpperCase();
+  const userPicture = adapter.user?.picture || '';
+  const currentTheme = getTheme();
+
+  // Kelompokkan menu navigasi
+  const navItems = FEATURES.filter(item => item.nav);
+  const groups = [];
+  const groupMap = new Map();
+
+  navItems.forEach(item => {
+    const gName = item.group || 'Menu';
+    if (!groupMap.has(gName)) {
+      const gObj = { name: gName, items: [] };
+      groupMap.set(gName, gObj);
+      groups.push(gObj);
+    }
+    groupMap.get(gName).items.push(item);
+  });
+
+  const menuHtml = groups.map(g => `
+    <div class="sidebar-group">
+      <div class="sidebar-heading">${esc(g.name)}</div>
+      <div class="sidebar-group-items">
+        ${g.items.map(item => renderMenuItem(item, router)).join('')}
+      </div>
+    </div>
+  `).join('');
 
   root.innerHTML = `
     <div class="app-shell">
@@ -21,14 +50,34 @@ export function renderLayout(root, router) {
         <div class="sidebar-header">
           <div class="sidebar-brand">
             <img src="icons/logo.svg" alt="Think Aset" />
-            <span class="text-xs text-muted">${esc(adapter.user?.email || '')}</span>
+          </div>
+          
+          <div class="sidebar-user-card">
+            ${userPicture 
+              ? `<img src="${esc(userPicture)}" class="user-avatar" alt="Avatar" />` 
+              : `<div class="user-avatar text-avatar">${esc(userInitial)}</div>`}
+            <div class="user-info">
+              <span class="user-email" title="${esc(userEmail)}">${esc(userEmail)}</span>
+              <span class="user-role badge ${adapter.role === 'owner' ? 'badge-primary' : 'badge-muted'}">
+                ${adapter.mode === 'google' ? `${esc(adapter.role)}` : 'Mode Lokal'}
+              </span>
+            </div>
           </div>
         </div>
+
         <nav class="sidebar-menu" id="sidebar-menu" aria-label="Menu utama">
-          ${FEATURES.filter(item => item.nav).map(item => renderMenuItem(item, router)).join('')}
+          ${menuHtml}
         </nav>
+
         <div class="sidebar-footer">
-          <span class="badge badge-muted">${esc(adapter.mode)} · ${esc(adapter.role)}</span>
+          <button class="footer-btn" id="btn-toggle-theme" title="Ubah tema terang/gelap">
+            <span class="theme-icon">${currentTheme === 'dark' ? '☀️' : '🌙'}</span>
+            <span class="btn-text">${currentTheme === 'dark' ? 'Mode Terang' : 'Mode Gelap'}</span>
+          </button>
+          <button class="footer-btn btn-logout" id="btn-sidebar-logout" title="Keluar dari akun">
+            <span>🚪</span>
+            <span class="btn-text">Keluar</span>
+          </button>
         </div>
       </aside>
       <div class="sidebar-overlay" id="sidebar-overlay"></div>
@@ -58,6 +107,24 @@ export function renderLayout(root, router) {
     overlay.classList.toggle('open');
   });
   overlay.addEventListener('click', closeMobile);
+
+  // Toggle tema dari sidebar
+  document.getElementById('btn-toggle-theme')?.addEventListener('click', () => {
+    const next = toggleTheme();
+    const btn = document.getElementById('btn-toggle-theme');
+    if (btn) {
+      btn.querySelector('.theme-icon').textContent = next === 'dark' ? '☀️' : '🌙';
+      btn.querySelector('.btn-text').textContent = next === 'dark' ? 'Mode Terang' : 'Mode Gelap';
+    }
+  });
+
+  // Logout dari sidebar
+  document.getElementById('btn-sidebar-logout')?.addEventListener('click', async () => {
+    if (confirm('Apakah Anda yakin ingin keluar dari Think Aset?')) {
+      await signOut();
+      window.location.reload();
+    }
+  });
 
   // Tangani klik item menu yang belum siap
   document.querySelectorAll('[data-feature-unavailable]').forEach(el => {
@@ -121,10 +188,11 @@ async function applyWorkspaceBranding(adapter) {
 function renderMenuItem(item, router) {
   const ready = isFeatureAvailable(item, router);
   const icon = `<span class="sidebar-icon" aria-hidden="true">${item.icon}</span>`;
-  const label = `<span class="sidebar-label">${esc(item.title)}</span>`;
+  const displayTitle = item.shortTitle || item.title;
+  const label = `<span class="sidebar-label">${esc(displayTitle)}</span>`;
 
   if (ready) {
-    return `<a href="#${item.path}" class="sidebar-item" data-path="${esc(item.path)}">
+    return `<a href="#${item.path}" class="sidebar-item" data-path="${esc(item.path)}" title="${esc(item.title)}">
       ${icon}${label}
     </a>`;
   }
