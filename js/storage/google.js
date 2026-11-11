@@ -77,6 +77,10 @@ export class GoogleAdapter extends StorageAdapter {
   }
 
   async _restoreOrSignIn(opts) {
+    if (opts.prompt === 'select_account') {
+      await this._signIn('select_account');
+      return;
+    }
     const tok = sessionStorage.getItem(GLOBAL_CONFIG.SS.TOKEN);
     const exp = Number(sessionStorage.getItem(GLOBAL_CONFIG.SS.TOKEN_EXP) || 0);
     if (tok && Date.now() < exp - 30_000) {
@@ -84,7 +88,7 @@ export class GoogleAdapter extends StorageAdapter {
       this.tokenExpiry = exp;
       return;
     }
-    await this._signIn(opts.prompt ?? '');
+    await this._signIn(opts.prompt || 'select_account');
   }
 
   _signIn(prompt = 'consent', scope = this.config.SCOPES) {
@@ -272,18 +276,8 @@ export class GoogleAdapter extends StorageAdapter {
     if (!ss) throw new Error('Dibatalkan oleh pengguna');
     this.spreadsheetId = ss.id;
 
-    // 2) Pilih folder lampiran (perbaikan wajib e — Picker, bukan query nama)
-    let folderId = null;
-    try {
-      const folder = await this._pickFolder();
-      folderId = folder?.id || null;
-    } catch (e) {
-      console.warn('Pemilihan folder dibatalkan:', e.message);
-    }
-    this.folderId = folderId;
-
-    // 3) Simpan per akun
-    this._saveWorkspaceIds(folderId);
+    // 2) Simpan per akun dan lanjut
+    this._saveWorkspaceIds(null);
   }
 
   _pickSpreadsheet() {
