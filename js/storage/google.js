@@ -16,6 +16,15 @@ const LOG_BATCH_SIZE = 20;
 const LOG_BATCH_DELAY = 2000;
 const LOG_QUEUE_MAX = 100;
 
+export function extractSpreadsheetId(input) {
+  if (!input) return null;
+  const trimmed = input.trim();
+  const match = trimmed.match(/\/spreadsheets\/d\/([a-zA-Z0-9-_]+)/);
+  if (match) return match[1];
+  if (/^[a-zA-Z0-9-_]{20,}$/.test(trimmed)) return trimmed;
+  return null;
+}
+
 export class GoogleAdapter extends StorageAdapter {
   constructor(config) {
     super(config);
@@ -43,7 +52,15 @@ export class GoogleAdapter extends StorageAdapter {
 
     const mode = opts.mode || 'auto';
 
-    if (mode === 'join') {
+    if (opts.spreadsheetId) {
+      this.spreadsheetId = opts.spreadsheetId;
+      this.folderId = null;
+      this._saveWorkspaceIds(null);
+      await this._detectRole();
+      await this._preloadSheetIds();
+      await this._loadAllTables();
+      if (this.canWrite()) await this._ensureHeaders();
+    } else if (mode === 'join') {
       await this._joinWorkspace();
       await this._detectRole();
       await this._preloadSheetIds();
