@@ -23,7 +23,11 @@ export async function renderSettings(root) {
         <div class="kv-row"><span>Peran</span><strong>${esc(adapter.role)}</strong></div>
         <div class="kv-row"><span>Akun</span><strong>${esc(adapter.user?.email || '-')}</strong></div>
         ${adapter.mode === 'google' ? `
-          <div class="kv-row"><span>Spreadsheet ID</span><strong>${esc(mask(adapter.spreadsheetId))}</strong></div>
+          <div class="kv-row"><span>Spreadsheet ID</span><strong style="word-break:break-all">${esc(adapter.spreadsheetId || '-')}</strong></div>
+          <div style="margin:8px 0;display:flex;gap:8px">
+            <button class="btn btn-secondary btn-sm" id="btn-copy-settings-id">📋 Salin Spreadsheet ID</button>
+            <a class="btn btn-ghost btn-sm" href="https://docs.google.com/spreadsheets/d/${esc(adapter.spreadsheetId)}/edit" target="_blank" rel="noopener">Buka di Google Sheets ↗</a>
+          </div>
           <div class="kv-row"><span>Folder Lampiran ID</span><strong>${esc(mask(adapter.folderId))}</strong></div>
         ` : `
           <p class="text-sm text-muted mt-3">Data tersimpan di IndexedDB browser ini. Tidak tersinkron antar perangkat.</p>
@@ -82,6 +86,12 @@ export async function renderSettings(root) {
         <button class="btn btn-danger" id="btn-logout">Keluar dari Think Aset</button>
       </div>
     </div>`;
+
+  root.querySelector('#btn-copy-settings-id')?.addEventListener('click', () => {
+    if (!adapter.spreadsheetId) return;
+    navigator.clipboard.writeText(adapter.spreadsheetId);
+    notify.success('Spreadsheet ID berhasil disalin!');
+  });
 
   root.querySelectorAll('[data-theme-set]').forEach(btn => {
     btn.addEventListener('click', async () => {
