@@ -273,8 +273,9 @@ export class GoogleAdapter extends StorageAdapter {
 
     // 1) Pilih Spreadsheet
     const ss = await this._pickSpreadsheet();
-    if (!ss) throw new Error('Dibatalkan oleh pengguna');
-    this.spreadsheetId = ss.id;
+    if (!ss) throw new Error('Pemilihan file dibatalkan oleh pengguna');
+    this.spreadsheetId = ss.id || ss[google.picker.Document.ID];
+    if (!this.spreadsheetId) throw new Error('ID Spreadsheet tidak ditemukan dari file yang dipilih');
 
     // 2) Simpan per akun dan lanjut
     this._saveWorkspaceIds(null);
@@ -290,9 +291,18 @@ export class GoogleAdapter extends StorageAdapter {
         .setDeveloperKey(this.config.GOOGLE_API_KEY)
         .setAppId(this.config.GOOGLE_APP_ID)
         .setCallback((data) => {
-          if (data.action === google.picker.Action.PICKED) resolve(data.docs[0]);
-          else if (data.action === google.picker.Action.CANCEL) resolve(null);
-          else if (data.action === google.picker.Action.ERROR) reject(new Error('Google Picker gagal memuat spreadsheet.'));
+          console.log('Picker callback data:', data);
+          const action = data[google.picker.Response.ACTION] || data.action;
+          if (action === google.picker.Action.PICKED) {
+            const docs = data[google.picker.Response.DOCUMENTS] || data.docs;
+            const pickedDoc = docs && docs[0];
+            console.log('File dipilih:', pickedDoc);
+            resolve(pickedDoc);
+          } else if (action === google.picker.Action.CANCEL) {
+            resolve(null);
+          } else if (action === google.picker.Action.ERROR) {
+            reject(new Error('Google Picker gagal memuat spreadsheet: ' + JSON.stringify(data)));
+          }
         })
         .build();
       picker.setVisible(true);
