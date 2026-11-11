@@ -4,6 +4,7 @@ import { FEATURES } from './features.js';
 import {
   tryAutoLogin, getAdapter, signInGoogle, signInLocal, isSignedIn, signOut
 } from './auth.js';
+import { extractSpreadsheetId } from './storage/google.js';
 import { runOnboarding } from './onboarding.js';
 import { enableGlobalRipple, $, esc } from './utils/dom.js';
 import { notify } from './utils/toast.js';
@@ -170,9 +171,16 @@ function showAuthScreen() {
 
         <div id="google-config" class="mt-3 hidden">
           <p class="text-xs text-muted">Think Aset akan meminta izin Google saat Anda menghubungkan akun. Izin dibatasi pada file yang dibuat atau dibuka melalui aplikasi.</p>
+          
+          <div style="margin-top:12px;padding:12px;background:var(--bg-alt, #f8fafc);border-radius:8px;border:1px solid var(--border,#e2e8f0)">
+            <label style="display:block;font-size:12px;font-weight:600;margin-bottom:6px">Punya Link/ID Workspace dari Pemilik?</label>
+            <input type="text" id="input-shared-link" class="form-input text-xs" placeholder="Paste Link Spreadsheet atau ID di sini..." style="width:100%;margin-bottom:8px" />
+            <button class="btn btn-secondary btn-sm btn-block" id="btn-join-by-link">Masuk ke Workspace via Link</button>
+          </div>
+
           ${config.GOOGLE_API_KEY && config.GOOGLE_APP_ID
-            ? '<button class="btn btn-secondary btn-sm" id="btn-join-existing">Buka workspace yang dibagikan</button>'
-            : '<p class="text-xs text-muted mt-2">Mengakses workspace baru tidak memerlukan API Key. Membuka workspace yang sudah dibagikan memakai Google Picker, yang pengelola aplikasi dapat aktifkan secara opsional.</p>'}
+            ? '<button class="btn btn-ghost btn-sm btn-block mt-2" id="btn-join-existing">Atau pilih via Google Picker</button>'
+            : ''}
         </div>
 
         <button class="btn btn-primary btn-block mt-4" id="btn-masuk" disabled>Masuk</button>
@@ -224,6 +232,26 @@ function showAuthScreen() {
     } catch (e) {
       console.error(e);
       notify.error('Gagal masuk: ' + e.message);
+      setBusy(false);
+    }
+  });
+
+  $('#btn-join-by-link')?.addEventListener('click', async () => {
+    const rawInput = $('#input-shared-link')?.value || '';
+    const ssId = extractSpreadsheetId(rawInput);
+    if (!ssId) {
+      alert('Link atau ID Spreadsheet tidak valid! Pastikan Anda menempelkan Link Google Sheet lengkap atau ID-nya.');
+      return;
+    }
+    try {
+      setBusy(true, 'Menghubungkan akun Google…');
+      await signInGoogle({ spreadsheetId: ssId, prompt: 'select_account' });
+      setBusy(true, 'Memuat workspace…');
+      await startApp();
+    } catch (e) {
+      console.error(e);
+      alert('Gagal bergabung ke workspace: ' + (e?.message || e));
+      notify.error('Gagal membuka workspace: ' + e.message);
       setBusy(false);
     }
   });
