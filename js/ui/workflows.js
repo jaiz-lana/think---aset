@@ -359,8 +359,22 @@ async function renderMembers(layout) {
   let members;
   try { members = await adapter.listMembers(); }
   catch (error) { layout.content.innerHTML = `<div class="notice">Gagal memuat anggota: ${esc(error.message)}</div>`; return; }
+  const sheetUrl = adapter.spreadsheetId ? `https://docs.google.com/spreadsheets/d/${adapter.spreadsheetId}/edit` : '';
+
   layout.content.innerHTML = `
     <div class="page-header"><h1>Anggota & Berbagi</h1></div>
+
+    <div class="card" style="margin-bottom:16px;background:var(--bg-card);border:1px solid var(--border)">
+      <h2 style="margin-top:0;font-size:1.1rem">Link & ID Workspace Anda</h2>
+      <p class="text-xs text-muted" style="margin-bottom:10px">Bagikan link atau ID ini ke anggota tim Anda agar mereka bisa login dan membuka workspace yang sama.</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+        <input class="form-input text-xs" style="flex:1;min-width:240px" readonly value="${esc(sheetUrl)}" id="shared-sheet-url" />
+        <button class="btn btn-secondary btn-sm" id="btn-copy-sheet-url">📋 Salin Link</button>
+        <button class="btn btn-ghost btn-sm" id="btn-copy-sheet-id">Salin ID Saja</button>
+        <a class="btn btn-ghost btn-sm" href="${esc(sheetUrl)}" target="_blank" rel="noopener">Buka di Google Sheets ↗</a>
+      </div>
+    </div>
+
     ${adapter.isOwner() ? `<form id="member-invite" class="card" style="margin-bottom:16px">
       <h2 style="margin-top:0;font-size:1.1rem">Undang anggota</h2>
       <div class="form-row"><div class="form-group"><label class="form-label" for="member-email">Email Google</label><input id="member-email" class="form-input" type="email" required /></div>
@@ -375,6 +389,18 @@ async function renderMembers(layout) {
     const role = layout.content.querySelector('#member-role').value;
     try { await adapter.shareWith(email, role); notify.success(`Undangan dikirim ke ${email}`); await renderMembers(layout); }
     catch (error) { notify.error('Gagal berbagi workspace: ' + error.message); }
+  });
+
+  layout.content.querySelector('#btn-copy-sheet-url')?.addEventListener('click', () => {
+    if (!sheetUrl) return;
+    navigator.clipboard.writeText(sheetUrl);
+    notify.success('Link Google Sheet berhasil disalin!');
+  });
+
+  layout.content.querySelector('#btn-copy-sheet-id')?.addEventListener('click', () => {
+    if (!adapter.spreadsheetId) return;
+    navigator.clipboard.writeText(adapter.spreadsheetId);
+    notify.success('Spreadsheet ID berhasil disalin!');
   });
 }
 
