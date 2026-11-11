@@ -218,7 +218,7 @@ function showAuthScreen() {
       if (mode === 'local') {
         await signInLocal();
       } else {
-        await signInGoogle({ mode: 'auto' });
+        await signInGoogle({ mode: 'auto', prompt: 'select_account' });
       }
       await startApp();
     } catch (e) {
@@ -231,7 +231,7 @@ function showAuthScreen() {
   $('#btn-join-existing')?.addEventListener('click', async () => {
     try {
       setBusy(true, 'Membuka Picker…');
-      await signInGoogle({ mode: 'join' });
+      await signInGoogle({ mode: 'join', prompt: 'select_account' });
       await startApp();
     } catch (e) {
       console.error(e);
