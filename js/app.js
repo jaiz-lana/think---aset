@@ -230,12 +230,14 @@ function showAuthScreen() {
 
   $('#btn-join-existing')?.addEventListener('click', async () => {
     try {
-      setBusy(true, 'Membuka Picker…');
+      setBusy(true, 'Membuka Google Picker…');
       await signInGoogle({ mode: 'join', prompt: 'select_account' });
+      setBusy(true, 'Memuat data workspace…');
       await startApp();
     } catch (e) {
-      console.error(e);
-      notify.error('Gagal membuka workspace: ' + e.message);
+      console.error('Error saat join workspace:', e);
+      alert('Gagal membuka workspace: ' + (e?.message || e));
+      notify.error('Gagal membuka workspace: ' + (e?.message || e));
       setBusy(false);
     }
   });
