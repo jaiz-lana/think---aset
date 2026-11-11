@@ -20,33 +20,22 @@ jobs:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Injeksi konfigurasi Google dari Secrets
-        env:
-          GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
-          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
-          GOOGLE_APP_ID: ${{ secrets.GOOGLE_APP_ID }}
+      - name: Injeksi konfigurasi Google
         run: |
-          cat > js/deployment-config.js << EOF
+          cat > js/deployment-config.js << 'EOF'
           export const deploymentConfig = {
-            GOOGLE_CLIENT_ID: '${GOOGLE_CLIENT_ID}',
-            GOOGLE_API_KEY:   '${GOOGLE_API_KEY}',
-            GOOGLE_APP_ID:    '${GOOGLE_APP_ID}'
+            GOOGLE_CLIENT_ID: '${{ secrets.GOOGLE_CLIENT_ID }}',
+            GOOGLE_API_KEY:   '${{ secrets.GOOGLE_API_KEY }}',
+            GOOGLE_APP_ID:    '${{ secrets.GOOGLE_APP_ID }}'
           };
           EOF
 
-      - name: Setup Pages
-        uses: actions/configure-pages@v4
-
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+      - uses: actions/configure-pages@v4
+      - uses: actions/upload-pages-artifact@v3
         with:
           path: '.'
-
-      - name: Deploy ke GitHub Pages
-        id: deployment
+      - id: deployment
         uses: actions/deploy-pages@v4
