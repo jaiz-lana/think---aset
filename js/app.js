@@ -136,7 +136,7 @@ function startRouter() {
 }
 
 // ============================================================
-// LAYAR LOGIN
+// LAYAR LOGIN (sama seperti Tahap 1)
 // ============================================================
 function showAuthScreen() {
   loading.classList.add('hidden');
