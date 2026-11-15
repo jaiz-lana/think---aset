@@ -8,6 +8,7 @@ import {
 } from './assets.js';
 import { computeDepreciation, formatRupiahFull } from '../utils/depreciation.js';
 import { renderAssetTab } from './workflows.js';
+import { iconSvg, emptyIconHtml } from './icons.js';
 
 export async function renderAssetDetail(layout, { params, query }) {
   const adapter = getAdapter();
@@ -19,7 +20,7 @@ export async function renderAssetDetail(layout, { params, query }) {
 
   layout.content.innerHTML = `
     <div class="empty-state">
-      <span class="empty-state-icon">⏳</span>
+      ${emptyIconHtml('loader')}
       <div class="empty-state-title">Memuat aset…</div>
     </div>`;
 
@@ -29,7 +30,7 @@ export async function renderAssetDetail(layout, { params, query }) {
   } catch (e) {
     layout.content.innerHTML = `
       <div class="empty-state">
-        <span class="empty-state-icon">⚠️</span>
+        ${emptyIconHtml('alert')}
         <div class="empty-state-title">Gagal memuat</div>
         <div class="empty-state-desc">${esc(e.message)}</div>
         <a href="#/aset" class="btn btn-primary">Kembali ke Data Aset</a>
@@ -45,7 +46,7 @@ export async function renderAssetDetail(layout, { params, query }) {
   if (!asset) {
     layout.content.innerHTML = `
       <div class="empty-state">
-        <span class="empty-state-icon">🔍</span>
+        ${emptyIconHtml('search')}
         <div class="empty-state-title">Aset tidak ditemukan</div>
         <div class="empty-state-desc">Kode aset "${esc(key)}" tidak cocok dengan data mana pun.</div>
         <a href="#/aset" class="btn btn-primary">Kembali ke Data Aset</a>
@@ -77,7 +78,7 @@ export async function renderAssetDetail(layout, { params, query }) {
 
     <div class="card" style="margin-bottom:16px">
       <div class="row" style="align-items:flex-start;gap:20px;flex-wrap:wrap">
-        <div id="detail-photo" style="width:120px;height:120px;border-radius:12px;background:var(--surface-2);display:grid;place-items:center;font-size:36px;color:var(--text-muted);overflow:hidden;flex-shrink:0">📦</div>
+        <div id="detail-photo" style="width:120px;height:120px;border-radius:12px;background:var(--surface-2);display:grid;place-items:center;color:var(--text-muted);overflow:hidden;flex-shrink:0">${iconSvg('assets', 40)}</div>
         <div style="flex:1;min-width:260px">
           <div class="row" style="gap:8px;flex-wrap:wrap;margin-bottom:8px">
             <span class="badge badge-${asset.status === 'nonaktif' ? 'danger' : 'success'}">${labelStatus(asset.status)}</span>
@@ -90,10 +91,10 @@ export async function renderAssetDetail(layout, { params, query }) {
           </p>
         </div>
         <div class="row" style="gap:6px;flex-wrap:wrap;align-items:flex-start">
-          <button class="btn btn-ghost btn-sm" id="btn-qr">🔲 QR</button>
-          <button class="btn btn-ghost btn-sm" id="btn-kartu">📄 Kartu Aset</button>
+          <button class="btn btn-ghost btn-sm" id="btn-qr">${iconSvg('qr', 15)} QR</button>
+          <button class="btn btn-ghost btn-sm" id="btn-kartu">Kartu Aset</button>
           ${canWrite ? `
-            <button class="btn btn-secondary btn-sm" id="btn-edit">✏️ Edit</button>
+            <button class="btn btn-secondary btn-sm" id="btn-edit">Edit</button>
             ${asset.status !== 'nonaktif'
               ? `<button class="btn btn-ghost btn-sm" id="btn-nonaktif" style="color:var(--accent-danger)">Nonaktifkan</button>`
               : `<button class="btn btn-ghost btn-sm" id="btn-aktifkan">Aktifkan</button>`}

@@ -20,8 +20,10 @@ import { renderHolders } from './ui/holders.js';
 import { renderSettings } from './ui/settings.js';
 import { renderWorkflow } from './ui/workflows.js';
 import { renderMenuHub } from './ui/menu-hub.js';
+import { getBgPattern, applyBgPattern } from './bg-pattern.js';
 
 initTheme();
+applyBgPattern(getBgPattern());
 enableGlobalRipple();
 
 const root = $('#app-root');

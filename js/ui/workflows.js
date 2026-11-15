@@ -5,6 +5,7 @@ import { confirmDialog, openModal } from './modal.js';
 import { exportToCSV } from '../utils/excel.js';
 import { formatRupiahFull, computeDepreciation } from '../utils/depreciation.js';
 import { qrToken } from '../utils/uuid.js';
+import { iconSvg, emptyIconHtml } from './icons.js';
 
 const WORKFLOWS = {
   history: {
@@ -121,7 +122,7 @@ async function renderManager(layout, workflow, query) {
           ${workflow.table === 'loans' && !row.tgl_kembali ? `<button class="btn btn-secondary btn-sm" data-return="${esc(row.id)}">Kembalikan</button>` : ''}
           <button class="btn btn-ghost btn-sm" data-edit="${esc(row.id)}">Edit</button><button class="btn btn-ghost btn-sm" data-delete="${esc(row.id)}">Hapus</button>
         </div></td>` : ''}</tr>`).join('')}</tbody></table></div>`
-      : '<div class="empty-state"><span class="empty-state-icon">🗂️</span><div class="empty-state-title">Belum ada data</div><div class="empty-state-desc">Tambahkan catatan baru untuk memulai.</div></div>'}
+      : `<div class="empty-state">${emptyIconHtml('operasional')}<div class="empty-state-title">Belum ada data</div><div class="empty-state-desc">Tambahkan catatan baru untuk memulai.</div></div>`}
   `;
   layout.content.querySelector('#workflow-ics')?.addEventListener('click', () => downloadCalendar(rows));
   if (!canWrite) return;
@@ -369,7 +370,7 @@ async function renderMembers(layout) {
       <p class="text-xs text-muted" style="margin-bottom:10px">Bagikan link atau ID ini ke anggota tim Anda agar mereka bisa login dan membuka workspace yang sama.</p>
       <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
         <input class="form-input text-xs" style="flex:1;min-width:240px" readonly value="${esc(sheetUrl)}" id="shared-sheet-url" />
-        <button class="btn btn-secondary btn-sm" id="btn-copy-sheet-url">📋 Salin Link</button>
+        <button class="btn btn-secondary btn-sm" id="btn-copy-sheet-url">${iconSvg('copy', 15)} Salin Link</button>
         <button class="btn btn-ghost btn-sm" id="btn-copy-sheet-id">Salin ID Saja</button>
         <a class="btn btn-ghost btn-sm" href="${esc(sheetUrl)}" target="_blank" rel="noopener">Buka di Google Sheets ↗</a>
       </div>

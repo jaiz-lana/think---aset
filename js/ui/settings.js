@@ -3,6 +3,8 @@ import { config } from '../config.js';
 import { notify } from '../utils/toast.js';
 import { $, esc } from '../utils/dom.js';
 import { getTheme, saveTheme } from '../theme.js';
+import { BG_PATTERNS, getBgPattern, saveBgPattern } from '../bg-pattern.js';
+import { iconSvg } from './icons.js';
 
 export async function renderSettings(root) {
   const adapter = getAdapter();
@@ -12,6 +14,7 @@ export async function renderSettings(root) {
 
   const orgName = settings.find(s => s.key === 'org_name')?.value || '';
   const themeVal = settings.find(s => s.key === 'theme')?.value || getTheme();
+  const currentBg = getBgPattern();
   const hasFolder = adapter.mode === 'google' && (!!adapter.folderId || adapter.role === 'owner');
 
   root.innerHTML = `
@@ -25,7 +28,7 @@ export async function renderSettings(root) {
         ${adapter.mode === 'google' ? `
           <div class="kv-row"><span>Spreadsheet ID</span><strong style="word-break:break-all">${esc(adapter.spreadsheetId || '-')}</strong></div>
           <div style="margin:8px 0;display:flex;gap:8px">
-            <button class="btn btn-secondary btn-sm" id="btn-copy-settings-id">📋 Salin Spreadsheet ID</button>
+            <button class="btn btn-secondary btn-sm" id="btn-copy-settings-id">${iconSvg('copy', 15)} Salin Spreadsheet ID</button>
             <a class="btn btn-ghost btn-sm" href="https://docs.google.com/spreadsheets/d/${esc(adapter.spreadsheetId)}/edit" target="_blank" rel="noopener">Buka di Google Sheets ↗</a>
           </div>
           <div class="kv-row"><span>Folder Lampiran ID</span><strong>${esc(mask(adapter.folderId))}</strong></div>
@@ -49,8 +52,24 @@ export async function renderSettings(root) {
       <div class="settings-section">
         <h2>Tema</h2>
         <div class="row">
-          <button class="btn ${themeVal === 'light' ? 'btn-primary' : 'btn-ghost'}" data-theme-set="light">☀ Terang</button>
-          <button class="btn ${themeVal === 'dark' ? 'btn-primary' : 'btn-ghost'}" data-theme-set="dark">☾ Gelap</button>
+          <button class="btn ${themeVal === 'light' ? 'btn-primary' : 'btn-ghost'}" data-theme-set="light">${iconSvg('sun', 15)} Terang</button>
+          <button class="btn ${themeVal === 'dark' ? 'btn-primary' : 'btn-ghost'}" data-theme-set="dark">${iconSvg('moon', 15)} Gelap</button>
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <h2>Latar Belakang Halaman</h2>
+        <p class="text-sm text-muted" style="margin-bottom:12px">Pilih motif latar belakang untuk area kerja agar halaman terasa lebih hidup.</p>
+        <div class="bg-picker-grid">
+          ${BG_PATTERNS.map(p => `
+            <button type="button" class="bg-picker-card ${currentBg === p.id ? 'selected' : ''}" data-bg-pick="${esc(p.id)}">
+              <span class="bg-picker-preview bg-preview-${esc(p.id)}" aria-hidden="true"></span>
+              <span class="bg-picker-info">
+                <strong>${esc(p.name)}</strong>
+                <span class="text-xs text-muted">${esc(p.desc)}</span>
+              </span>
+            </button>
+          `).join('')}
         </div>
       </div>
 
@@ -91,6 +110,16 @@ export async function renderSettings(root) {
     if (!adapter.spreadsheetId) return;
     navigator.clipboard.writeText(adapter.spreadsheetId);
     notify.success('Spreadsheet ID berhasil disalin!');
+  });
+
+  root.querySelectorAll('[data-bg-pick]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const picked = saveBgPattern(btn.dataset.bgPick);
+      root.querySelectorAll('[data-bg-pick]').forEach(b => {
+        b.classList.toggle('selected', b.dataset.bgPick === picked);
+      });
+      notify.success('Latar belakang halaman diperbarui');
+    });
   });
 
   root.querySelectorAll('[data-theme-set]').forEach(btn => {

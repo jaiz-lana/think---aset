@@ -5,6 +5,7 @@ import { getAdapter } from '../auth.js';
 import { esc, $ } from '../utils/dom.js';
 import { notify } from '../utils/toast.js';
 import { openModal, closeModal, confirmDialog } from './modal.js';
+import { emptyIconHtml } from './icons.js';
 
 export async function renderHolders(layout) {
   const adapter = getAdapter();
@@ -17,7 +18,7 @@ export async function renderHolders(layout) {
   async function reload() {
     layout.content.innerHTML = `
       <div class="empty-state">
-        <span class="empty-state-icon">⏳</span>
+        ${emptyIconHtml('loader')}
         <div class="empty-state-title">Memuat data…</div>
       </div>`;
 
@@ -27,7 +28,7 @@ export async function renderHolders(layout) {
     } catch (e) {
       layout.content.innerHTML = `
         <div class="empty-state">
-          <span class="empty-state-icon">⚠️</span>
+          ${emptyIconHtml('alert')}
           <div class="empty-state-title">Gagal memuat</div>
           <div class="empty-state-desc">${esc(e.message)}</div>
         </div>`;
@@ -48,7 +49,7 @@ export async function renderHolders(layout) {
     if (holders.length === 0) {
       layout.content.innerHTML = header + `
         <div class="empty-state">
-          <span class="empty-state-icon">👤</span>
+          ${emptyIconHtml('holders')}
           <div class="empty-state-title">Belum ada penanggung jawab</div>
           <div class="empty-state-desc">Tambahkan nama orang/unit yang bertanggung jawab atas aset.</div>
           ${canWrite ? '<button class="btn btn-primary" id="btn-add-holder-empty">+ Tambah</button>' : ''}

@@ -4,6 +4,7 @@ import { escapeFeatureText } from '../features.js';
 import { notify } from '../utils/toast.js';
 import { ensureChartJs } from '../utils/external-libs.js';
 import { openGuideModal } from './guide.js';
+import { iconSvg, emptyIconHtml } from './icons.js';
 import {
   computeDepreciation, parseLocalDate, summarizeAssets,
   formatRupiah, formatRupiahFull
@@ -18,12 +19,12 @@ export async function renderDashboard(layout) {
   layout.setTitle('Dashboard');
   layout.setActions(`
     ${adapter.canWrite() ? '<button class="btn btn-primary btn-sm" id="dash-tambah-aset">+ Tambah Aset</button>' : ''}
-    <button class="btn btn-ghost btn-sm" id="dash-scan">📷 Scan</button>
+    <button class="btn btn-ghost btn-sm" id="dash-scan">${iconSvg('scan', 15)} Scan</button>
   `);
 
   layout.content.innerHTML = `
     <div class="empty-state">
-      <span class="empty-state-icon">⏳</span>
+      ${emptyIconHtml('loader')}
       <div class="empty-state-title">Memuat dashboard…</div>
     </div>`;
 
@@ -172,9 +173,9 @@ function renderDashboardHTML({ assets, categories, locations, agendas, activity,
       </div>
       <div class="row" style="margin-top:12px;flex-wrap:wrap">
         ${canWrite ? '<a href="#/aset?aksi=tambah" class="btn btn-primary btn-sm">+ Tambah Aset</a>' : ''}
-        <a href="#/aset" class="btn btn-ghost btn-sm">📋 Buka Data Aset</a>
-        <a href="#/kategori" class="btn btn-ghost btn-sm">🗂️ Kelola Kategori</a>
-        <a href="#/pengaturan" class="btn btn-ghost btn-sm">⚙️ Pengaturan</a>
+        <a href="#/aset" class="btn btn-ghost btn-sm">${iconSvg('assets', 15)} Buka Data Aset</a>
+        <a href="#/kategori" class="btn btn-ghost btn-sm">${iconSvg('categories', 15)} Kelola Kategori</a>
+        <a href="#/pengaturan" class="btn btn-ghost btn-sm">${iconSvg('pengaturan', 15)} Pengaturan</a>
       </div>
     </div>
   `;
@@ -225,7 +226,7 @@ function renderSetupWarning({ assets, categories, locations, holders, canWrite }
     <section class="notice setup-warning" id="setup-warning-banner" role="region" aria-label="Peringatan persiapan awal">
       <div class="setup-warning-head">
         <div>
-          <strong>⚠️ Persiapan Penggunaan Awal</strong>
+          <strong style="display:inline-flex;align-items:center;gap:6px">${iconSvg('alert', 16)} Persiapan Penggunaan Awal</strong>
           <p class="setup-warning-desc">${message}</p>
         </div>
         <button type="button" class="setup-warning-close" id="btn-setup-dismiss" aria-label="Tutup peringatan" title="Tutup peringatan">×</button>

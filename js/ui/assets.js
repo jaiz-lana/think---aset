@@ -5,6 +5,7 @@ import { openModal, closeModal, confirmDialog } from './modal.js';
 import { compressImage } from '../utils/image.js';
 import { computeDepreciation, formatRupiahFull } from '../utils/depreciation.js';
 import { exportToXLSX, readSpreadsheet } from '../utils/excel.js';
+import { iconSvg, emptyIconHtml } from './icons.js';
 
 const PAGE_SIZE = 20;
 const KONDISI_LIST = ['baik', 'rusak_ringan', 'rusak_berat'];
@@ -42,10 +43,53 @@ export async function renderAssets(layout, { query } = {}) {
   if (window.location.hash !== myHash) return;
 
   if (query?.get('aksi') === 'tambah' && adapter.canWrite()) {
-    openAssetForm({ onSaved: reloadAndRender });
+    handleAddAsset();
   }
 
   renderList();
+
+  function handleAddAsset() {
+    const missing = [];
+    if (state.categories.length === 0) missing.push({ label: 'Kategori', href: '#/kategori' });
+    if (state.locations.length === 0) missing.push({ label: 'Lokasi', href: '#/lokasi' });
+    if (state.holders.length === 0) missing.push({ label: 'Penanggung Jawab', href: '#/penanggung-jawab' });
+
+    if (missing.length === 0) {
+      openAssetForm({ onSaved: reloadAndRender });
+      return;
+    }
+
+    const body = document.createElement('div');
+    body.innerHTML = `
+      <div class="notice" style="margin-bottom:14px">
+        Data Master berikut belum diisi: <strong>${missing.map(m => esc(m.label)).join(', ')}</strong>.
+      </div>
+      <p class="text-sm text-muted" style="margin:0 0 12px">
+        Disarankan mengisi data di atas terlebih dahulu agar pilihan di formulir aset sudah tersedia. Pilih data yang ingin diisi, atau lanjutkan tanpa mengisi.
+      </p>
+      <div class="row" style="flex-wrap:wrap;gap:8px">
+        ${missing.map(m => `<a href="${m.href}" class="btn btn-secondary btn-sm" data-master-nav>${iconSvg('plus', 14)} Isi ${esc(m.label)}</a>`).join('')}
+      </div>
+    `;
+    body.querySelectorAll('[data-master-nav]').forEach(el => {
+      el.addEventListener('click', () => closeModal());
+    });
+
+    openModal({
+      title: 'Data Master Belum Lengkap',
+      body,
+      actions: [
+        { label: 'Batal', class: 'btn btn-ghost' },
+        {
+          label: 'Lanjutkan Tanpa Mengisi',
+          class: 'btn btn-primary',
+          onClick: () => {
+            setTimeout(() => openAssetForm({ onSaved: reloadAndRender }), 0);
+          }
+        }
+      ]
+    });
+  }
 
   async function loadAll() {
     const [assets, categories, locations, holders] = await Promise.all([
@@ -82,8 +126,8 @@ export async function renderAssets(layout, { query } = {}) {
       <div class="page-header">
         <h1>Data Aset <span class="text-sm text-muted">(${state.assets.length} total)</span></h1>
         <div class="row" style="gap:6px;flex-wrap:wrap">
-          ${canWrite ? `<button class="btn btn-ghost btn-sm" id="btn-import">📥 Impor Excel</button>` : ''}
-          <button class="btn btn-ghost btn-sm" id="btn-export">📤 Ekspor Excel</button>
+          ${canWrite ? `<button class="btn btn-ghost btn-sm" id="btn-import">${iconSvg('import', 15)} Impor Excel</button>` : ''}
+          <button class="btn btn-ghost btn-sm" id="btn-export">${iconSvg('export', 15)} Ekspor Excel</button>
           ${canWrite ? `<button class="btn btn-primary btn-sm" id="btn-add">+ Tambah Aset</button>` : ''}
         </div>
       </div>
@@ -116,7 +160,7 @@ export async function renderAssets(layout, { query } = {}) {
       ${sorted.length === 0
         ? (state.assets.length === 0
             ? renderEmpty(canWrite)
-            : '<div class="empty-state"><span class="empty-state-icon">🔍</span><div class="empty-state-title">Tidak ada aset yang cocok dengan filter</div></div>')
+            : `<div class="empty-state">${emptyIconHtml('search')}<div class="empty-state-title">Tidak ada aset yang cocok dengan filter</div></div>`)
         : renderTable(pageRows, canWrite)}
 
       ${sorted.length > PAGE_SIZE ? renderPagination(state.page, totalPages, sorted.length) : ''}
@@ -163,10 +207,10 @@ export async function renderAssets(layout, { query } = {}) {
     });
 
     // Tombol header
-    $('#btn-add')?.addEventListener('click', () => openAssetForm({ onSaved: reloadAndRender }));
+    $('#btn-add')?.addEventListener('click', () => handleAddAsset());
     $('#btn-export')?.addEventListener('click', () => doExport(sorted));
     $('#btn-import')?.addEventListener('click', () => doImport());
-    $('#empty-add')?.addEventListener('click', () => openAssetForm({ onSaved: reloadAndRender }));
+    $('#empty-add')?.addEventListener('click', () => handleAddAsset());
     $('#empty-import')?.addEventListener('click', () => doImport());
     $('#bulk-clear')?.addEventListener('click', () => { state.selected.clear(); renderList(); });
 
@@ -247,10 +291,10 @@ export async function renderAssets(layout, { query } = {}) {
     return `
       <div class="card" style="padding:12px;margin-bottom:12px;display:flex;align-items:center;gap:12px;flex-wrap:wrap">
         <strong>${state.selected.size} aset terpilih</strong>
-        <button class="btn btn-ghost btn-sm bulk-btn" data-bulk="qr">🔲 Cetak QR</button>
-        <button class="btn btn-ghost btn-sm bulk-btn" data-bulk="export">📤 Ekspor terpilih</button>
-        <button class="btn btn-ghost btn-sm bulk-btn" data-bulk="nonaktif">🚫 Nonaktifkan</button>
-        <button class="btn btn-ghost btn-sm bulk-btn" data-bulk="hapus" style="color:var(--accent-danger)">🗑️ Hapus</button>
+        <button class="btn btn-ghost btn-sm bulk-btn" data-bulk="qr">${iconSvg('qr', 15)} Cetak QR</button>
+        <button class="btn btn-ghost btn-sm bulk-btn" data-bulk="export">${iconSvg('export', 15)} Ekspor terpilih</button>
+        <button class="btn btn-ghost btn-sm bulk-btn" data-bulk="nonaktif">Nonaktifkan</button>
+        <button class="btn btn-ghost btn-sm bulk-btn" data-bulk="hapus" style="color:var(--accent-danger)">Hapus</button>
         <button class="btn btn-ghost btn-sm" id="bulk-clear">Batalkan pilihan</button>
       </div>`;
   }
@@ -258,13 +302,13 @@ export async function renderAssets(layout, { query } = {}) {
   function renderEmpty(canWrite) {
     return `
       <div class="empty-state">
-        <span class="empty-state-icon">📋</span>
+        ${emptyIconHtml('assets')}
         <div class="empty-state-title">Belum ada aset</div>
         <div class="empty-state-desc">Tambahkan aset pertama Anda, atau impor dari Excel.</div>
         ${canWrite ? `
           <div class="row" style="justify-content:center">
             <button class="btn btn-primary" id="empty-add">+ Tambah Aset</button>
-            <button class="btn btn-secondary" id="empty-import">📥 Impor Excel</button>
+            <button class="btn btn-secondary" id="empty-import">${iconSvg('import', 15)} Impor Excel</button>
           </div>
         ` : ''}
       </div>`;

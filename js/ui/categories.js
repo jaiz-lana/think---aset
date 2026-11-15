@@ -2,6 +2,7 @@ import { getAdapter } from '../auth.js';
 import { esc, $ } from '../utils/dom.js';
 import { notify } from '../utils/toast.js';
 import { openModal, closeModal, confirmDialog } from './modal.js';
+import { emptyIconHtml } from './icons.js';
 
 export async function renderCategories(layout) {
   const adapter = getAdapter();
@@ -16,7 +17,7 @@ export async function renderCategories(layout) {
   async function reload() {
     layout.content.innerHTML = `
       <div class="empty-state">
-        <span class="empty-state-icon">⏳</span>
+        ${emptyIconHtml('loader')}
         <div class="empty-state-title">Memuat kategori…</div>
       </div>`;
 
@@ -26,7 +27,7 @@ export async function renderCategories(layout) {
     } catch (e) {
       layout.content.innerHTML = `
         <div class="empty-state">
-          <span class="empty-state-icon">⚠️</span>
+          ${emptyIconHtml('alert')}
           <div class="empty-state-title">Gagal memuat</div>
           <div class="empty-state-desc">${esc(e.message)}</div>
         </div>`;
@@ -44,7 +45,7 @@ export async function renderCategories(layout) {
     if (cats.length === 0) {
       layout.content.innerHTML = header + `
         <div class="empty-state">
-          <span class="empty-state-icon">🗂️</span>
+          ${emptyIconHtml('categories')}
           <div class="empty-state-title">Belum ada kategori</div>
           <div class="empty-state-desc">Kategori membantu Anda mengelompokkan aset (mis. Elektronik, Mebel, Kendaraan).</div>
           ${canWrite ? '<button class="btn btn-primary" id="btn-add-cat-empty">+ Tambah Kategori</button>' : ''}
