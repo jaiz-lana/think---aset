@@ -20,9 +20,7 @@ export async function runOnboarding(root, { onComplete } = {}) {
     || (!adapter.canWrite() && (localTheme === 'dark' || localTheme === 'light'));
   const needsOrg = adapter.canWrite() && !orgVal && !orgSkipped;
 
-  if (themeVal === 'dark' || themeVal === 'light') {
-    applyTheme(themeVal);
-  }
+  applyTheme('light');
 
   const finishOrg = async (val) => {
     if (val) {
@@ -35,19 +33,7 @@ export async function runOnboarding(root, { onComplete } = {}) {
     onComplete?.();
   };
 
-  if (!hasTheme) {
-    renderThemeStep(root, {
-      initial: getTheme(),
-      onPick: async (picked) => {
-        await saveTheme(adapter, picked);
-        if (needsOrg) {
-          renderOrgStep(root, { initial: '', onDone: finishOrg });
-        } else {
-          onComplete?.();
-        }
-      }
-    });
-  } else if (needsOrg) {
+  if (needsOrg) {
     renderOrgStep(root, { initial: orgVal || '', onDone: finishOrg });
   } else {
     onComplete?.();

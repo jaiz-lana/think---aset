@@ -77,9 +77,10 @@ export async function renderAssetDetail(layout, { params, query }) {
     </div>
 
     <div class="card" style="margin-bottom:16px">
-      <div class="row" style="align-items:flex-start;gap:20px;flex-wrap:wrap">
+      <div class="row" style="align-items:flex-start;gap:16px;flex-wrap:wrap">
+        <div id="detail-qr-preview" class="detail-qr-preview" title="QR Code Aset"></div>
         <div id="detail-photo" style="width:120px;height:120px;border-radius:12px;background:var(--surface-2);display:grid;place-items:center;color:var(--text-muted);overflow:hidden;flex-shrink:0">${iconSvg('assets', 40)}</div>
-        <div style="flex:1;min-width:260px">
+        <div style="flex:1;min-width:240px">
           <div class="row" style="gap:8px;flex-wrap:wrap;margin-bottom:8px">
             <span class="badge badge-${asset.status === 'nonaktif' ? 'danger' : 'success'}">${labelStatus(asset.status)}</span>
             <span class="badge badge-${kondisiBadge(asset.kondisi)}">${labelKondisi(asset.kondisi)}</span>
@@ -91,8 +92,7 @@ export async function renderAssetDetail(layout, { params, query }) {
           </p>
         </div>
         <div class="row" style="gap:6px;flex-wrap:wrap;align-items:flex-start">
-          <button class="btn btn-ghost btn-sm" id="btn-qr">${iconSvg('qr', 15)} QR</button>
-          <button class="btn btn-ghost btn-sm" id="btn-kartu">Kartu Aset</button>
+          <button class="btn btn-ghost btn-sm" id="btn-qr">${iconSvg('qr', 15)} Cetak QR</button>
           ${canWrite ? `
             <button class="btn btn-secondary btn-sm" id="btn-edit">Edit</button>
             ${asset.status !== 'nonaktif'
@@ -114,6 +114,11 @@ export async function renderAssetDetail(layout, { params, query }) {
 
     <div id="detail-tab-body"></div>
   `;
+
+  // Render preview QR di sebelah kiri foto
+  if (asset.qr_token) {
+    renderDetailQrPreview(document.getElementById('detail-qr-preview'), asset.qr_token);
+  }
 
   // Muat foto utama
   const firstPhotoId = getFirstPhotoId(asset);
@@ -149,10 +154,6 @@ export async function renderAssetDetail(layout, { params, query }) {
 
   document.getElementById('btn-qr')?.addEventListener('click', () => {
     window.location.hash = `/qr?asset=${encodeURIComponent(asset.id)}`;
-  });
-
-  document.getElementById('btn-kartu')?.addEventListener('click', () => {
-    window.location.hash = `/qr?asset=${encodeURIComponent(asset.id)}&print=1`;
   });
 
   document.getElementById('btn-nonaktif')?.addEventListener('click', async () => {
@@ -256,3 +257,27 @@ function renderInfoTab(container, { asset, cat, loc, hold, dep }) {
     </div>
   `;
 }
+
+async function renderDetailQrPreview(container, token) {
+  if (!container || !token) return;
+  try {
+    if (!window.qrcode) {
+      await new Promise((resolve, reject) => {
+        const s = document.createElement('script');
+        s.src = 'https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js';
+        s.integrity = 'sha384-8FWZA6BGMXhsfO+BLtrJK0We6gg5o1JyO8xQm6peWDEUs17ACA5ziE/NIAkl9z2k';
+        s.crossOrigin = 'anonymous';
+        s.onload = resolve;
+        s.onerror = () => reject(new Error('Gagal memuat library QR'));
+        document.head.appendChild(s);
+      });
+    }
+    const qr = window.qrcode(0, 'M');
+    qr.addData('TA:' + token);
+    qr.make();
+    container.innerHTML = qr.createSvgTag(4, 0);
+  } catch {
+    container.innerHTML = '<span class="text-xs text-muted">QR</span>';
+  }
+}
+

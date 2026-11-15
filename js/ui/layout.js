@@ -69,11 +69,7 @@ export function renderLayout(root, router) {
           ${menuHtml}
         </nav>
 
-        <div class="sidebar-footer">
-          <button class="footer-btn" id="btn-toggle-theme" title="Ubah tema terang/gelap">
-            <span class="theme-icon">${iconSvg(currentTheme === 'dark' ? 'sun' : 'moon', 15)}</span>
-            <span class="btn-text">${currentTheme === 'dark' ? 'Terang' : 'Gelap'}</span>
-          </button>
+        <div class="sidebar-footer" style="grid-template-columns:1fr">
           <button class="footer-btn btn-logout" id="btn-sidebar-logout" title="Keluar dari akun">
             <span class="logout-icon">${iconSvg('logout', 15)}</span>
             <span class="btn-text">Keluar</span>

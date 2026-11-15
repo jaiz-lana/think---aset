@@ -1416,3 +1416,20 @@
   .qr-size-large .qr-sticker-code { font-size: 10px; }
   .qr-size-large .qr-sticker-foot { font-size: 9px; }
 }
+
+.detail-qr-preview {
+  width: 120px;
+  height: 120px;
+  border-radius: 12px;
+  background: #ffffff;
+  border: 1px solid var(--border);
+  padding: 8px;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+.detail-qr-preview svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}

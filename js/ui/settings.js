@@ -50,14 +50,6 @@ export async function renderSettings(root) {
       </div>
 
       <div class="settings-section">
-        <h2>Tema</h2>
-        <div class="row">
-          <button class="btn ${themeVal === 'light' ? 'btn-primary' : 'btn-ghost'}" data-theme-set="light">${iconSvg('sun', 15)} Terang</button>
-          <button class="btn ${themeVal === 'dark' ? 'btn-primary' : 'btn-ghost'}" data-theme-set="dark">${iconSvg('moon', 15)} Gelap</button>
-        </div>
-      </div>
-
-      <div class="settings-section">
         <h2>Latar Belakang Halaman</h2>
         <p class="text-sm text-muted" style="margin-bottom:12px">Pilih motif latar belakang untuk area kerja agar halaman terasa lebih hidup.</p>
         <div class="bg-picker-grid">
