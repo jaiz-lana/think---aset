@@ -1,5 +1,5 @@
 const CACHE_PREFIX = 'thinkaset-';
-const CACHE_VERSION = 'thinkaset-v0.4.16';
+const CACHE_VERSION = 'thinkaset-v0.4.17';
 const STATIC_ASSETS = [
   './',
   './index.html',
@@ -23,6 +23,7 @@ const STATIC_ASSETS = [
   './js/onboarding.js',
   './js/ui/layout.js',
   './js/ui/dashboard.js',
+  './js/ui/guide.js',
   './js/ui/assets.js',
   './js/ui/asset-detail.js',
   './js/ui/categories.js',

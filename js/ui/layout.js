@@ -8,6 +8,7 @@ import { esc } from '../utils/dom.js';
 import { notify } from '../utils/toast.js';
 import { toggleTheme, getTheme } from '../theme.js';
 import { FEATURES, isFeatureAvailable } from '../features.js';
+import { openGuideModal } from './guide.js';
 
 /**
  * Bangun shell sekali.
@@ -89,9 +90,13 @@ export function renderLayout(root, router) {
         </header>
         <main class="app-content" id="app-content"></main>
       </div>
+      <button type="button" class="help-fab" id="btn-help-fab" aria-label="Panduan penggunaan" title="Panduan penggunaan">
+        <span class="help-fab-icon" aria-hidden="true">?</span>
+      </button>
     </div>`;
 
   applyWorkspaceBranding(adapter).catch(error => console.warn('Branding workspace gagal dimuat:', error));
+  document.getElementById('btn-help-fab')?.addEventListener('click', () => openGuideModal());
 
   const sidebar = document.getElementById('app-sidebar');
   const overlay = document.getElementById('sidebar-overlay');

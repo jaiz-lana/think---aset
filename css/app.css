@@ -819,3 +819,193 @@
   .filter-bar .form-input,
   .filter-bar .form-select { flex: 1 1 100%; }
 }
+
+/* ---------- Floating Help Button (?) ---------- */
+.help-fab {
+  position: fixed;
+  right: 22px;
+  bottom: 22px;
+  z-index: 400;
+  width: 50px;
+  height: 50px;
+  border-radius: 999px;
+  border: none;
+  background: var(--primary);
+  color: #ffffff;
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 1;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  box-shadow: 0 8px 20px rgba(22, 163, 74, 0.35);
+  transition: transform 180ms var(--ease-out), background 180ms ease, box-shadow 180ms ease;
+  animation: ta-help-float 3.2s ease-in-out infinite;
+}
+.help-fab::before {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: 999px;
+  border: 2px solid var(--primary);
+  opacity: 0;
+  pointer-events: none;
+  animation: ta-help-pulse 2.8s ease-out infinite;
+}
+.help-fab:hover {
+  background: var(--primary-dark, #15803D);
+  transform: translateY(-3px) scale(1.06);
+  box-shadow: 0 12px 26px rgba(22, 163, 74, 0.45);
+  animation-play-state: paused;
+}
+.help-fab:hover .help-fab-icon {
+  animation: ta-help-wiggle 450ms ease-in-out;
+}
+.help-fab:focus-visible {
+  outline: 3px solid var(--primary-light);
+  outline-offset: 3px;
+}
+
+@keyframes ta-help-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+@keyframes ta-help-pulse {
+  0% { transform: scale(0.92); opacity: 0.55; }
+  75%, 100% { transform: scale(1.35); opacity: 0; }
+}
+@keyframes ta-help-wiggle {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-14deg); }
+  75% { transform: rotate(14deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .help-fab,
+  .help-fab::before,
+  .help-fab:hover .help-fab-icon {
+    animation: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .help-fab {
+    right: 16px;
+    bottom: 16px;
+    width: 46px;
+    height: 46px;
+    font-size: 20px;
+  }
+}
+
+/* ---------- Guide Modal ---------- */
+.guide-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.guide-step {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  padding: 14px 16px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+}
+.guide-step-num {
+  flex: 0 0 28px;
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  background: var(--primary);
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 700;
+  display: grid;
+  place-items: center;
+  margin-top: 2px;
+}
+.guide-step-body {
+  flex: 1;
+  min-width: 0;
+}
+.guide-step-title {
+  margin: 0 0 4px;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+}
+.guide-step-desc {
+  margin: 0 0 8px;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+.guide-step-list {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 13px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.guide-link {
+  font-weight: 600;
+  color: var(--primary);
+  text-decoration: none;
+}
+.guide-link:hover {
+  text-decoration: underline;
+}
+.guide-footer-note {
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+  font-size: 13px;
+  color: var(--text-muted);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: space-between;
+  align-items: center;
+}
+.guide-footer-note a {
+  color: var(--primary);
+  font-weight: 600;
+}
+
+/* ---------- Dashboard Setup Warning ---------- */
+.setup-warning {
+  margin: 0 0 20px;
+}
+.setup-warning-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+.setup-warning-desc {
+  margin: 4px 0 10px;
+  line-height: 1.5;
+}
+.setup-warning-close {
+  background: transparent;
+  border: none;
+  color: inherit;
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 6px;
+  opacity: 0.75;
+}
+.setup-warning-close:hover {
+  opacity: 1;
+  background: rgba(0, 0, 0, 0.08);
+}
+.setup-warning-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}

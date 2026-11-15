@@ -3,6 +3,7 @@ import { esc, $ } from '../utils/dom.js';
 import { escapeFeatureText } from '../features.js';
 import { notify } from '../utils/toast.js';
 import { ensureChartJs } from '../utils/external-libs.js';
+import { openGuideModal } from './guide.js';
 import {
   computeDepreciation, parseLocalDate, summarizeAssets,
   formatRupiah, formatRupiahFull
@@ -95,6 +96,8 @@ function renderDashboardHTML({ assets, categories, locations, agendas, activity,
       </div>
     </div>
 
+    ${renderSetupWarning({ assets, categories, locations, holders, canWrite })}
+
     ${renderFeatureAnnouncement(unavailableFeatures)}
 
     <div class="dash-grid">
@@ -176,6 +179,12 @@ function renderDashboardHTML({ assets, categories, locations, agendas, activity,
     </div>
   `;
 
+  $('#btn-setup-guide')?.addEventListener('click', () => openGuideModal());
+  $('#btn-setup-dismiss')?.addEventListener('click', () => {
+    try { localStorage.setItem('ta_setup_warning_dismissed', '1'); } catch {}
+    document.getElementById('setup-warning-banner')?.remove();
+  });
+
   // Render grafik setelah DOM siap
   if (activeAssets.length > 0) {
     if (window.Chart) {
@@ -193,6 +202,40 @@ function renderDashboardHTML({ assets, categories, locations, agendas, activity,
       });
     }
   }
+}
+
+function renderSetupWarning({ assets, categories, locations, holders, canWrite }) {
+  if (!canWrite) return '';
+  try {
+    if (localStorage.getItem('ta_setup_warning_dismissed') === '1') return '';
+  } catch {}
+
+  const missing = [];
+  if (categories.length === 0) missing.push({ label: 'Kategori', href: '#/kategori' });
+  if (locations.length === 0) missing.push({ label: 'Lokasi', href: '#/lokasi' });
+  if (holders.length === 0) missing.push({ label: 'Penanggung Jawab', href: '#/penanggung-jawab' });
+
+  if (missing.length === 0 && assets.length > 0) return '';
+
+  const message = missing.length > 0
+    ? `Sebelum menambah aset, lengkapi dulu data awal berikut: <strong>${missing.map(m => esc(m.label)).join(', ')}</strong>.`
+    : 'Data master sudah siap. Anda bisa mulai menambahkan aset pertama Anda sekarang.';
+
+  return `
+    <section class="notice setup-warning" id="setup-warning-banner" role="region" aria-label="Peringatan persiapan awal">
+      <div class="setup-warning-head">
+        <div>
+          <strong>⚠️ Persiapan Penggunaan Awal</strong>
+          <p class="setup-warning-desc">${message}</p>
+        </div>
+        <button type="button" class="setup-warning-close" id="btn-setup-dismiss" aria-label="Tutup peringatan" title="Tutup peringatan">×</button>
+      </div>
+      <div class="setup-warning-actions">
+        ${missing.map(m => `<a href="${m.href}" class="btn btn-ghost btn-sm">+ Isi ${esc(m.label)}</a>`).join('')}
+        ${missing.length === 0 ? '<a href="#/aset?aksi=tambah" class="btn btn-primary btn-sm">+ Tambah Aset Pertama</a>' : ''}
+        <button type="button" class="btn btn-ghost btn-sm" id="btn-setup-guide">Lihat Panduan Lengkap</button>
+      </div>
+    </section>`;
 }
 
 function renderFeatureAnnouncement(features) {
