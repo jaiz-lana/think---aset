@@ -1210,3 +1210,131 @@
 .bg-picker-info strong {
   font-size: 13px;
 }
+
+/* ---------- QR & Asset Label Cards ---------- */
+.qr-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+  gap: 16px;
+  margin-top: 20px;
+}
+.asset-label {
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  background: #ffffff;
+  color: #111827;
+  padding: 12px 14px;
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+.asset-label-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-bottom: 8px;
+  margin-bottom: 10px;
+  border-bottom: 1px solid #E5E7EB;
+}
+.asset-label-org-logo {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+  border-radius: 4px;
+}
+.asset-label-org {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  color: #111827;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.asset-label-body {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.asset-label-qr {
+  position: relative;
+  flex-shrink: 0;
+  width: 96px;
+  height: 96px;
+  background: #ffffff;
+  padding: 3px;
+  border: 1px solid #E5E7EB;
+  border-radius: 6px;
+  display: grid;
+  place-items: center;
+}
+.asset-label-qr svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.asset-label-qr-logo {
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+  background: #ffffff;
+  padding: 2px;
+  border-radius: 4px;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.08);
+}
+.asset-label-info {
+  flex: 1;
+  min-width: 0;
+}
+.asset-label-name {
+  display: block;
+  font-size: 14px;
+  font-weight: 700;
+  color: #111827;
+  margin-bottom: 4px;
+  word-break: break-word;
+}
+.asset-label-code {
+  margin: 0 0 4px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #16A34A;
+  word-break: break-all;
+}
+.asset-label-serial {
+  display: block;
+  font-size: 11px;
+  color: #6B7280;
+}
+
+@media print {
+  body {
+    background: #ffffff !important;
+    color: #111827 !important;
+  }
+  .app-sidebar,
+  .sidebar-overlay,
+  .app-topbar,
+  .help-fab,
+  .no-print {
+    display: none !important;
+  }
+  .app-shell {
+    display: block !important;
+  }
+  .app-content {
+    padding: 0 !important;
+    background: none !important;
+  }
+  .qr-print-shell {
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    background: transparent !important;
+  }
+  .qr-cards-grid {
+    margin-top: 0 !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 12px !important;
+  }
+}

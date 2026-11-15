@@ -545,12 +545,31 @@ function isComplete(value) { return value === true || String(value).toLowerCase(
 async function renderQrCards(layout, query) {
   const adapter = getAdapter();
   layout.setActive('/qr'); layout.setTitle('QR & Kartu Aset');
-  const assets = await adapter.list('assets');
+  const [assets, settings] = await Promise.all([
+    adapter.list('assets'),
+    adapter.list('settings').catch(() => [])
+  ]);
+  const getSet = k => settings.find(s => s.key === k)?.value || '';
+  const orgName = getSet('branding_name') || getSet('org_name') || (() => {
+    try { return localStorage.getItem('ta_org_name') || 'Think Aset'; } catch { return 'Think Aset'; }
+  })();
+  let orgLogoUrl = 'icons/icon.svg';
+  const logoId = getSet('branding_logo_id');
+  if (logoId && adapter.getFileUrl) {
+    try {
+      const url = await adapter.getFileUrl(logoId);
+      if (url) orgLogoUrl = url;
+    } catch {}
+  }
+
   layout.content.innerHTML = `
-    <div class="page-header"><h1>QR & Kartu Aset</h1><button class="btn btn-primary btn-sm" id="qr-print">Cetak kartu</button></div>
-    <div class="card"><div class="form-group"><label class="form-label" for="qr-asset">Pilih aset</label><select class="form-select" id="qr-asset"><option value="">Pilih aset</option>${assets.map(asset => `<option value="${esc(asset.id)}">${esc(asset.kode || '')} · ${esc(asset.nama)}</option>`).join('')}</select></div>
-      <button class="btn btn-secondary" id="qr-generate">Buat QR</button>
-      <div id="qr-result" style="margin-top:20px"></div>
+    <div class="page-header no-print"><h1>QR &amp; Kartu Aset</h1><button class="btn btn-primary btn-sm" id="qr-print">Cetak kartu</button></div>
+    <div class="card qr-print-shell">
+      <div class="no-print">
+        <div class="form-group"><label class="form-label" for="qr-asset">Pilih aset</label><select class="form-select" id="qr-asset"><option value="">Pilih aset</option>${assets.map(asset => `<option value="${esc(asset.id)}">${esc(asset.kode || '')} · ${esc(asset.nama)}</option>`).join('')}</select></div>
+        <button class="btn btn-secondary" id="qr-generate">Buat QR</button>
+      </div>
+      <div id="qr-result" class="qr-cards-grid"></div>
     </div>`;
   let selected = [];
   const generate = async selectedIds => {
@@ -568,10 +587,27 @@ async function renderQrCards(layout, query) {
           const updated = await adapter.update('assets', asset.id, { qr_token: token, version: asset.version });
           Object.assign(asset, updated);
         }
-        const qr = qrcode(0, 'M');
+        const qr = qrcode(0, 'H');
         qr.addData(`TA:${token}`);
         qr.make();
-        labels.push(`<div class="asset-label">${qr.createSvgTag(4, 0)}<div><strong>${esc(asset.nama)}</strong><p>${esc(asset.kode || '')}</p><small>${esc(asset.serial || '')}</small></div></div>`);
+        labels.push(`
+          <div class="asset-label">
+            <div class="asset-label-head">
+              <img src="${esc(orgLogoUrl)}" alt="" class="asset-label-org-logo" />
+              <span class="asset-label-org">${esc(orgName)}</span>
+            </div>
+            <div class="asset-label-body">
+              <div class="asset-label-qr">
+                ${qr.createSvgTag(4, 0)}
+                <img src="${esc(orgLogoUrl)}" alt="" class="asset-label-qr-logo" />
+              </div>
+              <div class="asset-label-info">
+                <strong class="asset-label-name">${esc(asset.nama)}</strong>
+                <p class="asset-label-code">${esc(asset.kode || '')}</p>
+                ${asset.serial ? `<small class="asset-label-serial">SN: ${esc(asset.serial)}</small>` : ''}
+              </div>
+            </div>
+          </div>`);
       }
       layout.content.querySelector('#qr-result').innerHTML = labels.join('');
       if (query?.get('print') === '1') window.print();
