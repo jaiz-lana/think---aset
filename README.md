@@ -12,6 +12,12 @@ Data tersimpan di penyimpanan milik Anda sendiri: Google Drive atau perangkat lo
 
 [🚀 Coba Langsung](https://jaiz-lana.github.io/think---aset/) · [📖 Panduan](https://jaiz-lana.github.io/think---aset/pages/panduan.html) · [🐛 Laporkan Bug](https://github.com/jaiz-lana/think---aset/issues)
 
+<br/><br/>
+
+![Preview Think Aset](assets/promo-think-aset.gif)
+
+[🎬 Unduh / Tonton Video HD (MP4)](assets/promo-think-aset.mp4)
+
 </div>
 
 ---
