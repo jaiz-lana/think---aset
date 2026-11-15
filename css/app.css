@@ -1211,130 +1211,208 @@
   font-size: 13px;
 }
 
-/* ---------- QR & Asset Label Cards ---------- */
-.qr-cards-grid {
+/* ---------- QR-Code Builder & A4 Sticker Print ---------- */
+.qr-builder-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
-  gap: 16px;
-  margin-top: 20px;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+  align-items: start;
 }
-.asset-label {
-  border: 1.5px solid var(--border);
-  border-radius: 10px;
-  background: #ffffff;
-  color: #111827;
-  padding: 12px 14px;
-  break-inside: avoid;
-  page-break-inside: avoid;
+@media (max-width: 900px) {
+  .qr-builder-grid { grid-template-columns: 1fr; }
 }
-.asset-label-head {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding-bottom: 8px;
-  margin-bottom: 10px;
-  border-bottom: 1px solid #E5E7EB;
+.qr-panel {
+  padding: 0;
+  overflow: hidden;
 }
-.asset-label-org-logo {
-  width: 20px;
-  height: 20px;
-  object-fit: contain;
-  border-radius: 4px;
-}
-.asset-label-org {
+.qr-panel-head {
+  padding: 10px 16px;
   font-size: 12px;
   font-weight: 700;
-  letter-spacing: 0.2px;
-  color: #111827;
+  letter-spacing: 0.5px;
+  background: var(--primary-faint);
+  color: var(--primary-dark);
+  border-bottom: 1px solid var(--border);
+}
+.qr-panel > :not(.qr-panel-head) {
+  margin-left: 16px;
+  margin-right: 16px;
+}
+.qr-panel > :nth-child(2) {
+  margin-top: 14px;
+}
+.qr-panel > :last-child {
+  margin-bottom: 16px;
+}
+.qr-filter-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+.qr-filter-row .form-select,
+.qr-filter-row .form-input {
+  flex: 1 1 140px;
+  min-width: 0;
+}
+.qr-picker-list,
+.qr-queue-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 460px;
+  overflow-y: auto;
+}
+.qr-asset-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-page);
+}
+.qr-asset-thumb {
+  width: 34px;
+  height: 34px;
+  border-radius: 6px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  display: grid;
+  place-items: center;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+.qr-asset-meta {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.qr-asset-meta strong {
+  font-size: 13.5px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.asset-label-body {
-  display: flex;
-  align-items: center;
-  gap: 12px;
+.qr-asset-meta span {
+  font-size: 12px;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
-.asset-label-qr {
-  position: relative;
-  flex-shrink: 0;
-  width: 96px;
-  height: 96px;
+.qr-add-btn,
+.qr-remove-btn {
+  min-width: 34px;
+  font-size: 16px;
+  font-weight: 700;
+}
+.qr-print-controls {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 14px;
+}
+.qr-print-controls .form-select {
+  flex: 1 1 180px;
+}
+
+.qr-print-sheet {
+  display: none;
+}
+.qr-sticker {
+  border: 1px solid #111827;
   background: #ffffff;
-  padding: 3px;
-  border: 1px solid #E5E7EB;
-  border-radius: 6px;
+  color: #111827;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  text-align: center;
+  overflow: hidden;
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+.qr-sticker-head,
+.qr-sticker-foot {
+  width: 100%;
+  background: #111827;
+  color: #ffffff;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  padding: 2px 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.qr-sticker-head { font-size: 8px; }
+.qr-sticker-foot { font-size: 6.5px; font-weight: 500; }
+.qr-sticker-code-wrap {
+  position: relative;
   display: grid;
   place-items: center;
+  flex: 1;
+  width: 100%;
+  padding: 3px;
 }
-.asset-label-qr svg {
+.qr-sticker-code-wrap svg {
   width: 100%;
   height: 100%;
+  max-width: 100%;
+  max-height: 100%;
   display: block;
 }
-.asset-label-qr-logo {
+.qr-sticker-logo {
   position: absolute;
-  width: 22px;
-  height: 22px;
+  width: 22%;
+  height: 22%;
   object-fit: contain;
   background: #ffffff;
-  padding: 2px;
-  border-radius: 4px;
-  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.08);
+  padding: 1.5px;
+  border-radius: 3px;
 }
-.asset-label-info {
-  flex: 1;
-  min-width: 0;
-}
-.asset-label-name {
-  display: block;
-  font-size: 14px;
+.qr-sticker-name {
+  font-size: 7.5px;
   font-weight: 700;
-  color: #111827;
-  margin-bottom: 4px;
-  word-break: break-word;
+  line-height: 1.15;
+  padding: 0 3px;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
-.asset-label-code {
-  margin: 0 0 4px;
-  font-size: 12px;
-  font-weight: 600;
-  color: #16A34A;
-  word-break: break-all;
-}
-.asset-label-serial {
-  display: block;
-  font-size: 11px;
-  color: #6B7280;
+.qr-sticker-code {
+  font-size: 6.5px;
+  color: #374151;
+  padding: 0 3px 2px;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 @media print {
-  body {
-    background: #ffffff !important;
-    color: #111827 !important;
+  @page { size: A4 portrait; margin: 10mm; }
+  body { background: #ffffff !important; color: #111827 !important; }
+  .app-sidebar, .sidebar-overlay, .app-topbar, .help-fab, .no-print { display: none !important; }
+  .app-shell { display: block !important; }
+  .app-content { padding: 0 !important; background: none !important; }
+  .qr-print-sheet {
+    display: flex !important;
+    flex-wrap: wrap;
+    gap: 4mm;
+    align-items: flex-start;
   }
-  .app-sidebar,
-  .sidebar-overlay,
-  .app-topbar,
-  .help-fab,
-  .no-print {
-    display: none !important;
-  }
-  .app-shell {
-    display: block !important;
-  }
-  .app-content {
-    padding: 0 !important;
-    background: none !important;
-  }
-  .qr-print-shell {
-    border: none !important;
-    box-shadow: none !important;
-    padding: 0 !important;
-    background: transparent !important;
-  }
-  .qr-cards-grid {
-    margin-top: 0 !important;
-    grid-template-columns: repeat(2, 1fr) !important;
-    gap: 12px !important;
-  }
+  .qr-size-small .qr-sticker { width: 23mm; height: 30mm; }
+  .qr-size-medium .qr-sticker { width: 39mm; height: 51mm; }
+  .qr-size-medium .qr-sticker-head { font-size: 10px; padding: 3px 4px; }
+  .qr-size-medium .qr-sticker-name { font-size: 9px; }
+  .qr-size-medium .qr-sticker-code { font-size: 8px; }
+  .qr-size-large .qr-sticker { width: 61mm; height: 80mm; }
+  .qr-size-large .qr-sticker-head { font-size: 13px; padding: 4px 6px; }
+  .qr-size-large .qr-sticker-name { font-size: 12px; }
+  .qr-size-large .qr-sticker-code { font-size: 10px; }
+  .qr-size-large .qr-sticker-foot { font-size: 9px; }
 }

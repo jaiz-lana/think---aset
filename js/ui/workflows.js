@@ -544,11 +544,13 @@ function isComplete(value) { return value === true || String(value).toLowerCase(
 
 async function renderQrCards(layout, query) {
   const adapter = getAdapter();
-  layout.setActive('/qr'); layout.setTitle('QR & Kartu Aset');
-  const [assets, settings] = await Promise.all([
+  layout.setActive('/qr'); layout.setTitle('Cetak QR-Code');
+  const [assets, categories, settings] = await Promise.all([
     adapter.list('assets'),
+    adapter.list('categories').catch(() => []),
     adapter.list('settings').catch(() => [])
   ]);
+  const catMap = new Map(categories.map(c => [c.id, c.nama]));
   const getSet = k => settings.find(s => s.key === k)?.value || '';
   const orgName = getSet('branding_name') || getSet('org_name') || (() => {
     try { return localStorage.getItem('ta_org_name') || 'Think Aset'; } catch { return 'Think Aset'; }
@@ -562,25 +564,141 @@ async function renderQrCards(layout, query) {
     } catch {}
   }
 
+  let filterCat = '';
+  let filterSearch = '';
+  let printSize = 'medium';
+  const queueIds = [];
+
+  if (query?.get('assets')) {
+    query.get('assets').split(',').filter(Boolean).forEach(id => {
+      if (assets.some(a => a.id === id) && !queueIds.includes(id)) queueIds.push(id);
+    });
+  } else if (query?.get('asset') && assets.some(a => a.id === query.get('asset'))) {
+    queueIds.push(query.get('asset'));
+  }
+
   layout.content.innerHTML = `
-    <div class="page-header no-print"><h1>QR &amp; Kartu Aset</h1><button class="btn btn-primary btn-sm" id="qr-print">Cetak kartu</button></div>
-    <div class="card qr-print-shell">
-      <div class="no-print">
-        <div class="form-group"><label class="form-label" for="qr-asset">Pilih aset</label><select class="form-select" id="qr-asset"><option value="">Pilih aset</option>${assets.map(asset => `<option value="${esc(asset.id)}">${esc(asset.kode || '')} · ${esc(asset.nama)}</option>`).join('')}</select></div>
-        <button class="btn btn-secondary" id="qr-generate">Buat QR</button>
-      </div>
-      <div id="qr-result" class="qr-cards-grid"></div>
-    </div>`;
-  let selected = [];
-  const generate = async selectedIds => {
-    selected = selectedIds?.length
-      ? assets.filter(asset => selectedIds.includes(asset.id))
-      : assets.filter(asset => asset.id === layout.content.querySelector('#qr-asset').value);
-    if (!selected.length) return notify.error('Pilih aset terlebih dahulu');
+    <div class="page-header no-print"><h1>Cetak QR-Code</h1></div>
+    <div class="qr-builder-grid no-print">
+      <section class="card qr-panel">
+        <div class="qr-panel-head">PILIH ASET</div>
+        <div class="qr-filter-row">
+          <select class="form-select" id="qr-filter-cat">
+            <option value="">Semua Kategori</option>
+            ${categories.map(c => `<option value="${esc(c.id)}">${esc(c.nama)}</option>`).join('')}
+          </select>
+          <input type="search" class="form-input" id="qr-filter-search" placeholder="Cari Nama Aset" />
+          <button type="button" class="btn btn-primary btn-sm" id="qr-filter-go">GO!</button>
+          <button type="button" class="btn btn-ghost btn-sm" id="qr-filter-reset" title="Reset filter">↻</button>
+        </div>
+        <div class="qr-picker-list" id="qr-picker-list"></div>
+      </section>
+
+      <section class="card qr-panel">
+        <div class="qr-panel-head">DAFTAR CETAK QR-CODE</div>
+        <p class="text-xs text-muted" style="margin:0 0 12px;line-height:1.5">
+          Siapkan kertas / stiker berukuran A4 (210 x 297 mm) untuk mencetak file PDF yang akan dihasilkan.
+          QRCode ini dapat ditempel di aset Anda. Saat di-scan dengan smartphone, akan menampilkan data aset secara langsung.
+        </p>
+        <div id="qr-queue-list" class="qr-queue-list"></div>
+        <div class="qr-print-controls">
+          <select class="form-select" id="qr-size-select" aria-label="Pilih ukuran stiker">
+            <option value="">Pilih ukuran…</option>
+            <option value="small">Ukuran Kecil (23 x 30 mm)</option>
+            <option value="medium" selected>Ukuran Sedang (39 x 51 mm)</option>
+            <option value="large">Ukuran Besar (61 x 80 mm)</option>
+          </select>
+          <button type="button" class="btn btn-primary" id="qr-print-pdf">CETAK PDF »</button>
+        </div>
+      </section>
+    </div>
+    <div id="qr-print-sheet" class="qr-print-sheet qr-size-medium"></div>
+  `;
+
+  const pickerEl = layout.content.querySelector('#qr-picker-list');
+  const queueEl = layout.content.querySelector('#qr-queue-list');
+  const printSheetEl = layout.content.querySelector('#qr-print-sheet');
+
+  const renderPicker = () => {
+    const q = filterSearch.trim().toLowerCase();
+    const filtered = assets.filter(a => {
+      if (filterCat && a.category_id !== filterCat) return false;
+      if (q && !`${a.nama || ''} ${a.kode || ''}`.toLowerCase().includes(q)) return false;
+      return true;
+    });
+    if (!filtered.length) {
+      pickerEl.innerHTML = `<p class="text-sm text-muted" style="margin:12px 0">Tidak ada aset yang cocok.</p>`;
+      return;
+    }
+    pickerEl.innerHTML = filtered.map(a => {
+      const inQueue = queueIds.includes(a.id);
+      const catName = catMap.get(a.category_id) || 'Tanpa Kategori';
+      return `
+        <div class="qr-asset-row">
+          <div class="qr-asset-thumb" aria-hidden="true">${iconSvg('qr', 22)}</div>
+          <div class="qr-asset-meta">
+            <strong>${esc(a.nama || '—')}</strong>
+            <span>${esc(catName)} · ${esc(a.kode || '')}</span>
+          </div>
+          <button type="button" class="btn btn-ghost btn-sm qr-add-btn" data-add-id="${esc(a.id)}" ${inQueue ? 'disabled title="Sudah di daftar cetak"' : 'title="Tambahkan ke daftar cetak"'}>
+            ${inQueue ? '✓' : '+'}
+          </button>
+        </div>`;
+    }).join('');
+    pickerEl.querySelectorAll('[data-add-id]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = btn.dataset.addId;
+        if (!queueIds.includes(id)) {
+          queueIds.push(id);
+          renderPicker();
+          renderQueue();
+        }
+      });
+    });
+  };
+
+  const renderQueue = () => {
+    if (!queueIds.length) {
+      queueEl.innerHTML = `<p class="text-sm text-muted" style="font-style:italic;margin:8px 0 14px">Belum ada aset yang dipilih.</p>`;
+      return;
+    }
+    queueEl.innerHTML = queueIds.map(id => {
+      const a = assets.find(x => x.id === id);
+      if (!a) return '';
+      const catName = catMap.get(a.category_id) || 'Tanpa Kategori';
+      return `
+        <div class="qr-asset-row">
+          <div class="qr-asset-thumb" aria-hidden="true">${iconSvg('qr', 22)}</div>
+          <div class="qr-asset-meta">
+            <strong>${esc(a.nama || '—')}</strong>
+            <span>${esc(catName)} · ${esc(a.kode || '')}</span>
+          </div>
+          <button type="button" class="btn btn-ghost btn-sm qr-remove-btn" data-remove-id="${esc(a.id)}" title="Hapus dari daftar cetak">×</button>
+        </div>`;
+    }).join('');
+    queueEl.querySelectorAll('[data-remove-id]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const idx = queueIds.indexOf(btn.dataset.removeId);
+        if (idx >= 0) queueIds.splice(idx, 1);
+        renderPicker();
+        renderQueue();
+      });
+    });
+  };
+
+  const buildAndPrint = async () => {
+    if (!queueIds.length) return notify.error('Tambahkan minimal 1 aset ke daftar cetak terlebih dahulu');
+    const chosenSize = layout.content.querySelector('#qr-size-select').value;
+    if (!chosenSize) return notify.error('Pilih ukuran stiker terlebih dahulu');
+    printSize = chosenSize;
+    printSheetEl.className = `qr-print-sheet qr-size-${printSize}`;
+
     try {
       const qrcode = await loadQrLibrary();
       const labels = [];
-      for (let asset of selected) {
+      for (const id of queueIds) {
+        const asset = assets.find(a => a.id === id);
+        if (!asset) continue;
         let token = asset.qr_token;
         if (!token) {
           token = qrToken();
@@ -591,39 +709,54 @@ async function renderQrCards(layout, query) {
         qr.addData(`TA:${token}`);
         qr.make();
         labels.push(`
-          <div class="asset-label">
-            <div class="asset-label-head">
-              <img src="${esc(orgLogoUrl)}" alt="" class="asset-label-org-logo" />
-              <span class="asset-label-org">${esc(orgName)}</span>
+          <div class="qr-sticker">
+            <div class="qr-sticker-head">${esc(orgName)}</div>
+            <div class="qr-sticker-code-wrap">
+              ${qr.createSvgTag(4, 0)}
+              <img src="${esc(orgLogoUrl)}" alt="" class="qr-sticker-logo" />
             </div>
-            <div class="asset-label-body">
-              <div class="asset-label-qr">
-                ${qr.createSvgTag(4, 0)}
-                <img src="${esc(orgLogoUrl)}" alt="" class="asset-label-qr-logo" />
-              </div>
-              <div class="asset-label-info">
-                <strong class="asset-label-name">${esc(asset.nama)}</strong>
-                <p class="asset-label-code">${esc(asset.kode || '')}</p>
-                ${asset.serial ? `<small class="asset-label-serial">SN: ${esc(asset.serial)}</small>` : ''}
-              </div>
-            </div>
+            <div class="qr-sticker-name">${esc(asset.nama || '')}</div>
+            <div class="qr-sticker-code">${esc(asset.kode || '')}</div>
+            <div class="qr-sticker-foot">Think Aset</div>
           </div>`);
       }
-      layout.content.querySelector('#qr-result').innerHTML = labels.join('');
-      if (query?.get('print') === '1') window.print();
-    } catch (error) { notify.error('QR gagal dibuat: ' + error.message); }
+      printSheetEl.innerHTML = labels.join('');
+      window.print();
+    } catch (error) {
+      notify.error('QR gagal dibuat: ' + error.message);
+    }
   };
-  layout.content.querySelector('#qr-generate').addEventListener('click', () => generate());
-  if (query?.get('assets')) {
-    await generate(query.get('assets').split(',').filter(Boolean));
-  } else if (query?.get('asset') && assets.some(asset => asset.id === query.get('asset'))) {
-    layout.content.querySelector('#qr-asset').value = query.get('asset');
-    await generate();
-  }
-  layout.content.querySelector('#qr-print').addEventListener('click', () => {
-    if (!selected.length) return notify.error('Buat QR aset terlebih dahulu');
-    window.print();
+
+  layout.content.querySelector('#qr-filter-go').addEventListener('click', () => {
+    filterCat = layout.content.querySelector('#qr-filter-cat').value;
+    filterSearch = layout.content.querySelector('#qr-filter-search').value;
+    renderPicker();
   });
+  layout.content.querySelector('#qr-filter-cat').addEventListener('change', (e) => {
+    filterCat = e.target.value;
+    renderPicker();
+  });
+  layout.content.querySelector('#qr-filter-search').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      filterSearch = e.target.value;
+      renderPicker();
+    }
+  });
+  layout.content.querySelector('#qr-filter-reset').addEventListener('click', () => {
+    filterCat = '';
+    filterSearch = '';
+    layout.content.querySelector('#qr-filter-cat').value = '';
+    layout.content.querySelector('#qr-filter-search').value = '';
+    renderPicker();
+  });
+  layout.content.querySelector('#qr-print-pdf').addEventListener('click', buildAndPrint);
+
+  renderPicker();
+  renderQueue();
+  if (query?.get('print') === '1' && queueIds.length) {
+    await buildAndPrint();
+  }
 }
 
 let qrLibraryPromise;
