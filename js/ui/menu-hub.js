@@ -163,6 +163,9 @@ export function renderMenuHub(layout, hubId) {
   layout.setActions('');
 
   layout.content.innerHTML = `
+    <div style="margin-bottom:12px">
+      <a href="#/dashboard" class="btn btn-ghost btn-sm">← Kembali ke Dashboard</a>
+    </div>
     <div class="page-header">
       <div>
         <h1>${esc(hub.title)}</h1>

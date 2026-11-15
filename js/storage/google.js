@@ -212,13 +212,53 @@ export class GoogleAdapter extends StorageAdapter {
       return;
     }
 
-    // mode === 'auto' — pakai yang ada, buat baru bila tidak ada
+    // mode === 'auto' — pakai yang ada di localStorage, atau cari di Google Drive sebelum membuat baru
     if (savedSs) {
       this.spreadsheetId = savedSs;
       this.folderId = savedFolder || null;
       return;
     }
+
+    const found = await this._findExistingWorkspace();
+    if (found) {
+      this.spreadsheetId = found.spreadsheetId;
+      this.folderId = found.folderId;
+      this._saveWorkspaceIds(found.folderId);
+      return;
+    }
+
     await this._createWorkspace();
+  }
+
+  async _findExistingWorkspace() {
+    try {
+      const escapeQ = s => String(s).replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+      const ssQ = `name='${escapeQ(this.config.SHEET_TITLE)}' and mimeType='application/vnd.google-apps.spreadsheet' and trashed=false`;
+      const ssRes = await this._fetch(
+        `${API.DRIVE}/files?q=${encodeURIComponent(ssQ)}&orderBy=modifiedTime desc&pageSize=10&fields=files(id,name,modifiedTime,owners(emailAddress))`
+      );
+      const files = ssRes?.files || [];
+      if (files.length === 0) return null;
+
+      // Prioritaskan file milik sendiri, jika tidak ada pakai yang terbaru
+      const myEmail = (this.user?.email || '').toLowerCase();
+      const owned = files.find(f => (f.owners || []).some(o => (o.emailAddress || '').toLowerCase() === myEmail));
+      const chosen = owned || files[0];
+
+      let folderId = null;
+      try {
+        const folderQ = `name='${escapeQ(this.config.FOLDER_TITLE)}' and mimeType='application/vnd.google-apps.folder' and trashed=false`;
+        const folderRes = await this._fetch(
+          `${API.DRIVE}/files?q=${encodeURIComponent(folderQ)}&orderBy=modifiedTime desc&pageSize=5&fields=files(id,name)`
+        );
+        folderId = folderRes?.files?.[0]?.id || null;
+      } catch {}
+
+      return { spreadsheetId: chosen.id, folderId };
+    } catch (e) {
+      console.warn('Pencarian workspace di Drive gagal:', e);
+      return null;
+    }
   }
 
   async _createWorkspace() {
