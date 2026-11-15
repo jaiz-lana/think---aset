@@ -739,7 +739,15 @@ export async function openAssetForm({ asset = null, onSaved } = {}) {
     }
   } catch {}
 
-  const codeFormat = localStorage.getItem('ta_asset_code_format') || 'INV/{YYYY}/{SEQ:4}';
+  let orgSlug = 'ORGANISASI';
+  try {
+    const rawOrg = (localStorage.getItem('ta_org_name') || '').trim();
+    if (rawOrg) {
+      orgSlug = rawOrg.replace(/\s+/g, '-').replace(/[{}]/g, '');
+    }
+  } catch {}
+  const defaultFormat = `{SEQ:3}/${orgSlug}/{YYYY}`;
+  const codeFormat = localStorage.getItem('ta_asset_code_format') || defaultFormat;
   const defaultKode = editing ? (asset.kode || '') : await generateNextKode(adapter, codeFormat);
 
   const catOptions = renderKategoriSelect(categories, asset?.category_id || '');
@@ -854,10 +862,14 @@ export async function openAssetForm({ asset = null, onSaved } = {}) {
         <div class="form-section-title">Foto &amp; Lampiran</div>
         <div class="form-group">
           <label class="form-label">Foto Aset</label>
-          <div class="row" style="align-items:flex-start;flex-wrap:wrap">
+          <div class="row" style="align-items:flex-start;flex-wrap:wrap;gap:8px">
             <div id="foto-preview" style="display:flex;gap:8px;flex-wrap:wrap"></div>
             <label class="btn btn-ghost btn-sm" style="cursor:pointer">
-              + Tambah Foto
+              📷 Kamera
+              <input type="file" id="foto-camera-input" accept="image/*" capture="environment" style="display:none" />
+            </label>
+            <label class="btn btn-ghost btn-sm" style="cursor:pointer">
+              🖼️ Galeri
               <input type="file" id="foto-input" accept="image/*" multiple style="display:none" />
             </label>
           </div>
@@ -964,7 +976,7 @@ export async function openAssetForm({ asset = null, onSaved } = {}) {
   // Wire foto upload & preview
   renderFotoPreview(document.getElementById('foto-preview'), fotoIds);
 
-  document.getElementById('foto-input').addEventListener('change', async (ev) => {
+  const handlePhotoFiles = async (ev) => {
     const files = Array.from(ev.target.files || []);
     for (const file of files) {
       if (!file.type.startsWith('image/')) {
@@ -983,7 +995,9 @@ export async function openAssetForm({ asset = null, onSaved } = {}) {
       }
     }
     ev.target.value = '';
-  });
+  };
+  document.getElementById('foto-input').addEventListener('change', handlePhotoFiles);
+  document.getElementById('foto-camera-input')?.addEventListener('change', handlePhotoFiles);
 }
 
 function renderFotoPreview(container, fotoIds) {

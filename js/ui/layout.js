@@ -84,6 +84,7 @@ export function renderLayout(root, router) {
       <div class="app-main">
         <header class="app-topbar">
           <button class="sidebar-toggle" id="sidebar-toggle" aria-label="Buka menu navigasi">☰</button>
+          <button type="button" class="btn btn-ghost btn-sm topbar-back hidden" id="btn-topbar-back" aria-label="Kembali" title="Kembali">← Kembali</button>
           <div class="topbar-title" id="topbar-title">Dashboard</div>
           <div class="topbar-actions" id="topbar-actions"></div>
         </header>
@@ -139,6 +140,14 @@ export function renderLayout(root, router) {
     });
   });
 
+  document.getElementById('btn-topbar-back')?.addEventListener('click', () => {
+    if (window.history.length > 1) {
+      window.history.back();
+    } else {
+      router.navigate('/dashboard');
+    }
+  });
+
   const content = document.getElementById('app-content');
 
   return {
@@ -159,6 +168,10 @@ export function renderLayout(root, router) {
       document.querySelectorAll('.sidebar-item').forEach(a => {
         a.classList.toggle('active', a.dataset.path === activePath);
       });
+      const backBtn = document.getElementById('btn-topbar-back');
+      if (backBtn) {
+        backBtn.classList.toggle('hidden', !path || path === '/' || path === '/dashboard');
+      }
       closeMobile();
     },
     getUnavailableFeatures() {

@@ -118,15 +118,14 @@ function renderOrgStep(root, { initial, onDone }) {
           <input id="org-name" class="form-input" placeholder="Contoh: PT Maju Bersama" value="${esc(initial)}" autofocus />
         </div>
         <button class="btn btn-primary btn-block" id="btn-finish">Selesai</button>
-        <button class="btn btn-ghost btn-block mt-3" id="btn-skip">Lewati</button>
       </div>
     </div>`;
 
   $('#btn-finish').addEventListener('click', async () => {
     const val = $('#org-name').value.trim();
+    if (!val) return notify.error('Nama organisasi wajib diisi');
     if (val.length > 100) return notify.error('Nama terlalu panjang (maks 100 karakter)');
     try { await onDone(val); }
     catch (e) { notify.error('Gagal menyimpan nama organisasi: ' + e.message); }
   });
-  $('#btn-skip').addEventListener('click', () => onDone(''));
 }

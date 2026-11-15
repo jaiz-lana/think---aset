@@ -2,7 +2,7 @@ import { deploymentConfig } from './deployment-config.js';
 
 export const config = {
   APP_NAME: 'Think Aset',
-  APP_VERSION: '0.4.21',
+  APP_VERSION: '0.4.22',
 
   // Google OAuth
   GOOGLE_CLIENT_ID: deploymentConfig.GOOGLE_CLIENT_ID,

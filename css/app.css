@@ -833,6 +833,9 @@
   .hub-card { padding: 14px; gap: 12px; }
   .bg-picker-grid { grid-template-columns: 1fr; }
   .page-header { flex-direction: column; align-items: stretch; gap: 10px; }
+  .page-header .row { width: 100%; flex-wrap: wrap; }
+  .page-header .row .btn { flex: 1 1 auto; justify-content: center; }
+  .topbar-back { padding: 4px 8px; font-size: 12px; }
   .page-header h1 { font-size: 1.125rem; }
   .data-table th, .data-table td { padding: 10px 8px; font-size: 13px; }
 }
