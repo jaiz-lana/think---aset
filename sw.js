@@ -1,5 +1,5 @@
 const CACHE_PREFIX = 'thinkaset-';
-const CACHE_VERSION = 'thinkaset-v0.4.20';
+const CACHE_VERSION = 'thinkaset-v0.4.21';
 const STATIC_ASSETS = [
   './',
   './index.html',

@@ -804,7 +804,8 @@
     top: 0;
     bottom: 0;
     width: 260px;
-    height: 100vh;
+    height: auto;
+    max-height: 100dvh;
     transition: left 240ms var(--ease-out);
     box-shadow: none;
   }
