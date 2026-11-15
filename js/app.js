@@ -19,6 +19,7 @@ import { renderLocations } from './ui/locations.js';
 import { renderHolders } from './ui/holders.js';
 import { renderSettings } from './ui/settings.js';
 import { renderWorkflow } from './ui/workflows.js';
+import { renderMenuHub } from './ui/menu-hub.js';
 
 initTheme();
 enableGlobalRipple();
@@ -58,6 +59,9 @@ FEATURES.filter(feature => feature.availability === 'ready' && feature.path).for
 });
 router.add('/aset/:key', ({ params, query }) =>
   withLayout(() => renderAssetDetail(layout, { params, query }))
+);
+router.add('/menu/:hub', ({ params }) =>
+  withLayout(() => renderMenuHub(layout, params.hub))
 );
 router.add('/', () => {
   if (!isSignedIn()) return showAuthScreen();

@@ -9,6 +9,8 @@ import { notify } from '../utils/toast.js';
 import { toggleTheme, getTheme } from '../theme.js';
 import { FEATURES, isFeatureAvailable } from '../features.js';
 import { openGuideModal } from './guide.js';
+import { iconSvg } from './icons.js';
+import { getParentMenuPath } from './menu-hub.js';
 
 /**
  * Bangun shell sekali.
@@ -21,29 +23,26 @@ export function renderLayout(root, router) {
   const userPicture = adapter.user?.picture || '';
   const currentTheme = getTheme();
 
-  // Kelompokkan menu navigasi
-  const navItems = FEATURES.filter(item => item.nav);
-  const groups = [];
-  const groupMap = new Map();
+  const SIDEBAR_ITEMS = [
+    { title: 'Dashboard', path: '/dashboard', icon: 'dashboard' },
+    { title: 'Daftar Aset', path: '/aset', icon: 'assets' },
+    { title: 'Data Master', path: '/menu/master', icon: 'master' },
+    { title: 'Operasional', path: '/menu/operasional', icon: 'operasional' },
+    { title: 'Laporan', path: '/menu/laporan', icon: 'laporan' },
+    { title: 'Pengaturan', path: '/menu/pengaturan', icon: 'pengaturan' }
+  ];
 
-  navItems.forEach(item => {
-    const gName = item.group || 'Menu';
-    if (!groupMap.has(gName)) {
-      const gObj = { name: gName, items: [] };
-      groupMap.set(gName, gObj);
-      groups.push(gObj);
-    }
-    groupMap.get(gName).items.push(item);
-  });
-
-  const menuHtml = groups.map(g => `
+  const menuHtml = `
     <div class="sidebar-group">
-      <div class="sidebar-heading">${esc(g.name)}</div>
       <div class="sidebar-group-items">
-        ${g.items.map(item => renderMenuItem(item, router)).join('')}
+        ${SIDEBAR_ITEMS.map(item => `
+          <a href="#${esc(item.path)}" class="sidebar-item" data-path="${esc(item.path)}" title="${esc(item.title)}">
+            <span class="sidebar-icon">${iconSvg(item.icon, 18)}</span>
+            <span class="sidebar-label">${esc(item.title)}</span>
+          </a>
+        `).join('')}
       </div>
-    </div>
-  `).join('');
+    </div>`;
 
   root.innerHTML = `
     <div class="app-shell">
@@ -72,11 +71,11 @@ export function renderLayout(root, router) {
 
         <div class="sidebar-footer">
           <button class="footer-btn" id="btn-toggle-theme" title="Ubah tema terang/gelap">
-            <span class="theme-icon">${currentTheme === 'dark' ? '☀️' : '🌙'}</span>
-            <span class="btn-text">${currentTheme === 'dark' ? 'Mode Terang' : 'Mode Gelap'}</span>
+            <span class="theme-icon">${iconSvg(currentTheme === 'dark' ? 'sun' : 'moon', 15)}</span>
+            <span class="btn-text">${currentTheme === 'dark' ? 'Terang' : 'Gelap'}</span>
           </button>
           <button class="footer-btn btn-logout" id="btn-sidebar-logout" title="Keluar dari akun">
-            <span>🚪</span>
+            <span class="logout-icon">${iconSvg('logout', 15)}</span>
             <span class="btn-text">Keluar</span>
           </button>
         </div>
@@ -118,8 +117,8 @@ export function renderLayout(root, router) {
     const next = toggleTheme();
     const btn = document.getElementById('btn-toggle-theme');
     if (btn) {
-      btn.querySelector('.theme-icon').textContent = next === 'dark' ? '☀️' : '🌙';
-      btn.querySelector('.btn-text').textContent = next === 'dark' ? 'Mode Terang' : 'Mode Gelap';
+      btn.querySelector('.theme-icon').innerHTML = iconSvg(next === 'dark' ? 'sun' : 'moon', 15);
+      btn.querySelector('.btn-text').textContent = next === 'dark' ? 'Terang' : 'Gelap';
     }
   });
 
@@ -156,8 +155,9 @@ export function renderLayout(root, router) {
       return el;
     },
     setActive(path) {
+      const activePath = getParentMenuPath(path);
       document.querySelectorAll('.sidebar-item').forEach(a => {
-        a.classList.toggle('active', a.dataset.path === path);
+        a.classList.toggle('active', a.dataset.path === activePath);
       });
       closeMobile();
     },
