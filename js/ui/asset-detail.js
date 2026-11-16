@@ -8,6 +8,7 @@ import {
 } from './assets.js';
 import { computeDepreciation, formatRupiahFull } from '../utils/depreciation.js';
 import { renderAssetTab } from './workflows.js';
+import { renderHolderContactLinks } from './holders.js';
 import { iconSvg, emptyIconHtml } from './icons.js';
 
 export async function renderAssetDetail(layout, { params, query }) {
@@ -222,6 +223,7 @@ function renderInfoTab(container, { asset, cat, loc, hold, dep }) {
         <div class="kv-row"><span class="text-muted">Kategori</span><strong>${esc(cat?.nama || '—')}</strong></div>
         <div class="kv-row"><span class="text-muted">Lokasi</span><strong>${esc(loc?.nama || '—')}</strong></div>
         <div class="kv-row"><span class="text-muted">Penanggung Jawab</span><strong>${esc(hold?.nama || '—')}</strong></div>
+        ${hold?.kontak ? `<div class="kv-row"><span class="text-muted">Kontak PJ</span><div style="text-align:right">${renderHolderContactLinks(hold.kontak, { compact: false })}</div></div>` : ''}
         <div class="kv-row"><span class="text-muted">Serial</span><strong>${esc(asset.serial || '—')}</strong></div>
         <div class="kv-row"><span class="text-muted">Vendor</span><strong>${esc(asset.vendor || '—')}</strong></div>
         <div class="kv-row"><span class="text-muted">Merk / Tipe</span><strong>${esc([asset.merk, asset.tipe].filter(Boolean).join(' / ') || '—')}</strong></div>

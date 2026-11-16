@@ -6,6 +6,7 @@ import { compressImage } from '../utils/image.js';
 import { computeDepreciation, formatRupiahFull } from '../utils/depreciation.js';
 import { exportToXLSX, readSpreadsheet } from '../utils/excel.js';
 import { iconSvg, emptyIconHtml } from './icons.js';
+import { renderHolderContactLinks } from './holders.js';
 
 const PAGE_SIZE = 20;
 const KONDISI_LIST = ['baik', 'rusak_ringan', 'rusak_berat'];
@@ -122,6 +123,11 @@ export async function renderAssets(layout, { query } = {}) {
 
     const canWrite = adapter.canWrite();
 
+    const activeFilterCount = [
+      state.filterKategori, state.filterLokasi, state.filterKondisi,
+      state.filterStatus, state.filterDari, state.filterSampai
+    ].filter(Boolean).length;
+
     layout.content.innerHTML = `
       <div class="page-header">
         <h1>Data Aset <span class="text-sm text-muted">(${state.assets.length} total)</span></h1>
@@ -132,27 +138,13 @@ export async function renderAssets(layout, { query } = {}) {
         </div>
       </div>
 
-      <div class="filter-bar">
-        <input class="form-input" id="f-search" type="search" placeholder="Cari kode, nama, serial, vendor…" value="${esc(state.search)}" />
-        <select class="form-select" id="f-kategori">
-          <option value="">Semua Kategori</option>
-          ${renderKategoriOptions()}
-        </select>
-        <select class="form-select" id="f-lokasi">
-          <option value="">Semua Lokasi</option>
-          ${state.locations.map(l => `<option value="${esc(l.id)}" ${state.filterLokasi === l.id ? 'selected' : ''}>${esc(l.nama)}</option>`).join('')}
-        </select>
-        <select class="form-select" id="f-kondisi">
-          <option value="">Semua Kondisi</option>
-          ${KONDISI_LIST.map(k => `<option value="${k}" ${state.filterKondisi === k ? 'selected' : ''}>${labelKondisi(k)}</option>`).join('')}
-        </select>
-        <select class="form-select" id="f-status">
-          <option value="">Semua Status</option>
-          ${STATUS_LIST.map(s => `<option value="${s}" ${state.filterStatus === s ? 'selected' : ''}>${labelStatus(s)}</option>`).join('')}
-        </select>
-        <input class="form-input" id="f-dari" type="date" value="${esc(state.filterDari)}" title="Dari tanggal beli" />
-        <input class="form-input" id="f-sampai" type="date" value="${esc(state.filterSampai)}" title="Sampai tanggal beli" />
-        <button class="btn btn-ghost btn-sm" id="f-reset">Reset</button>
+      <div class="filter-bar" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+        <input class="form-input" id="f-search" type="search" style="flex:1;min-width:200px"
+          placeholder="Cari kode, nama, serial, vendor…" value="${esc(state.search)}" />
+        <button type="button" class="btn btn-ghost btn-sm" id="btn-more-filters">
+          🔎 Cari selebihnya${activeFilterCount > 0 ? ` <span class="badge badge-primary" style="margin-left:4px">${activeFilterCount}</span>` : ''}
+        </button>
+        ${(state.search || activeFilterCount > 0) ? '<button class="btn btn-ghost btn-sm" id="f-reset">Reset</button>' : ''}
       </div>
 
       ${state.selected.size > 0 && canWrite ? renderBulkBar() : ''}
@@ -172,31 +164,84 @@ export async function renderAssets(layout, { query } = {}) {
       state.page = 1;
       renderList();
     }, 300));
-    $('#f-kategori').addEventListener('change', () => {
-      state.filterKategori = $('#f-kategori').value;
-      state.page = 1; renderList();
+    $('#btn-more-filters')?.addEventListener('click', () => {
+      openModal({
+        title: 'Cari Selebihnya (Filter Lanjutan)',
+        size: 'modal-sm',
+        body: `
+          <div class="form-group">
+            <label class="form-label">Kategori</label>
+            <select class="form-select" id="mf-kategori">
+              <option value="">Semua Kategori</option>
+              ${renderKategoriOptions()}
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Lokasi</label>
+            <select class="form-select" id="mf-lokasi">
+              <option value="">Semua Lokasi</option>
+              ${state.locations.map(l => `<option value="${esc(l.id)}" ${state.filterLokasi === l.id ? 'selected' : ''}>${esc(l.nama)}</option>`).join('')}
+            </select>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Kondisi</label>
+              <select class="form-select" id="mf-kondisi">
+                <option value="">Semua Kondisi</option>
+                ${KONDISI_LIST.map(k => `<option value="${k}" ${state.filterKondisi === k ? 'selected' : ''}>${labelKondisi(k)}</option>`).join('')}
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Status</label>
+              <select class="form-select" id="mf-status">
+                <option value="">Semua Status</option>
+                ${STATUS_LIST.map(s => `<option value="${s}" ${state.filterStatus === s ? 'selected' : ''}>${labelStatus(s)}</option>`).join('')}
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Dari Tanggal Beli</label>
+              <input class="form-input" id="mf-dari" type="date" value="${esc(state.filterDari)}" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Sampai Tanggal Beli</label>
+              <input class="form-input" id="mf-sampai" type="date" value="${esc(state.filterSampai)}" />
+            </div>
+          </div>`,
+        actions: [
+          {
+            label: 'Reset Filter',
+            class: 'btn btn-ghost',
+            onClick: () => {
+              state.filterKategori = '';
+              state.filterLokasi = '';
+              state.filterKondisi = '';
+              state.filterStatus = '';
+              state.filterDari = '';
+              state.filterSampai = '';
+              state.page = 1;
+              renderList();
+            }
+          },
+          {
+            label: 'Terapkan',
+            class: 'btn btn-primary',
+            onClick: () => {
+              state.filterKategori = $('#mf-kategori').value;
+              state.filterLokasi = $('#mf-lokasi').value;
+              state.filterKondisi = $('#mf-kondisi').value;
+              state.filterStatus = $('#mf-status').value;
+              state.filterDari = $('#mf-dari').value;
+              state.filterSampai = $('#mf-sampai').value;
+              state.page = 1;
+              renderList();
+            }
+          }
+        ]
+      });
     });
-    $('#f-lokasi').addEventListener('change', () => {
-      state.filterLokasi = $('#f-lokasi').value;
-      state.page = 1; renderList();
-    });
-    $('#f-kondisi').addEventListener('change', () => {
-      state.filterKondisi = $('#f-kondisi').value;
-      state.page = 1; renderList();
-    });
-    $('#f-status').addEventListener('change', () => {
-      state.filterStatus = $('#f-status').value;
-      state.page = 1; renderList();
-    });
-    $('#f-dari').addEventListener('change', () => {
-      state.filterDari = $('#f-dari').value;
-      state.page = 1; renderList();
-    });
-    $('#f-sampai').addEventListener('change', () => {
-      state.filterSampai = $('#f-sampai').value;
-      state.page = 1; renderList();
-    });
-    $('#f-reset').addEventListener('click', () => {
+    $('#f-reset')?.addEventListener('click', () => {
       state = {
         ...state,
         search: '', filterKategori: '', filterLokasi: '', filterKondisi: '',
@@ -351,7 +396,10 @@ export async function renderAssets(layout, { query } = {}) {
                 <td><a href="#/aset/${esc(a.id)}" style="color:var(--text);font-weight:600">${esc(a.nama || '—')}</a></td>
                 <td>${esc(cat?.nama || '—')}</td>
                 <td>${esc(loc?.nama || '—')}</td>
-                <td>${esc(hold?.nama || '—')}</td>
+                <td>
+                  <div>${esc(hold?.nama || '—')}</div>
+                  ${hold?.kontak ? `<div style="margin-top:2px">${renderHolderContactLinks(hold.kontak, { compact: true })}</div>` : ''}
+                </td>
                 <td><span class="badge badge-${kondisiBadge(a.kondisi)}">${labelKondisi(a.kondisi)}</span></td>
                 <td><span class="badge badge-${a.status === 'nonaktif' ? 'danger' : 'success'}">${labelStatus(a.status)}</span></td>
                 <td>${esc(formatRupiahFull(d.nilai_buku))}</td>
@@ -709,12 +757,14 @@ export async function openAssetForm({ asset = null, onSaved } = {}) {
     return;
   }
 
-  let categories = [], locations = [], holders = [];
+  let categories = [], locations = [], holders = [], settingsRows = [], existingFiles = [];
   try {
-    [categories, locations, holders] = await Promise.all([
+    [categories, locations, holders, settingsRows, existingFiles] = await Promise.all([
       adapter.list('categories'),
       adapter.list('locations'),
-      adapter.list('holders')
+      adapter.list('holders'),
+      adapter.list('settings').catch(() => []),
+      asset ? adapter.list('asset_files', { asset_id: asset.id }).catch(() => []) : Promise.resolve([])
     ]);
   } catch (e) {
     notify.error('Gagal memuat data pendukung: ' + e.message);
@@ -722,6 +772,8 @@ export async function openAssetForm({ asset = null, onSaved } = {}) {
   }
 
   const editing = !!asset;
+  const pendingAttachments = [];
+  const removedAttachmentIds = new Set();
   // Parse foto_ids dari JSON
   let fotoIds = [];
   try {
@@ -741,13 +793,18 @@ export async function openAssetForm({ asset = null, onSaved } = {}) {
 
   let orgSlug = 'ORGANISASI';
   try {
-    const rawOrg = (localStorage.getItem('ta_org_name') || '').trim();
+    const orgRow = settingsRows.find(r => r.key === 'org_name')?.value;
+    const rawOrg = (orgRow || localStorage.getItem('ta_org_name') || '').trim();
     if (rawOrg) {
       orgSlug = rawOrg.replace(/\s+/g, '-').replace(/[{}]/g, '');
     }
   } catch {}
   const defaultFormat = `{SEQ:3}/${orgSlug}/{YYYY}`;
-  const codeFormat = localStorage.getItem('ta_asset_code_format') || defaultFormat;
+  const settingFormat = settingsRows.find(r => r.key === 'asset_code_format')?.value || '';
+  const codeFormat = settingFormat || localStorage.getItem('ta_asset_code_format') || defaultFormat;
+  if (settingFormat) {
+    try { localStorage.setItem('ta_asset_code_format', settingFormat); } catch {}
+  }
   const defaultKode = editing ? (asset.kode || '') : await generateNextKode(adapter, codeFormat);
 
   const catOptions = renderKategoriSelect(categories, asset?.category_id || '');
@@ -861,7 +918,7 @@ export async function openAssetForm({ asset = null, onSaved } = {}) {
 
         <div class="form-section-title">Foto &amp; Lampiran</div>
         <div class="form-group">
-          <label class="form-label">Foto Aset</label>
+          <label class="form-label">Foto Barang (Opsional)</label>
           <div class="row" style="align-items:flex-start;flex-wrap:wrap;gap:8px">
             <div id="foto-preview" style="display:flex;gap:8px;flex-wrap:wrap"></div>
             <label class="btn btn-ghost btn-sm" style="cursor:pointer">
@@ -874,6 +931,16 @@ export async function openAssetForm({ asset = null, onSaved } = {}) {
             </label>
           </div>
           <div class="form-hint">Foto akan dikompres otomatis ke ~800 px.</div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Lampiran Dokumen / Berkas (Opsional)</label>
+          <div id="doc-attach-list" style="display:flex;flex-direction:column;gap:6px;margin-bottom:8px"></div>
+          <label class="btn btn-ghost btn-sm" style="cursor:pointer">
+            📎 Tambah Berkas / Dokumen
+            <input type="file" id="doc-attach-input" multiple accept=".pdf,.doc,.docx,.xls,.xlsx,.csv,.txt,image/*" style="display:none" />
+          </label>
+          <div class="form-hint">Nota pembelian, kartu garansi, BAST, atau dokumen pendukung lainnya.</div>
         </div>
 
         <div class="form-group">
@@ -929,13 +996,26 @@ export async function openAssetForm({ asset = null, onSaved } = {}) {
           }
 
           try {
+            let savedAsset;
             if (editing) {
-              await adapter.update('assets', asset.id, { ...payload, version: asset.version });
-              notify.success('Aset diperbarui');
+              savedAsset = await adapter.update('assets', asset.id, { ...payload, version: asset.version });
             } else {
-              await adapter.create('assets', payload);
-              notify.success('Aset ditambahkan');
+              savedAsset = await adapter.create('assets', payload);
             }
+            const targetId = savedAsset?.id || asset?.id;
+            for (const remId of removedAttachmentIds) {
+              await adapter.remove('asset_files', remId).catch(() => {});
+            }
+            for (const docFile of pendingAttachments) {
+              const up = await adapter.uploadFile(docFile);
+              await adapter.create('asset_files', {
+                asset_id: targetId,
+                nama: docFile.name,
+                jenis: docFile.type || 'dokumen',
+                drive_file_id: up.id
+              });
+            }
+            notify.success(editing ? 'Aset diperbarui' : 'Aset ditambahkan');
             closeModal();
             onSaved?.();
           } catch (e) {
@@ -956,8 +1036,15 @@ export async function openAssetForm({ asset = null, onSaved } = {}) {
       const format = document.getElementById('a-code-format').value.trim();
       const next = await generateNextKode(adapter, format);
       localStorage.setItem('ta_asset_code_format', format);
+      const existingSetting = settingsRows.find(r => r.key === 'asset_code_format');
+      if (existingSetting) {
+        await adapter.update('settings', 'asset_code_format', { value: format }).catch(() => {});
+      } else {
+        const created = await adapter.create('settings', { key: 'asset_code_format', value: format }).catch(() => null);
+        if (created) settingsRows.push(created);
+      }
       document.getElementById('a-kode').value = next;
-      notify.success('Format disimpan; kode berikutnya dibuat');
+      notify.success('Format disimpan & disinkronkan; kode berikutnya dibuat');
     } catch (error) {
       notify.error(error.message);
     }
@@ -998,6 +1085,48 @@ export async function openAssetForm({ asset = null, onSaved } = {}) {
   };
   document.getElementById('foto-input').addEventListener('change', handlePhotoFiles);
   document.getElementById('foto-camera-input')?.addEventListener('change', handlePhotoFiles);
+
+  // Wire lampiran dokumen/berkas
+  function renderAttachmentList() {
+    const listEl = document.getElementById('doc-attach-list');
+    if (!listEl) return;
+    const activeExisting = existingFiles.filter(f => !removedAttachmentIds.has(f.id));
+    if (activeExisting.length === 0 && pendingAttachments.length === 0) {
+      listEl.innerHTML = '';
+      return;
+    }
+    listEl.innerHTML = [
+      ...activeExisting.map(f => `
+        <div class="row" style="justify-content:space-between;align-items:center;padding:6px 10px;background:var(--surface-2);border-radius:8px;gap:8px">
+          <span class="text-sm" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">📄 ${esc(f.nama || 'Berkas')}</span>
+          <button type="button" class="btn btn-ghost btn-sm" data-rm-existing="${esc(f.id)}" style="color:var(--accent-danger)">Hapus</button>
+        </div>`),
+      ...pendingAttachments.map((f, idx) => `
+        <div class="row" style="justify-content:space-between;align-items:center;padding:6px 10px;background:var(--primary-light);border-radius:8px;gap:8px">
+          <span class="text-sm" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">📎 ${esc(f.name)} <span class="text-xs text-muted">(baru)</span></span>
+          <button type="button" class="btn btn-ghost btn-sm" data-rm-pending="${idx}" style="color:var(--accent-danger)">Batal</button>
+        </div>`)
+    ].join('');
+    listEl.querySelectorAll('[data-rm-existing]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        removedAttachmentIds.add(btn.dataset.rmExisting);
+        renderAttachmentList();
+      });
+    });
+    listEl.querySelectorAll('[data-rm-pending]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        pendingAttachments.splice(Number(btn.dataset.rmPending), 1);
+        renderAttachmentList();
+      });
+    });
+  }
+  renderAttachmentList();
+  document.getElementById('doc-attach-input')?.addEventListener('change', (ev) => {
+    const files = Array.from(ev.target.files || []);
+    for (const file of files) pendingAttachments.push(file);
+    renderAttachmentList();
+    ev.target.value = '';
+  });
 }
 
 function renderFotoPreview(container, fotoIds) {

@@ -1,5 +1,5 @@
 const CACHE_PREFIX = 'thinkaset-';
-const CACHE_VERSION = 'thinkaset-v0.4.25';
+const CACHE_VERSION = 'thinkaset-v0.4.26';
 const STATIC_ASSETS = [
   './',
   './index.html',
@@ -95,10 +95,10 @@ self.addEventListener('fetch', (e) => {
   if (!STATIC_PATHS.has(url.pathname)) return;
   const cachePromise = caches.open(CACHE_VERSION);
 
-  // HTML: network-first
+  // HTML: network-first (no-cache agar update langsung terdeteksi)
   if (e.request.mode === 'navigate' || e.request.destination === 'document') {
     e.respondWith(
-      fetch(e.request).then(res => {
+      fetch(new Request(e.request, { cache: 'no-cache' })).then(res => {
         if (res.ok) {
           const copy = res.clone();
           cachePromise.then(cache => cache.put(e.request, copy)).catch(() => {});
@@ -116,9 +116,11 @@ self.addEventListener('fetch', (e) => {
     return;
   }
 
-  // Aset lain: network-first, cache sebagai cadangan offline
+  // Aset lain (JS/CSS/dll): network-first dengan validasi no-cache
+  const isCodeAsset = url.pathname.endsWith('.js') || url.pathname.endsWith('.css') || url.pathname.endsWith('.html');
+  const netReq = isCodeAsset ? new Request(e.request, { cache: 'no-cache' }) : e.request;
   e.respondWith(
-    fetch(e.request).then(res => {
+    fetch(netReq).then(res => {
       if (res.ok) {
         const copy = res.clone();
         cachePromise.then(cache => cache.put(e.request, copy)).catch(() => {});

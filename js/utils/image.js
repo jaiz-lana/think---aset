@@ -67,3 +67,41 @@ export async function cropSquare(file, maxSize = 256, quality = 0.9) {
     img.src = url;
   });
 }
+
+/** Resize logo secara proporsional (mempertahankan transparansi PNG). */
+export async function resizeLogoProp(file, maxSize = 256, quality = 0.9) {
+  if (!file.type.startsWith('image/')) throw new Error('File bukan gambar valid');
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      try {
+        let { width, height } = img;
+        if (width > maxSize || height > maxSize) {
+          if (width >= height) { height = Math.round(height * maxSize / width); width = maxSize; }
+          else { width = Math.round(width * maxSize / height); height = maxSize; }
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = Math.max(1, width);
+        canvas.height = Math.max(1, height);
+        const context = canvas.getContext('2d');
+        if (!context) throw new Error('Canvas tidak didukung browser');
+        context.drawImage(img, 0, 0, canvas.width, canvas.height);
+        const mime = file.type === 'image/jpeg' ? 'image/jpeg' : 'image/png';
+        canvas.toBlob(blob => {
+          URL.revokeObjectURL(url);
+          if (!blob) return reject(new Error('Gagal memproses logo'));
+          resolve(blob);
+        }, mime, quality);
+      } catch (e) {
+        URL.revokeObjectURL(url);
+        reject(e);
+      }
+    };
+    img.onerror = () => {
+      URL.revokeObjectURL(url);
+      reject(new Error('Gambar logo rusak'));
+    };
+    img.src = url;
+  });
+}

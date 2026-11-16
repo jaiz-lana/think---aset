@@ -38,22 +38,57 @@
 .modal {
   background: var(--surface);
   border-radius: var(--radius-card);
-  padding: var(--space-6);
   width: 100%;
   max-width: 480px;
   max-height: 90vh;
-  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
   box-shadow: var(--shadow-lg);
   animation: ta-slide-up var(--dur-slow) var(--ease-out);
 }
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-6);
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+  flex-shrink: 0;
+}
 .modal-title {
-  margin: 0 0 var(--space-4);
-  font-size: 1.25rem;
+  margin: 0;
+  font-size: 1.15rem;
+}
+.modal-close {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 1.5rem;
+  line-height: 1;
+  padding: 2px 8px;
+  border-radius: var(--radius-btn);
+  cursor: pointer;
+}
+.modal-close:hover {
+  background: var(--surface-2);
+  color: var(--text);
+}
+.modal-body {
+  padding: var(--space-5) var(--space-6);
+  overflow-y: auto;
+  flex: 1 1 auto;
+  min-height: 0;
 }
 .modal-actions {
-  display: flex; gap: var(--space-3);
+  display: flex;
+  gap: var(--space-3);
   justify-content: flex-end;
-  margin-top: var(--space-5);
+  padding: var(--space-4) var(--space-6);
+  border-top: 1px solid var(--border);
+  background: var(--surface);
+  flex-shrink: 0;
 }
 
 #ta-toast-container {

@@ -6,6 +6,7 @@ import { exportToCSV } from '../utils/excel.js';
 import { formatRupiahFull, computeDepreciation } from '../utils/depreciation.js';
 import { qrToken } from '../utils/uuid.js';
 import { iconSvg, emptyIconHtml } from './icons.js';
+import { resizeLogoProp } from '../utils/image.js';
 
 const WORKFLOWS = {
   history: {
@@ -431,7 +432,10 @@ async function renderBranding(layout) {
         const file = input.files[0];
         if (file.size > 5_000_000) throw new Error('Logo harus berukuran maksimal 5 MB');
         if (!['image/png', 'image/jpeg', 'image/webp'].includes(file.type)) throw new Error('Format logo harus PNG, JPEG, atau WebP');
-        const response = await adapter.uploadFile(file);
+        const resizedBlob = await resizeLogoProp(file, 256, 0.9);
+        const ext = resizedBlob.type === 'image/jpeg' ? 'jpg' : 'png';
+        const compressedFile = new File([resizedBlob], file.name.replace(/\.[^.]+$/, '') + '.' + ext, { type: resizedBlob.type });
+        const response = await adapter.uploadFile(compressedFile);
         await adapter.create('settings', { key: 'branding_logo_id', value: response.id });
       }
       notify.success('Branding disimpan. Memuat ulang aplikasi…');
@@ -489,13 +493,155 @@ setInterval(async () => {
 
 async function renderCalendar(layout) {
   const adapter = getAdapter();
-  layout.setActive('/kalender-google'); layout.setTitle('Ekspor Kalender');
-  const agendas = await adapter.list('agendas');
-  layout.content.innerHTML = `<div class="page-header"><h1>Kalender</h1><div class="row">
+  layout.setActive('/kalender-google'); layout.setTitle('Kalender & Jadwal');
+  const [agendas, loans, assets] = await Promise.all([
+    adapter.list('agendas'),
+    adapter.list('loans').catch(() => []),
+    adapter.list('assets').catch(() => [])
+  ]);
+  const assetMap = new Map(assets.map(a => [a.id, a]));
+  const todayStr = new Date().toISOString().slice(0, 10);
+
+  // Gabungkan semua event kalender: agenda perawatan + jadwal mulai pinjam + jatuh tempo pinjam
+  const eventsByDate = new Map();
+  const pushEvent = (dateStr, ev) => {
+    const key = String(dateStr || '').slice(0, 10);
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(key)) return;
+    if (!eventsByDate.has(key)) eventsByDate.set(key, []);
+    eventsByDate.get(key).push(ev);
+  };
+
+  for (const ag of agendas) {
+    pushEvent(ag.tanggal, {
+      type: 'agenda',
+      done: isComplete(ag.selesai),
+      title: ag.judul || 'Agenda',
+      detail: `${assetMap.get(ag.asset_id)?.nama ? assetMap.get(ag.asset_id).nama + ' · ' : ''}${isComplete(ag.selesai) ? 'Selesai' : 'Terjadwal'}`
+    });
+  }
+  for (const ln of loans) {
+    if (ln.status === 'dikembalikan') continue;
+    const asetNama = assetMap.get(ln.asset_id)?.nama || 'Aset';
+    if (ln.tgl_pinjam && ln.tgl_pinjam > todayStr) {
+      pushEvent(ln.tgl_pinjam, {
+        type: 'loan-start',
+        done: false,
+        title: `Akan dipinjam: ${asetNama}`,
+        detail: `Akan dipinjam tanggal ${ln.tgl_pinjam} oleh ${ln.peminjam || '—'}`
+      });
+    }
+    if (ln.tgl_jatuh_tempo) {
+      pushEvent(ln.tgl_jatuh_tempo, {
+        type: 'loan-due',
+        done: false,
+        title: `Jatuh tempo: ${asetNama}`,
+        detail: `Peminjam: ${ln.peminjam || '—'} (batas kembali ${ln.tgl_jatuh_tempo})`
+      });
+    }
+  }
+
+  let viewYear = new Date().getFullYear();
+  let viewMonth = new Date().getMonth(); // 0..11
+  const MONTH_NAMES = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+  const DAY_NAMES = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
+
+  layout.content.innerHTML = `<div class="page-header"><h1>Kalender &amp; Jadwal</h1><div class="row" style="gap:8px;flex-wrap:wrap">
       ${adapter.mode === 'google' && adapter.canWrite() ? '<button class="btn btn-primary btn-sm" id="calendar-sync">Sinkronkan ke Google Calendar</button>' : ''}
       <button class="btn btn-secondary btn-sm" id="calendar-download">Unduh .ics</button></div></div>
-    <div class="notice">Sinkronisasi Google mengirim agenda dari Think Aset ke kalender utama (satu arah) dan memerlukan izin Calendar saat pertama kali digunakan. Berkas .ics dapat diimpor di aplikasi kalender lain.</div>
-    ${agendas.length ? `<div class="table-wrap"><table class="data-table"><thead><tr><th>Agenda</th><th>Tanggal</th><th>Selesai</th></tr></thead><tbody>${agendas.map(row => `<tr><td>${esc(row.judul)}</td><td>${esc(row.tanggal)}</td><td>${isComplete(row.selesai) ? 'Ya' : 'Tidak'}</td></tr>`).join('')}</tbody></table></div>` : '<p class="text-sm text-muted">Belum ada agenda untuk diekspor.</p>'}`;
+    <div class="notice">Menampilkan jadwal agenda perawatan, rencana peminjaman mendatang, dan jatuh tempo pengembalian.</div>
+    <div class="card" style="margin-top:14px">
+      <div class="row-between" style="margin-bottom:14px;flex-wrap:wrap;gap:8px">
+        <div class="row" style="gap:6px;align-items:center">
+          <button type="button" class="btn btn-ghost btn-sm" id="cal-prev">←</button>
+          <strong id="cal-month-label" style="min-width:150px;text-align:center"></strong>
+          <button type="button" class="btn btn-ghost btn-sm" id="cal-next">→</button>
+          <button type="button" class="btn btn-ghost btn-sm" id="cal-today">Hari Ini</button>
+        </div>
+        <div class="row text-xs" style="gap:10px;flex-wrap:wrap">
+          <span>🟢 Agenda</span>
+          <span>🔵 Akan Dipinjam</span>
+          <span>🟠 Jatuh Tempo</span>
+        </div>
+      </div>
+      <div id="cal-grid" style="display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px"></div>
+    </div>
+    <div id="cal-day-detail" class="card" style="margin-top:14px"></div>`;
+
+  const renderMonth = () => {
+    const label = layout.content.querySelector('#cal-month-label');
+    if (label) label.textContent = `${MONTH_NAMES[viewMonth]} ${viewYear}`;
+    const grid = layout.content.querySelector('#cal-grid');
+    if (!grid) return;
+
+    const firstDay = new Date(viewYear, viewMonth, 1).getDay();
+    const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
+    const cells = DAY_NAMES.map(d => `<div class="text-xs text-muted" style="text-align:center;font-weight:600;padding:4px 0">${d}</div>`);
+
+    for (let i = 0; i < firstDay; i++) {
+      cells.push('<div style="min-height:68px;background:var(--surface-2);opacity:.4;border-radius:8px"></div>');
+    }
+    for (let day = 1; day <= daysInMonth; day++) {
+      const mm = String(viewMonth + 1).padStart(2, '0');
+      const dd = String(day).padStart(2, '0');
+      const dateKey = `${viewYear}-${mm}-${dd}`;
+      const evs = eventsByDate.get(dateKey) || [];
+      const isToday = dateKey === todayStr;
+      cells.push(`
+        <button type="button" data-cal-date="${dateKey}" style="text-align:left;min-height:68px;padding:6px;border-radius:8px;border:1px solid ${isToday ? 'var(--primary)' : 'var(--border)'};background:${isToday ? 'var(--primary-light)' : 'var(--surface)'};cursor:pointer;display:flex;flex-direction:column;gap:3px;overflow:hidden">
+          <span class="text-xs" style="font-weight:${isToday ? '700' : '600'};color:${isToday ? 'var(--primary-dark)' : 'var(--text)'}">${day}</span>
+          ${evs.slice(0, 2).map(ev => {
+            const bg = ev.type === 'loan-start' ? '#DBEAFE' : ev.type === 'loan-due' ? '#FEF3C7' : '#DCFCE7';
+            const fg = ev.type === 'loan-start' ? '#1E40AF' : ev.type === 'loan-due' ? '#92400E' : '#166534';
+            return `<span style="font-size:10px;line-height:1.2;padding:2px 4px;border-radius:4px;background:${bg};color:${fg};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(ev.title)}</span>`;
+          }).join('')}
+          ${evs.length > 2 ? `<span style="font-size:10px;color:var(--text-muted)">+${evs.length - 2} lagi</span>` : ''}
+        </button>`);
+    }
+    grid.innerHTML = cells.join('');
+    grid.querySelectorAll('[data-cal-date]').forEach(btn => {
+      btn.addEventListener('click', () => renderDayDetail(btn.dataset.calDate));
+    });
+  };
+
+  const renderDayDetail = (dateKey) => {
+    const detail = layout.content.querySelector('#cal-day-detail');
+    if (!detail) return;
+    const evs = eventsByDate.get(dateKey) || [];
+    detail.innerHTML = `
+      <h3 style="margin:0 0 8px">Jadwal Tanggal ${esc(dateKey)}</h3>
+      ${evs.length ? evs.map(ev => `
+        <div class="kv-row" style="align-items:center">
+          <div>
+            <strong>${esc(ev.title)}</strong>
+            <div class="text-xs text-muted">${esc(ev.detail)}</div>
+          </div>
+          <span class="badge ${ev.type === 'loan-due' ? 'badge-warning' : ev.type === 'loan-start' ? 'badge-muted' : 'badge-success'}">
+            ${ev.type === 'loan-start' ? 'Akan Dipinjam' : ev.type === 'loan-due' ? 'Jatuh Tempo' : (ev.done ? 'Selesai' : 'Agenda')}
+          </span>
+        </div>`).join('') : '<p class="text-sm text-muted" style="margin:0">Tidak ada jadwal pada tanggal ini.</p>'}`;
+  };
+
+  renderMonth();
+  renderDayDetail(todayStr);
+
+  layout.content.querySelector('#cal-prev')?.addEventListener('click', () => {
+    viewMonth--;
+    if (viewMonth < 0) { viewMonth = 11; viewYear--; }
+    renderMonth();
+  });
+  layout.content.querySelector('#cal-next')?.addEventListener('click', () => {
+    viewMonth++;
+    if (viewMonth > 11) { viewMonth = 0; viewYear++; }
+    renderMonth();
+  });
+  layout.content.querySelector('#cal-today')?.addEventListener('click', () => {
+    const now = new Date();
+    viewYear = now.getFullYear();
+    viewMonth = now.getMonth();
+    renderMonth();
+    renderDayDetail(todayStr);
+  });
+
   layout.content.querySelector('#calendar-download').addEventListener('click', () => downloadCalendar(agendas));
   layout.content.querySelector('#calendar-sync')?.addEventListener('click', async event => {
     const button = event.currentTarget;
@@ -799,17 +945,33 @@ async function renderScanner(layout) {
   };
   layout.content.querySelector('#scan-start').addEventListener('click', async () => {
     try {
-      if (!('BarcodeDetector' in window)) throw new Error('Pemindaian kamera tidak didukung browser ini. Gunakan kolom kode manual.');
-      detector = new BarcodeDetector({ formats: ['qr_code'] });
+      let useJsQr = false;
+      if ('BarcodeDetector' in window) {
+        detector = new BarcodeDetector({ formats: ['qr_code'] });
+      } else {
+        await loadJsQrLibrary();
+        useJsQr = true;
+      }
       stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
       video.srcObject = stream; video.style.display = 'block'; await video.play();
       layout.content.querySelector('#scan-stop').disabled = false;
       layout.content.querySelector('#scan-status').textContent = 'Arahkan kamera ke QR aset.';
+      const canvas = useJsQr ? document.createElement('canvas') : null;
+      const ctx = canvas ? canvas.getContext('2d', { willReadFrequently: true }) : null;
       const scan = async () => {
         if (!stream) return;
         try {
-          const codes = await detector.detect(video);
-          if (codes.length) { stop(); resolveScannedCode(codes[0].rawValue); return; }
+          if (!useJsQr && detector) {
+            const codes = await detector.detect(video);
+            if (codes.length) { stop(); resolveScannedCode(codes[0].rawValue); return; }
+          } else if (useJsQr && window.jsQR && video.readyState >= 2 && video.videoWidth > 0) {
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const code = window.jsQR(imgData.data, imgData.width, imgData.height, { inversionAttempts: 'dontInvert' });
+            if (code?.data) { stop(); resolveScannedCode(code.data); return; }
+          }
         } catch (error) { layout.content.querySelector('#scan-status').textContent = `Pemindaian gagal: ${error.message}`; stop(); return; }
         frame = requestAnimationFrame(scan);
       };
@@ -838,6 +1000,18 @@ async function renderScanner(layout) {
   }
 }
 
+function loadJsQrLibrary() {
+  if (window.jsQR) return Promise.resolve(window.jsQR);
+  return new Promise((resolve, reject) => {
+    const s = document.createElement('script');
+    s.src = 'https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js';
+    s.crossOrigin = 'anonymous';
+    s.onload = () => window.jsQR ? resolve(window.jsQR) : reject(new Error('Library jsQR gagal dimuat'));
+    s.onerror = () => reject(new Error('Pemindaian kamera tidak didukung & gagal memuat jsQR. Gunakan kolom kode manual.'));
+    document.head.appendChild(s);
+  });
+}
+
 export async function renderAssetTab(container, tab, asset) {
   const adapter = getAdapter();
   const tables = {
@@ -854,8 +1028,29 @@ export async function renderAssetTab(container, tab, asset) {
     <div class="row-between"><h2 style="margin:0">${esc(title)} · ${esc(asset.nama)}</h2>
       ${path && adapter.canWrite() ? `<a class="btn btn-primary btn-sm" href="#/${path}?asset=${encodeURIComponent(asset.id)}">Tambah catatan</a>` : ''}
     </div>
-    ${rows.length ? `<div class="table-wrap" style="margin-top:16px"><table class="data-table"><thead><tr>${columns.map(([, label]) => `<th>${esc(label)}</th>`).join('')}</tr></thead><tbody>
-      ${rows.map(row => `<tr>${columns.map(([key]) => `<td>${esc(key === 'nominal' ? formatRupiahFull(row[key]) : String(row[key] ?? ''))}</td>`).join('')}</tr>`).join('')}
+    ${rows.length ? `<div class="table-wrap" style="margin-top:16px"><table class="data-table"><thead><tr>${columns.map(([, label]) => `<th>${esc(label)}</th>`).join('')}${tab === 'lampiran' ? '<th style="text-align:right">Aksi</th>' : ''}</tr></thead><tbody>
+      ${rows.map(row => `<tr>${columns.map(([key]) => `<td>${esc(key === 'nominal' ? formatRupiahFull(row[key]) : String(row[key] ?? ''))}</td>`).join('')}${tab === 'lampiran' ? `<td style="text-align:right"><button type="button" class="btn btn-ghost btn-sm" data-open-file="${esc(row.drive_file_id || '')}" data-file-name="${esc(row.nama || 'berkas')}">Buka / Unduh</button></td>` : ''}</tr>`).join('')}
     </tbody></table></div>` : `<p class="text-sm text-muted mt-3">Belum ada catatan ${title.toLowerCase()} untuk aset ini.</p>`}
   </div>`;
+  if (tab === 'lampiran') {
+    container.querySelectorAll('[data-open-file]').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const fileId = btn.dataset.openFile;
+        const fileName = btn.dataset.fileName || 'lampiran';
+        if (!fileId) return notify.warning('ID berkas tidak tersedia');
+        try {
+          const url = await adapter.getFileUrl(fileId);
+          if (!url) return notify.error('Berkas tidak ditemukan');
+          const a = document.createElement('a');
+          a.href = url;
+          a.target = '_blank';
+          a.rel = 'noopener noreferrer';
+          a.download = fileName;
+          a.click();
+        } catch (e) {
+          notify.error('Gagal membuka berkas: ' + e.message);
+        }
+      });
+    });
+  }
 }

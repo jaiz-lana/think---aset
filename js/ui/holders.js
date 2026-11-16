@@ -76,7 +76,7 @@ export async function renderHolders(layout) {
                 <td><strong>${esc(h.nama || '-')}</strong></td>
                 <td>${esc(h.jabatan || '—')}</td>
                 <td>${esc(h.unit || '—')}</td>
-                <td>${esc(h.kontak || '—')}</td>
+                <td>${renderHolderContactLinks(h.kontak) || '—'}</td>
                 ${canWrite ? `<td style="text-align:right">
                   <div class="cell-actions" style="justify-content:flex-end">
                     <button class="btn btn-ghost btn-sm" data-action="edit" data-id="${esc(h.id)}">Edit</button>
@@ -121,6 +121,7 @@ export async function renderHolders(layout) {
 
     async function openForm(id) {
       const editing = id ? holders.find(h => h.id === id) : null;
+      const parsedContact = parseHolderContact(editing?.kontak);
 
       openModal({
         title: editing ? 'Edit Penanggung Jawab' : 'Tambah Penanggung Jawab',
@@ -142,9 +143,14 @@ export async function renderHolders(layout) {
               value="${esc(editing?.unit || '')}" placeholder="Contoh: Divisi Teknologi" />
           </div>
           <div class="form-group">
-            <label class="form-label">Kontak (email/telepon)</label>
-            <input class="form-input" id="holder-kontak" maxlength="100"
-              value="${esc(editing?.kontak || '')}" placeholder="Contoh: budi@contoh.id" />
+            <label class="form-label">Email</label>
+            <input type="email" class="form-input" id="holder-email" maxlength="100"
+              value="${esc(parsedContact.email)}" placeholder="Contoh: budi@contoh.id" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Nomor WhatsApp</label>
+            <input type="tel" class="form-input" id="holder-wa" maxlength="30"
+              value="${esc(parsedContact.wa)}" placeholder="Contoh: 081234567890" />
           </div>`,
         actions: [
           { label: 'Batal', class: 'btn btn-ghost' },
@@ -155,7 +161,9 @@ export async function renderHolders(layout) {
               const nama = $('#holder-nama').value.trim();
               const jabatan = $('#holder-jabatan').value.trim();
               const unit = $('#holder-unit').value.trim();
-              const kontak = $('#holder-kontak').value.trim();
+              const email = $('#holder-email').value.trim();
+              const wa = $('#holder-wa').value.trim();
+              const kontak = (email || wa) ? JSON.stringify({ email, wa }) : '';
 
               if (!nama) {
                 notify.error('Nama wajib diisi');
@@ -190,4 +198,39 @@ export async function renderHolders(layout) {
       });
     }
   }
+}
+
+export function parseHolderContact(raw) {
+  const str = String(raw || '').trim();
+  if (!str) return { email: '', wa: '' };
+  if (str.startsWith('{')) {
+    try {
+      const obj = JSON.parse(str);
+      return { email: String(obj.email || '').trim(), wa: String(obj.wa || '').trim() };
+    } catch {}
+  }
+  if (str.includes('@')) return { email: str, wa: '' };
+  return { email: '', wa: str };
+}
+
+export function formatWaHref(wa) {
+  let digits = String(wa || '').replace(/\D+/g, '');
+  if (!digits) return '';
+  if (digits.startsWith('0')) digits = '62' + digits.slice(1);
+  return `https://wa.me/${digits}`;
+}
+
+export function renderHolderContactLinks(raw, { compact = false } = {}) {
+  const { email, wa } = parseHolderContact(raw);
+  const parts = [];
+  if (email) {
+    parts.push(`<a href="mailto:${esc(email)}" class="text-xs" style="color:var(--primary-dark);text-decoration:none" title="Kirim Email">✉️ ${compact ? 'Email' : esc(email)}</a>`);
+  }
+  if (wa) {
+    const href = formatWaHref(wa);
+    if (href) {
+      parts.push(`<a href="${esc(href)}" target="_blank" rel="noopener noreferrer" class="text-xs" style="color:var(--primary-dark);text-decoration:none" title="Chat WhatsApp">💬 ${compact ? 'WA' : esc(wa)}</a>`);
+    }
+  }
+  return parts.join(compact ? ' · ' : '<br>');
 }

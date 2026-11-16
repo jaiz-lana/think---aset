@@ -53,10 +53,15 @@ export function openModal({ title, body, actions = [], size = '', onClose }) {
   overlay.className = 'modal-overlay';
   overlay.innerHTML = `
     <div class="modal ${esc(size)}" role="dialog" aria-modal="true" aria-labelledby="modal-title" tabindex="-1">
-      <h2 class="modal-title" id="modal-title">${esc(title || '')}</h2>
+      <div class="modal-header">
+        <h2 class="modal-title" id="modal-title">${esc(title || '')}</h2>
+        <button type="button" class="modal-close" aria-label="Tutup modal" title="Tutup">&times;</button>
+      </div>
       <div class="modal-body"></div>
       <div class="modal-actions"></div>
     </div>`;
+
+  overlay.querySelector('.modal-close')?.addEventListener('click', closeModal);
 
   const bodyEl = overlay.querySelector('.modal-body');
   if (typeof body === 'string') bodyEl.innerHTML = body;
