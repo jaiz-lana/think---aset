@@ -251,3 +251,11 @@ Dibuat dengan ❤️ · Data selalu milik Anda
 Hubungi via Instagram: [@na.habibburahman](https://www.instagram.com/na.habibburahman/)
 
 </div>
+
+---
+
+## 💖 Dukung Proyek Ini
+
+Jika **Think Aset** bermanfaat bagi Anda, dukungan Anda melalui **Saweria** akan sangat membantu pengembangan dan pemeliharaan proyek ini:
+
+[![Dukung via Saweria](https://img.shields.io/badge/💖%20Dukung%20via-Saweria-FAAD14?style=for-the-badge)](https://saweria.co/jaizlana)
