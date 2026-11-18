@@ -1,831 +1,434 @@
 <!DOCTYPE html>
-<html lang="id" class="dark">
+<html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>404 — Halaman Tidak Ditemukan | Think Aset</title>
-    <link rel="icon" type="image/svg+xml" href="/think---aset/icons/icon.svg" id="favicon-link">
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts: Inter & JetBrains Mono -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700;800&display=swap" rel="stylesheet">
-    <!-- Font Awesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>404 — Halaman Tidak Ditemukan | Think Aset</title>
+  <link rel="icon" type="image/svg+xml" href="icons/icon.svg" id="favicon-link" />
+  <style>
+    :root {
+      --primary: #16A34A;
+      --primary-dark: #166534;
+      --primary-light: #DCFCE7;
+      --primary-faint: #F0FDF4;
+      --surface: #FFFFFF;
+      --bg-page: #F9FAFB;
+      --text: #111827;
+      --text-muted: #6B7280;
+      --border: #E5E7EB;
+      --accent-amber: #F59E0B;
+      --accent-danger: #DC2626;
+      --accent-danger-bg: #FEE2E2;
+      --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+    }
 
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                        mono: ['JetBrains Mono', 'monospace'],
-                    },
-                    colors: {
-                        tp: {
-                            bg: '#0c0c0e',
-                            chassis: '#16161a',
-                            key: '#1f1f24',
-                            border: '#2e2e36',
-                            red: '#e60012',
-                            blue: '#0066cc',
-                            silver: '#a1a1aa'
-                        }
-                    }
-                }
-            }
-        }
-    </script>
+    * { box-sizing: border-box; }
 
-    <style>
-        /* ThinkPad Matte Black & Carbon Fiber Aesthetic */
-        :root {
-            --glitch-color-1: #e60012;
-            --glitch-color-2: #0066cc;
-        }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: var(--font-sans);
+      color: var(--text);
+      background:
+        radial-gradient(circle at 0% 0%, var(--primary-faint), transparent 42%),
+        radial-gradient(circle at 100% 100%, var(--primary-light), transparent 42%),
+        var(--bg-page);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 20px 16px;
+    }
 
-        body {
-            background-color: #0b0b0d;
-            color: #f4f4f5;
-            overflow-x: hidden;
-        }
+    .wrap {
+      width: 100%;
+      max-width: 680px;
+      margin: auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+    }
 
-        /* Subtle Carbon Fiber Weave + Matte Magnesium Chassis Texture */
-        .bg-thinkpad-carbon {
-            background-color: #0e0e11;
-            background-image:
-                radial-gradient(circle at 50% 0%, rgba(230, 0, 18, 0.12) 0%, transparent 55%),
-                linear-gradient(27deg, #121216 5px, transparent 5px),
-                linear-gradient(207deg, #121216 5px, transparent 5px),
-                linear-gradient(27deg, #17171c 5px, transparent 5px),
-                linear-gradient(207deg, #17171c 5px, transparent 5px),
-                linear-gradient(90deg, #0d0d10 10px, transparent 10px),
-                linear-gradient(#121216 25%, #0e0e11 25%, #0e0e11 50%, transparent 50%, transparent 75%, #16161b 75%, #16161b);
-            background-size: 100% 100%, 20px 20px, 20px 20px, 20px 20px, 20px 20px, 20px 20px, 20px 20px;
-            background-position: 0 0, 0 5px, 10px 0, 0 10px, 10px 5px, 0 0, 0 0;
-        }
+    .mode-bar {
+      display: inline-flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 6px;
+      padding: 6px;
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      box-shadow: 0 2px 8px rgba(17, 24, 39, 0.05);
+    }
 
-        /* Subtle CRT / ThinkPad LCD Scanlines */
-        .scanlines::before {
-            content: " ";
-            display: block;
-            position: fixed;
-            top: 0; left: 0; bottom: 0; right: 0;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.28) 50%);
-            background-size: 100% 4px;
-            z-index: 40;
-            pointer-events: none;
-        }
+    .mode-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      border-radius: 9px;
+      border: 1px solid transparent;
+      background: transparent;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 150ms ease, color 150ms ease, border-color 150ms ease;
+    }
+    .mode-btn:hover {
+      background: var(--primary-faint);
+      color: var(--primary-dark);
+    }
+    .mode-btn.active {
+      background: var(--primary-light);
+      color: var(--primary-dark);
+      border-color: var(--primary);
+    }
+    .mode-kbd {
+      font-size: 10px;
+      opacity: 0.7;
+    }
 
-        /* TrackPoint Red Cap Rubber Dome Texture */
-        .trackpoint-cap {
-            background: radial-gradient(circle at 35% 35%, #ff3b47 0%, #e60012 55%, #99000c 100%);
-            background-image: radial-gradient(#7a0009 18%, transparent 19%),
-                              radial-gradient(#7a0009 18%, transparent 19%);
-            background-size: 4px 4px;
-            background-position: 0 0, 2px 2px;
-            box-shadow: 0 0 18px rgba(230, 0, 18, 0.7), inset 0 1px 2px rgba(255, 255, 255, 0.4);
-        }
+    .card {
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 24px;
+      box-shadow: 0 8px 30px rgba(17, 24, 39, 0.06), 0 1px 4px rgba(22, 163, 74, 0.08);
+      text-align: center;
+    }
 
-        /* ThinkPad Glowing Red i-Dot */
-        @keyframes redDotPulse {
-            0%, 100% { box-shadow: 0 0 8px #e60012, 0 0 16px #e60012; opacity: 1; }
-            50% { box-shadow: 0 0 3px #e60012, 0 0 6px #e60012; opacity: 0.65; }
-        }
-        .think-red-dot {
-            animation: redDotPulse 2.4s infinite ease-in-out;
-        }
+    .card-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
 
-        /* Glitch Text Animation */
-        .glitch-wrapper {
-            position: relative;
-            display: inline-block;
-        }
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: var(--primary-faint);
+      border: 1px solid var(--primary-light);
+      font-family: var(--font-mono);
+      font-size: 11.5px;
+      font-weight: 700;
+      color: var(--primary-dark);
+    }
 
-        .glitch {
-            position: relative;
-            font-weight: 800;
-            line-height: 1;
-            letter-spacing: -0.04em;
-            user-select: none;
-        }
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: var(--primary);
+      box-shadow: 0 0 0 3px var(--primary-light);
+    }
+    .status-dot.warning { background: var(--accent-amber); box-shadow: 0 0 0 3px #FEF3C7; }
+    .status-dot.danger  { background: var(--accent-danger); box-shadow: 0 0 0 3px var(--accent-danger-bg); }
 
-        .glitch::before,
-        .glitch::after {
-            content: attr(data-text);
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: transparent;
-        }
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 800;
+      font-size: 14px;
+      color: var(--text);
+      text-decoration: none;
+    }
+    .brand img {
+      width: 24px;
+      height: 24px;
+      border-radius: 6px;
+    }
 
-        .glitch::before {
-            left: 3px;
-            text-shadow: -2px 0 var(--glitch-color-1);
-            clip: rect(24px, 550px, 90px, 0);
-            animation: glitch-anim-2 3s infinite linear alternate-reverse;
-        }
+    .illustration {
+      width: 190px;
+      height: 170px;
+      margin: 0 auto 4px;
+    }
 
-        .glitch::after {
-            left: -3px;
-            text-shadow: -2px 0 var(--glitch-color-2);
-            clip: rect(85px, 550px, 140px, 0);
-            animation: glitch-anim 2.5s infinite linear alternate-reverse;
-        }
+    .code-num {
+      font-family: var(--font-mono);
+      font-size: clamp(2.8rem, 8vw, 4.25rem);
+      font-weight: 800;
+      line-height: 1;
+      letter-spacing: -0.04em;
+      color: var(--primary-dark);
+      margin: 0 0 8px;
+    }
 
-        @keyframes glitch-anim {
-            0% { clip: rect(15px, 9999px, 81px, 0); transform: skew(0.3deg); }
-            10% { clip: rect(92px, 9999px, 14px, 0); transform: skew(0.1deg); }
-            20% { clip: rect(45px, 9999px, 128px, 0); transform: skew(-0.4deg); }
-            30% { clip: rect(5px, 9999px, 66px, 0); transform: skew(0.2deg); }
-            40% { clip: rect(112px, 9999px, 39px, 0); transform: skew(-0.2deg); }
-            50% { clip: rect(63px, 9999px, 102px, 0); transform: skew(0.5deg); }
-            60% { clip: rect(28px, 9999px, 7px, 0); transform: skew(0.1deg); }
-            70% { clip: rect(88px, 9999px, 145px, 0); transform: skew(-0.3deg); }
-            80% { clip: rect(12px, 9999px, 53px, 0); transform: skew(0.2deg); }
-            90% { clip: rect(74px, 9999px, 23px, 0); transform: skew(-0.5deg); }
-            100% { clip: rect(38px, 9999px, 119px, 0); transform: skew(0.1deg); }
-        }
+    .title {
+      font-size: 1.4rem;
+      font-weight: 800;
+      margin: 0 0 8px;
+      color: var(--text);
+    }
 
-        @keyframes glitch-anim-2 {
-            0% { clip: rect(65px, 9999px, 100px, 0); transform: skew(-0.2deg); }
-            15% { clip: rect(12px, 9999px, 58px, 0); transform: skew(0.4deg); }
-            30% { clip: rect(108px, 9999px, 24px, 0); transform: skew(-0.1deg); }
-            45% { clip: rect(34px, 9999px, 134px, 0); transform: skew(0.3deg); }
-            60% { clip: rect(82px, 9999px, 47px, 0); transform: skew(-0.4deg); }
-            75% { clip: rect(19px, 9999px, 91px, 0); transform: skew(0.2deg); }
-            90% { clip: rect(122px, 9999px, 11px, 0); transform: skew(-0.3deg); }
-            100% { clip: rect(51px, 9999px, 76px, 0); transform: skew(0.1deg); }
-        }
+    .desc {
+      font-size: 14.5px;
+      color: var(--text-muted);
+      max-width: 480px;
+      margin: 0 auto 18px;
+      line-height: 1.55;
+    }
 
-        /* Floating Animation */
-        @keyframes floatSlow {
-            0%, 100% { transform: translateY(0px) rotate(0deg); }
-            50% { transform: translateY(-10px) rotate(2deg); }
-        }
+    .diag-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      max-width: 520px;
+      margin: 0 auto 18px;
+      padding: 10px 12px;
+      background: var(--bg-page);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      text-align: left;
+    }
 
-        .animate-float {
-            animation: floatSlow 5s ease-in-out infinite;
-        }
+    .diag-cmd {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      color: var(--text);
+    }
 
-        /* Animasi Khusus Karakter Santri & Kitab Turats */
-        @keyframes tearDropLeft {
-            0% { transform: translateY(0) scale(0.8); opacity: 0; }
-            30% { opacity: 1; }
-            100% { transform: translateY(28px) scale(1.1); opacity: 0; }
-        }
-        @keyframes tearDropRight {
-            0% { transform: translateY(0) scale(0.8); opacity: 0; }
-            30% { opacity: 1; }
-            100% { transform: translateY(28px) scale(1.1); opacity: 0; }
-        }
-        .animate-tear-1 { animation: tearDropLeft 1.2s infinite ease-in; }
-        .animate-tear-2 { animation: tearDropRight 1.2s infinite ease-in 0.6s; }
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 8px;
+    }
 
-        @keyframes sobShake {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-3px); }
-        }
-        .animate-sob { animation: sobShake 0.45s infinite ease-in-out; }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 9px 16px;
+      border-radius: 10px;
+      font-family: inherit;
+      font-size: 13.5px;
+      font-weight: 600;
+      text-decoration: none;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: transform 120ms ease, background 150ms ease, border-color 150ms ease;
+    }
+    .btn:active { transform: translateY(1px); }
+    .btn-primary {
+      background: var(--primary);
+      color: #ffffff;
+    }
+    .btn-primary:hover { background: var(--primary-dark); }
+    .btn-secondary {
+      background: var(--primary-faint);
+      color: var(--primary-dark);
+      border-color: var(--primary-light);
+    }
+    .btn-secondary:hover { border-color: var(--primary); }
+    .btn-ghost {
+      background: transparent;
+      color: var(--text-muted);
+      border-color: var(--border);
+    }
+    .btn-ghost:hover {
+      background: var(--bg-page);
+      color: var(--text);
+    }
+    .btn-sm {
+      padding: 5px 10px;
+      font-size: 12px;
+      border-radius: 8px;
+    }
 
-        @keyframes sadSigh {
-            0%, 100% { transform: translateY(0) rotate(0deg); }
-            50% { transform: translateY(4px) rotate(-1.5deg); }
-        }
-        .animate-sigh { animation: sadSigh 3.2s infinite ease-in-out; }
-
-        @keyframes sleepyNod {
-            0%, 100% { transform: rotate(0deg) translateY(0); }
-            65% { transform: rotate(14deg) translateY(9px); }
-            75% { transform: rotate(-4deg) translateY(-2px); }
-        }
-        .animate-nod {
-            transform-origin: 100px 125px;
-            animation: sleepyNod 3.5s infinite ease-in-out;
-        }
-
-        @keyframes zzzFloat {
-            0% { transform: translate(0, 0) scale(0.6); opacity: 0; }
-            40% { opacity: 1; }
-            100% { transform: translate(18px, -28px) scale(1.25); opacity: 0; }
-        }
-        .animate-zzz-1 { animation: zzzFloat 2.4s infinite linear; }
-        .animate-zzz-2 { animation: zzzFloat 2.4s infinite linear 0.8s; }
-        .animate-zzz-3 { animation: zzzFloat 2.4s infinite linear 1.6s; }
-
-        @keyframes kitabHover {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-7px); }
-        }
-        .animate-kitab { animation: kitabHover 3s infinite ease-in-out; }
-
-        @keyframes fadePulse {
-            0%, 100% { opacity: 0.15; }
-            50% { opacity: 0.55; }
-        }
-        .animate-blank-page { animation: fadePulse 2s infinite ease-in-out; }
-
-        @keyframes breatheSoft {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-4px); }
-        }
-        .animate-breathe { animation: breatheSoft 3.5s infinite ease-in-out; }
-
-        /* Cursor Blink */
-        .cursor-blink {
-            animation: blink 1s step-end infinite;
-        }
-        @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0; }
-        }
-    </style>
+    footer {
+      text-align: center;
+      font-size: 12px;
+      color: var(--text-muted);
+      padding-top: 14px;
+      font-family: var(--font-mono);
+    }
+    footer a {
+      color: var(--primary-dark);
+      text-decoration: none;
+      font-weight: 600;
+    }
+    footer a:hover { text-decoration: underline; }
+  </style>
 </head>
-<body class="min-h-screen flex flex-col justify-between relative bg-thinkpad-carbon scanlines selection:bg-[#e60012] selection:text-white">
-
-    <!-- Subtle ThinkPad Bento Keyboard Bezel Lines in Background -->
-    <div class="fixed inset-0 pointer-events-none z-0 flex justify-center items-center opacity-25">
-        <svg viewBox="0 0 1000 1000" preserveAspectRatio="none" class="w-full h-full max-w-6xl">
-            <rect x="60" y="40" width="880" height="920" rx="12" fill="none" stroke="#27272a" stroke-width="3"/>
-            <line x1="60" y1="120" x2="940" y2="120" stroke="#27272a" stroke-width="2" stroke-dasharray="8 6"/>
-            <line x1="60" y1="880" x2="940" y2="880" stroke="#27272a" stroke-width="2" stroke-dasharray="8 6"/>
-            <rect x="130" y="28" width="90" height="16" rx="3" fill="#52525b" stroke="#18181b" stroke-width="2"/>
-            <rect x="780" y="28" width="90" height="16" rx="3" fill="#52525b" stroke="#18181b" stroke-width="2"/>
-        </svg>
+<body>
+  <main class="wrap">
+    <div class="mode-bar" role="tablist" aria-label="Mode status error">
+      <button type="button" class="mode-btn" data-err-mode="404"><span class="mode-kbd">F1</span> 404</button>
+      <button type="button" class="mode-btn" data-err-mode="403"><span class="mode-kbd">F2</span> 403</button>
+      <button type="button" class="mode-btn" data-err-mode="500"><span class="mode-kbd">F3</span> 500</button>
+      <button type="button" class="mode-btn" data-err-mode="503"><span class="mode-kbd">F4</span> 503</button>
     </div>
 
-    <!-- Interactive Background Particle Canvas (Red & Silver ThinkPad Nodes) -->
-    <canvas id="particleCanvas" class="fixed inset-0 pointer-events-none z-0"></canvas>
-
-    <!-- Ambient TrackPoint Red Glow Orbs -->
-    <div id="glowOrb1" class="fixed top-1/4 -left-24 w-96 h-96 bg-[#e60012]/10 rounded-full blur-3xl pointer-events-none z-0 transition-colors duration-700"></div>
-    <div id="glowOrb2" class="fixed bottom-1/4 -right-24 w-96 h-96 bg-blue-600/10 rounded-full blur-3xl pointer-events-none z-0 transition-colors duration-700"></div>
-
-    <!-- Top Navigation Bar: Function Keys (F1 - F4) Error Mode Switcher -->
-    <header class="relative z-20 w-full pt-5 px-4 sm:px-6 lg:px-8 flex justify-center">
-        <div class="inline-flex flex-wrap items-center justify-center gap-1.5 bg-[#141418]/95 backdrop-blur-md p-1.5 rounded-xl border border-[#2e2e36] shadow-[0_8px_30px_rgba(0,0,0,0.8)]">
-            <span class="text-[11px] font-mono text-zinc-400 px-2.5 hidden sm:inline items-center">
-                <span class="px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-300 border border-zinc-700 mr-1.5">Fn</span>Mode:
-            </span>
-            <button onclick="switchErrorState('404')" id="btn-404" class="err-tab px-3.5 py-1.5 rounded-lg text-xs font-mono font-semibold transition-all bg-[#e60012]/20 text-white border border-[#e60012] shadow-[inset_0_1px_0_rgba(255,255,255,0.2)]">
-                <span class="text-[10px] text-zinc-400 mr-1">F1</span>404 Not Found
-            </button>
-            <button onclick="switchErrorState('403')" id="btn-403" class="err-tab px-3.5 py-1.5 rounded-lg text-xs font-mono font-semibold text-zinc-400 hover:text-white bg-[#1c1c21] transition-all border border-[#2e2e36]">
-                <span class="text-[10px] text-zinc-500 mr-1">F2</span>403 Forbidden
-            </button>
-            <button onclick="switchErrorState('500')" id="btn-500" class="err-tab px-3.5 py-1.5 rounded-lg text-xs font-mono font-semibold text-zinc-400 hover:text-white bg-[#1c1c21] transition-all border border-[#2e2e36]">
-                <span class="text-[10px] text-zinc-500 mr-1">F3</span>500 Server Error
-            </button>
-            <button onclick="switchErrorState('503')" id="btn-503" class="err-tab px-3.5 py-1.5 rounded-lg text-xs font-mono font-semibold text-zinc-400 hover:text-white bg-[#1c1c21] transition-all border border-[#2e2e36]">
-                <span class="text-[10px] text-zinc-500 mr-1">F4</span>503 Maintenance
-            </button>
+    <section class="card">
+      <div class="card-top">
+        <div class="status-pill">
+          <span class="status-dot" id="ep-dot"></span>
+          <span id="ep-badge">HTTP_STATUS: 404_NOT_FOUND</span>
         </div>
-    </header>
+        <a href="index.html" id="brandLink" class="brand">
+          <img src="icons/icon.svg" id="brandIcon" alt="Think Aset" />
+          <span>Think Aset</span>
+        </a>
+      </div>
 
-    <!-- Main Content Area: ThinkPad Chassis Bezel Container -->
-    <main class="relative z-10 flex-grow flex items-center justify-center py-5 px-4 sm:px-6 lg:px-8">
-        <div class="max-w-2xl w-full text-center space-y-4 bg-[#141418]/90 backdrop-blur-md border-2 border-[#2d2d35] rounded-2xl p-6 sm:p-8 shadow-[0_25px_70px_rgba(0,0,0,0.95)] relative overflow-hidden">
+      <div class="illustration" id="ep-illustration"></div>
+      <h1 class="code-num" id="ep-code">404</h1>
+      <h2 class="title" id="ep-title">Halaman Tidak Ditemukan</h2>
+      <p class="desc" id="ep-desc"></p>
 
-            <!-- Top Bezel Camera & ThinkLight Indicator + Classic ThinkPad Logo -->
-            <div class="flex items-center justify-between border-b border-[#27272f] pb-3 mb-2">
-                <!-- Status Pill -->
-                <div class="inline-flex items-center space-x-2.5 px-3 py-1 rounded-md bg-[#0b0b0e] border border-[#2e2e36] text-xs font-mono">
-                    <span class="relative flex h-2 w-2">
-                        <span id="statusDot" class="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#e60012] opacity-75"></span>
-                        <span id="statusDotSolid" class="relative inline-flex rounded-full h-2 w-2 bg-[#e60012]"></span>
-                    </span>
-                    <span id="errorCodeBadge" class="text-red-400 font-bold tracking-wider text-[11px] sm:text-xs">HTTP_STATUS: 404_NOT_FOUND</span>
-                </div>
+      <div class="diag-bar">
+        <span class="diag-cmd" id="ep-cmd"></span>
+        <button type="button" class="btn btn-ghost btn-sm" id="ep-copy">Salin</button>
+      </div>
 
-                <!-- Iconic ThinkPad-style Logo with Glowing Red Dot on "i" -->
-                <div class="flex items-center space-x-1 select-none font-sans font-extrabold tracking-tight text-base sm:text-lg text-zinc-200">
-                    <span>Th</span>
-                    <span class="relative inline-flex flex-col items-center">
-                        <span class="w-1.5 h-1.5 rounded-full bg-[#e60012] think-red-dot mb-0.5"></span>
-                        <span class="leading-none">ı</span>
-                    </span>
-                    <span>nk</span>
-                    <span class="text-zinc-400 font-semibold">Error</span>
-                </div>
-            </div>
+      <div class="actions">
+        <a href="index.html" id="homeLink" class="btn btn-primary">Beranda</a>
+        <a href="app.html#/dashboard" id="appLink" class="btn btn-secondary">Buka Aplikasi</a>
+        <button type="button" class="btn btn-ghost" id="ep-back">← Kembali</button>
+        <a href="https://github.com/jaiz-lana/think---aset" target="_blank" rel="noopener noreferrer" class="btn btn-ghost">GitHub ↗</a>
+      </div>
+    </section>
+  </main>
 
-            <!-- Interactive SVG Character Stage + 3D Glitch Code -->
-            <div id="parallaxContainer" class="relative py-1 transition-transform duration-150 ease-out select-none flex flex-col items-center justify-center">
+  <footer>
+    <span id="footerStatus">STATUS: 404</span> ·
+    <a href="https://github.com/jaiz-lana/think---aset" target="_blank" rel="noopener noreferrer">Think Aset Open Source</a>
+  </footer>
 
-                <!-- Dynamic Animated SVG Stage (Santriwati + ThinkPad / TrackPoint Theme) -->
-                <div id="illustrationStage" class="w-56 h-56 sm:w-64 sm:h-60 mx-auto mb-1 flex items-center justify-center relative">
-                    <!-- Diisi otomatis oleh JavaScript sesuai mode 404 / 403 / 500 / 503 -->
-                </div>
+  <script>
+    (function () {
+      const basePath = window.location.pathname.startsWith('/think---aset') ? '/think---aset/' : '/';
+      const setHref = (id, file) => {
+        const el = document.getElementById(id);
+        if (el) el.href = basePath + file;
+      };
+      setHref('favicon-link', 'icons/icon.svg');
+      setHref('brandLink', 'index.html');
+      setHref('homeLink', 'index.html');
+      setHref('appLink', 'app.html#/dashboard');
+      const brandIcon = document.getElementById('brandIcon');
+      if (brandIcon) brandIcon.src = basePath + 'icons/icon.svg';
 
-                <div class="glitch-wrapper -mt-2">
-                    <h1 id="glitchNumber" data-text="404" class="glitch font-mono text-6xl sm:text-7xl md:text-8xl text-white tracking-tighter drop-shadow-[0_4px_20px_rgba(230,0,18,0.35)]">
-                        404
-                    </h1>
-                </div>
-            </div>
+      const ILLUSTRATIONS = {
+        '404': '<svg viewBox="0 0 220 190" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="110" cy="95" r="76" fill="#F0FDF4" stroke="#BBF7D0" stroke-width="2"/><circle cx="110" cy="95" r="62" stroke="#16A34A" stroke-width="1.5" stroke-dasharray="6 5" opacity="0.45"/><rect x="64" y="60" width="84" height="68" rx="12" fill="#FFFFFF" stroke="#166534" stroke-width="2.4" stroke-dasharray="6 4"/><path d="M64 80h84" stroke="#DCFCE7" stroke-width="2"/><rect x="78" y="92" width="38" height="8" rx="4" fill="#DCFCE7"/><rect x="78" y="106" width="26" height="8" rx="4" fill="#E5E7EB"/><g transform="translate(118, 84)"><circle cx="24" cy="24" r="22" fill="#FFFFFF" stroke="#16A34A" stroke-width="3.2"/><circle cx="24" cy="24" r="15" fill="#F0FDF4"/><text x="24" y="31" text-anchor="middle" fill="#166534" font-family="monospace" font-size="20" font-weight="800">?</text><path d="M40 40l14 14" stroke="#166534" stroke-width="5" stroke-linecap="round"/></g></svg>',
+        '403': '<svg viewBox="0 0 220 190" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="110" cy="95" r="76" fill="#FEF3C7" opacity="0.45"/><circle cx="110" cy="95" r="64" fill="#FFFFFF" stroke="#FDE68A" stroke-width="2"/><path d="M110 38L158 56V96C158 128 137 150 110 160C83 150 62 128 62 96V56L110 38Z" fill="#F0FDF4" stroke="#166534" stroke-width="2.6"/><path d="M94 86V76a16 16 0 0 1 32 0v10" stroke="#166534" stroke-width="3.4" stroke-linecap="round"/><rect x="84" y="86" width="52" height="40" rx="9" fill="#16A34A" stroke="#166534" stroke-width="2.2"/><circle cx="110" cy="103" r="5" fill="#FFFFFF"/><path d="M110 107v9" stroke="#FFFFFF" stroke-width="3.2" stroke-linecap="round"/></svg>',
+        '500': '<svg viewBox="0 0 220 190" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="110" cy="95" r="76" fill="#FEE2E2" opacity="0.45"/><circle cx="110" cy="95" r="64" fill="#FFFFFF" stroke="#FECACA" stroke-width="2"/><rect x="58" y="48" width="104" height="32" rx="8" fill="#F9FAFB" stroke="#374151" stroke-width="2.2"/><circle cx="74" cy="64" r="4" fill="#16A34A"/><rect x="86" y="61" width="58" height="6" rx="3" fill="#D1D5DB"/><rect x="58" y="88" width="104" height="32" rx="8" fill="#FEF2F2" stroke="#DC2626" stroke-width="2.2"/><circle cx="74" cy="104" r="4" fill="#DC2626"/><rect x="86" y="101" width="44" height="6" rx="3" fill="#FCA5A5"/><circle cx="146" cy="104" r="16" fill="#DC2626"/><path d="M146 96v9" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round"/><circle cx="146" cy="111" r="2" fill="#FFFFFF"/><path d="M76 136h68" stroke="#D1D5DB" stroke-width="3" stroke-linecap="round" stroke-dasharray="5 5"/></svg>',
+        '503': '<svg viewBox="0 0 220 190" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="110" cy="95" r="76" fill="#F0FDF4" stroke="#BBF7D0" stroke-width="2"/><g transform="translate(60, 52)"><circle cx="38" cy="38" r="22" fill="#DCFCE7" stroke="#16A34A" stroke-width="3"/><circle cx="38" cy="38" r="8" fill="#FFFFFF" stroke="#166534" stroke-width="2.5"/><path d="M38 10v8M38 58v8M10 38h8M58 38h8M18 18l6 6M52 52l6 6M58 18l-6 6M24 52l-6 6" stroke="#166534" stroke-width="3.2" stroke-linecap="round"/></g><g transform="translate(114, 88)"><circle cx="24" cy="24" r="15" fill="#FFFFFF" stroke="#0D9488" stroke-width="2.8"/><circle cx="24" cy="24" r="5" fill="#0D9488"/><path d="M24 4v6M24 38v6M4 24h6M38 24h6" stroke="#0D9488" stroke-width="2.8" stroke-linecap="round"/></g></svg>'
+      };
 
-            <!-- Dynamic Title & Description -->
-            <div class="space-y-2 px-2">
-                <h2 id="errorTitle" class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-                    Halaman Tidak Ditemukan
-                </h2>
-                <p id="errorDesc" class="text-zinc-300 text-sm sm:text-base leading-relaxed max-w-xl mx-auto">
-                    Halaman tidak ditemukan.
-                </p>
-            </div>
-
-            <!-- Requested URL Diagnostic Bar (ThinkPad BIOS / Linux TTY Style) -->
-            <div class="max-w-lg mx-auto bg-[#09090b] border border-[#2e2e36] rounded-lg p-3 flex items-center justify-between text-xs font-mono shadow-inner">
-                <div class="flex items-center space-x-2 truncate pr-2">
-                    <span class="text-[#e60012] font-bold">root@thinkpad:~#</span>
-                    <span id="diagnosticCommand" class="text-zinc-300 truncate">GET /requested-url HTTP/1.1</span>
-                </div>
-                <button onclick="copyDiagnostic()" class="px-2.5 py-1 rounded bg-[#1c1c22] hover:bg-[#272730] text-zinc-300 hover:text-white border border-[#34343e] transition-colors flex items-center space-x-1.5 shrink-0" title="Salin Log">
-                    <i id="copyIcon" class="fa-regular fa-copy"></i>
-                    <span id="copyText">Salin</span>
-                </button>
-            </div>
-
-            <!-- Iconic ThinkPad TrackPoint (Red Nipple) + Classic 3 Mouse Buttons Bar -->
-            <div class="pt-3 flex flex-col items-center">
-                <!-- Red TrackPoint Nub between keys -->
-                <div class="relative z-10 -mb-2.5 flex flex-col items-center group cursor-pointer" onclick="switchErrorState('404')" title="TrackPoint Reset (404)">
-                    <div class="w-6 h-6 rounded-full trackpoint-cap border border-red-900 transition-transform group-hover:scale-110"></div>
-                </div>
-
-                <!-- Classic ThinkPad Left / Middle (Blue) / Right Mouse Buttons -->
-                <div class="w-full max-w-lg grid grid-cols-1 sm:grid-cols-3 gap-2 bg-[#0b0b0e] p-2 rounded-xl border border-[#2b2b33] shadow-inner">
-
-                    <!-- Left Click Button: Beranda (with Classic Red Stripe) -->
-                    <a id="homeLink" href="index.html" class="relative pt-3 pb-2.5 px-4 rounded-lg bg-[#1c1c22] hover:bg-[#25252d] active:translate-y-0.5 text-white font-semibold text-xs sm:text-sm border border-[#32323c] transition-all flex items-center justify-center space-x-2 group overflow-hidden">
-                        <span class="absolute top-0 left-0 right-0 h-1 bg-[#e60012]"></span>
-                        <i class="fa-solid fa-house text-xs text-[#e60012] group-hover:scale-110 transition-transform"></i>
-                        <span>Beranda</span>
-                    </a>
-
-                    <!-- Middle Scroll Button: Halaman GitHub Saya (with Classic Blue Dots/Stripe) -->
-                    <a href="https://github.com/jaiz-lana/think---aset" target="_blank" rel="noopener noreferrer" class="relative pt-3 pb-2.5 px-4 rounded-lg bg-[#1c1c22] hover:bg-[#25252d] active:translate-y-0.5 text-white font-semibold text-xs sm:text-sm border border-[#32323c] transition-all flex items-center justify-center space-x-2 group overflow-hidden">
-                        <span class="absolute top-0 left-3 right-3 h-1 bg-[#0066cc] rounded-b"></span>
-                        <i class="fa-brands fa-github text-sm text-zinc-200"></i>
-                        <span>GitHub Saya</span>
-                        <i class="fa-solid fa-arrow-up-right-from-square text-[10px] opacity-60"></i>
-                    </a>
-
-                    <!-- Right Click Button: Kembali (with Classic Red Stripe) -->
-                    <button onclick="goBack()" class="relative pt-3 pb-2.5 px-4 rounded-lg bg-[#1c1c22] hover:bg-[#25252d] active:translate-y-0.5 text-zinc-300 hover:text-white font-mono text-xs sm:text-sm border border-[#32323c] transition-all flex items-center justify-center space-x-2 overflow-hidden" title="Halaman Sebelumnya">
-                        <span class="absolute top-0 left-0 right-0 h-1 bg-[#e60012]"></span>
-                        <i class="fa-solid fa-arrow-left text-xs text-[#e60012]"></i>
-                        <span>Kembali</span>
-                    </button>
-
-                </div>
-            </div>
-
-        </div>
-    </main>
-
-    <!-- Minimal Footer -->
-    <footer class="relative z-10 py-4 px-4 text-center text-xs text-zinc-400 font-mono">
-        <div class="flex items-center justify-center space-x-3">
-            <span class="inline-flex items-center space-x-1.5">
-                <span class="w-2 h-2 rounded-full bg-[#e60012]"></span>
-                <span id="footerStatus">STATUS: 404</span>
-            </span>
-            <span>•</span>
-            <a href="https://github.com/jaiz-lana" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors underline underline-offset-4 decoration-[#e60012]">
-                github.com/jaiz-lana
-            </a>
-        </div>
-    </footer>
-
-    <!-- Interactive Scripts -->
-    <script>
-        // Resolve base path for Think Aset (works on GitHub Pages /think---aset/ or root /)
-        const basePath = window.location.pathname.startsWith('/think---aset') ? '/think---aset/' : '/';
-        const homeLink = document.getElementById('homeLink');
-        if (homeLink) homeLink.href = basePath + 'index.html';
-        const favLink = document.getElementById('favicon-link');
-        if (favLink) favLink.href = basePath + 'icons/icon.svg';
-
-        function goBack() {
-            if (window.history.length > 1) {
-                window.history.back();
-            } else {
-                window.location.href = basePath + 'index.html';
-            }
+      const path = window.location.pathname || '/unknown-path';
+      const STATES = {
+        '404': {
+          code: '404',
+          badge: 'HTTP_STATUS: 404_NOT_FOUND',
+          dotClass: '',
+          title: 'Halaman Tidak Ditemukan',
+          desc: 'Halaman atau alamat yang Anda tuju tidak tersedia atau telah dipindahkan.',
+          cmd: 'GET ' + path + ' — 404 Not Found'
+        },
+        '403': {
+          code: '403',
+          badge: 'HTTP_STATUS: 403_FORBIDDEN',
+          dotClass: 'warning',
+          title: 'Akses Dibatasi',
+          desc: 'Anda belum memiliki izin akses untuk membuka halaman ini. Silakan kembali ke beranda.',
+          cmd: 'GET ' + path + ' — 403 Forbidden'
+        },
+        '500': {
+          code: '500',
+          badge: 'HTTP_STATUS: 500_INTERNAL_ERROR',
+          dotClass: 'danger',
+          title: 'Terjadi Kendala Sistem',
+          desc: 'Terjadi gangguan saat memuat data. Periksa koneksi Anda atau coba muat ulang halaman.',
+          cmd: 'ERR ' + path + ' — 500 Internal Server Error'
+        },
+        '503': {
+          code: '503',
+          badge: 'HTTP_STATUS: 503_MAINTENANCE',
+          dotClass: 'warning',
+          title: 'Layanan Sedang Sibuk',
+          desc: 'Layanan sedang dalam pemeliharaan sementara. Silakan coba beberapa saat lagi.',
+          cmd: 'SVC ' + path + ' — 503 Service Unavailable'
         }
+      };
 
-        /* ==========================================================================
-           0. ANIMASI SVG SANTRIWATI + THINKPAD EDITION (403, 404, 500, 503)
-           ========================================================================== */
-        const floralPatternDefs = `
-            <defs>
-                <pattern id="floralDress" width="26" height="26" patternUnits="userSpaceOnUse">
-                    <rect width="26" height="26" fill="#94b0b7"/>
-                    <circle cx="8" cy="8" r="2.3" fill="#4f778d" opacity="0.65"/>
-                    <circle cx="11" cy="7" r="1.4" fill="#628ca3" opacity="0.65"/>
-                    <circle cx="6" cy="11" r="1.4" fill="#628ca3" opacity="0.65"/>
-                    <path d="M8 10 Q12 15 15 13" stroke="#4f778d" stroke-width="1.2" fill="none" opacity="0.6"/>
-                    <circle cx="20" cy="19" r="2" fill="#4f778d" opacity="0.55"/>
-                    <path d="M17 20 Q20 23 23 18" stroke="#628ca3" stroke-width="1.1" fill="none" opacity="0.6"/>
-                </pattern>
-                <linearGradient id="thinkpadPanelBg" x1="0" y1="0" x2="1" y2="1">
-                    <stop offset="0%" stop-color="#1f1f26"/>
-                    <stop offset="100%" stop-color="#0d0d11"/>
-                </linearGradient>
-            </defs>
-            <circle cx="120" cy="120" r="102" fill="url(#thinkpadPanelBg)" stroke="#2e2e38" stroke-width="4"/>
-            <circle cx="120" cy="120" r="95" fill="none" stroke="#e60012" stroke-width="1.5" stroke-dasharray="8 5" opacity="0.65"/>
-            <circle cx="26" cy="120" r="6" fill="#e60012" stroke="#7f1d1d" stroke-width="2"/>
-            <circle cx="214" cy="120" r="6" fill="#e60012" stroke="#7f1d1d" stroke-width="2"/>
-            <path d="M145 18 A102 102 0 0 1 222 120 L120 190 Z" fill="#e60012" opacity="0.09"/>
-        `;
-
-        const thinkpadLaptopFront = `
-            <g transform="translate(0, 4)">
-                <polygon points="44,206 196,206 208,216 32,216" fill="#18181c" stroke="#3f3f46" stroke-width="1.8"/>
-                <line x1="95" y1="208" x2="145" y2="208" stroke="#e60012" stroke-width="2.2"/>
-                <line x1="114" y1="211" x2="126" y2="211" stroke="#0066cc" stroke-width="2.2"/>
-                <rect x="64" y="148" width="112" height="60" rx="4" fill="#121216" stroke="#3f3f46" stroke-width="2.2"/>
-                <rect x="74" y="204" width="14" height="5" fill="#a1a1aa" stroke="#18181b" stroke-width="1"/>
-                <rect x="152" y="204" width="14" height="5" fill="#a1a1aa" stroke="#18181b" stroke-width="1"/>
-                <g transform="translate(144, 166) rotate(-32)">
-                    <rect x="0" y="0" width="22" height="4" rx="1" fill="#71717a"/>
-                    <circle cx="19" cy="-2" r="2.8" fill="#e60012"/>
-                    <circle cx="19" cy="-2" r="5" fill="#e60012" opacity="0.35" class="animate-ping"/>
-                </g>
-            </g>
-        `;
-
-        const santriIllustrations = {
-            '403': `
-                <svg viewBox="0 0 240 240" class="w-full h-full drop-shadow-[0_12px_25px_rgba(0,0,0,0.75)]" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    ${floralPatternDefs}
-                    <g class="animate-breathe">
-                        <path d="M164 95 Q192 145 178 198 L152 195 Z" fill="#2c4c5e" stroke="#1b262c" stroke-width="2.2"/>
-                        <path d="M64 132 C54 158 52 195 58 218 L182 218 C186 190 184 155 172 132 Z" fill="url(#floralDress)" stroke="#1b262c" stroke-width="2.4"/>
-                        <line x1="108" y1="168" x2="103" y2="218" stroke="#3d5a68" stroke-width="2"/>
-                        <line x1="132" y1="168" x2="138" y2="218" stroke="#3d5a68" stroke-width="2"/>
-                        <circle cx="114" cy="182" r="2.8" fill="#7c9da8" stroke="#2b414d" stroke-width="1.2"/>
-                        <circle cx="112" cy="202" r="2.8" fill="#7c9da8" stroke="#2b414d" stroke-width="1.2"/>
-
-                        <path d="M74 96 C68 135 82 168 118 174 C152 168 170 138 168 98 Z" fill="#3b6074" stroke="#1b262c" stroke-width="2.4"/>
-                        <path d="M80 112 Q118 142 158 106" stroke="#294656" stroke-width="2.2" fill="none"/>
-                        <path d="M85 128 Q122 156 154 122" stroke="#294656" stroke-width="2.2" fill="none"/>
-
-                        <path d="M132 156 L156 146 C160 145 162 149 157 152 L140 160 Z" fill="#eab688" stroke="#1b262c" stroke-width="1.8"/>
-                        <path d="M136 161 L159 152 C162 151 163 155 158 157 L140 165 Z" fill="#eab688" stroke="#1b262c" stroke-width="1.8"/>
-                        <path d="M58 138 C50 162 56 178 82 178 L138 168 L134 150 L82 154 Z" fill="url(#floralDress)" stroke="#1b262c" stroke-width="2.2"/>
-                        <path d="M78 150 C88 148 98 154 102 164 L84 168 Z" fill="#eab688" stroke="#1b262c" stroke-width="1.8"/>
-                        <path d="M174 134 C180 158 168 182 142 180 L94 168 L100 148 L148 156 Z" fill="url(#floralDress)" stroke="#1b262c" stroke-width="2.2"/>
-                        <path d="M95 146 C88 150 88 158 94 160 C89 164 91 171 98 171" fill="#94b0b7" stroke="#1b262c" stroke-width="2"/>
-
-                        <path d="M74 88 C74 42 166 42 166 92 C166 116 152 132 120 134 C88 132 74 114 74 88 Z" fill="#3b6074" stroke="#1b262c" stroke-width="2.4"/>
-                        <path d="M88 64 Q116 54 144 68" stroke="#231915" stroke-width="6" stroke-linecap="round"/>
-                        <path d="M88 68 C84 95 92 118 116 122 C140 118 148 95 144 68 C132 58 100 58 88 68 Z" fill="#f1c297" stroke="#1b262c" stroke-width="2.2"/>
-
-                        <path d="M92 78 Q101 73 110 77" stroke="#231915" stroke-width="2.5" stroke-linecap="round" fill="none"/>
-                        <path d="M122 77 Q131 73 140 78" stroke="#231915" stroke-width="2.5" stroke-linecap="round" fill="none"/>
-                        <ellipse cx="101" cy="88" rx="6.5" ry="7.5" fill="#ffffff" stroke="#1b262c" stroke-width="2"/>
-                        <ellipse cx="102" cy="88" rx="4.5" ry="5.8" fill="#2b1d14"/>
-                        <circle cx="100" cy="85" r="2" fill="#ffffff"/>
-                        <ellipse cx="130" cy="88" rx="6.5" ry="7.5" fill="#ffffff" stroke="#1b262c" stroke-width="2"/>
-                        <ellipse cx="129" cy="88" rx="4.5" ry="5.8" fill="#2b1d14"/>
-                        <circle cx="127" cy="85" r="2" fill="#ffffff"/>
-
-                        <line x1="90" y1="98" x2="94" y2="96" stroke="#e08b75" stroke-width="1.6"/>
-                        <line x1="94" y1="99" x2="98" y2="97" stroke="#e08b75" stroke-width="1.6"/>
-                        <line x1="133" y1="97" x2="137" y2="95" stroke="#e08b75" stroke-width="1.6"/>
-                        <line x1="137" y1="98" x2="141" y2="96" stroke="#e08b75" stroke-width="1.6"/>
-                        <path d="M114 93 Q112 98 115 99" stroke="#1b262c" stroke-width="1.8" stroke-linecap="round" fill="none"/>
-                        <path d="M108 107 Q116 111 124 106" stroke="#1b262c" stroke-width="2" stroke-linecap="round" fill="none"/>
-                    </g>
-                    <g transform="translate(168, 34)">
-                        <rect x="4" y="14" width="28" height="22" rx="4" fill="#18181b" stroke="#e60012" stroke-width="2.2"/>
-                        <path d="M10 14 V9 C10 4 26 4 26 9 V14" stroke="#a1a1aa" stroke-width="3" fill="none"/>
-                        <circle cx="18" cy="25" r="3" fill="#e60012"/>
-                    </g>
-                </svg>
-            `,
-            '404': `
-                <svg viewBox="0 0 240 240" class="w-full h-full drop-shadow-[0_12px_25px_rgba(0,0,0,0.75)]" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    ${floralPatternDefs}
-                    <g class="animate-sob">
-                        <path d="M164 95 Q192 145 178 198 L152 195 Z" fill="#2c4c5e" stroke="#1b262c" stroke-width="2.2"/>
-                        <path d="M64 132 C54 158 52 195 58 218 L182 218 C186 190 184 155 172 132 Z" fill="url(#floralDress)" stroke="#1b262c" stroke-width="2.4"/>
-                        <path d="M74 96 C68 135 82 168 118 174 C152 168 170 138 168 98 Z" fill="#3b6074" stroke="#1b262c" stroke-width="2.4"/>
-                        <path d="M80 112 Q118 142 158 106" stroke="#294656" stroke-width="2.2" fill="none"/>
-
-                        <path d="M74 84 C74 38 166 38 166 88 C166 112 152 128 120 130 C88 128 74 110 74 84 Z" fill="#3b6074" stroke="#1b262c" stroke-width="2.4"/>
-                        <path d="M88 60 Q116 50 144 64" stroke="#231915" stroke-width="6" stroke-linecap="round"/>
-                        <path d="M88 64 C84 91 92 114 116 118 C140 114 148 91 144 64 C132 54 100 54 88 64 Z" fill="#f1c297" stroke="#1b262c" stroke-width="2.2"/>
-
-                        <path d="M92 76 Q101 71 109 78" stroke="#231915" stroke-width="2.4" stroke-linecap="round" fill="none"/>
-                        <path d="M140 76 Q131 71 123 78" stroke="#231915" stroke-width="2.4" stroke-linecap="round" fill="none"/>
-                        <ellipse cx="101" cy="85" rx="6.2" ry="7" fill="#ffffff" stroke="#1b262c" stroke-width="2"/>
-                        <ellipse cx="101" cy="86" rx="4.5" ry="5.2" fill="#2b1d14"/>
-                        <circle cx="99" cy="83" r="2" fill="#ffffff"/>
-                        <ellipse cx="130" cy="85" rx="6.2" ry="7" fill="#ffffff" stroke="#1b262c" stroke-width="2"/>
-                        <ellipse cx="130" cy="86" rx="4.5" ry="5.2" fill="#2b1d14"/>
-                        <circle cx="128" cy="83" r="2" fill="#ffffff"/>
-
-                        <g class="animate-tear-1">
-                            <path d="M96 92 C93 99 93 104 96 106 C99 104 99 99 96 92 Z" fill="#60a5fa"/>
-                        </g>
-                        <g class="animate-tear-2">
-                            <path d="M135 92 C132 99 132 104 135 106 C138 104 138 99 135 92 Z" fill="#60a5fa"/>
-                        </g>
-
-                        <path d="M114 90 Q112 94 115 95" stroke="#1b262c" stroke-width="1.8" stroke-linecap="round" fill="none"/>
-                        <path d="M109 105 Q116 100 123 105" stroke="#1b262c" stroke-width="2" stroke-linecap="round" fill="none"/>
-                    </g>
-                    ${thinkpadLaptopFront}
-                    <text x="176" y="60" fill="#e60012" font-family="JetBrains Mono" font-weight="bold" font-size="26" class="animate-bounce">?</text>
-                </svg>
-            `,
-            '500': `
-                <svg viewBox="0 0 240 240" class="w-full h-full drop-shadow-[0_12px_25px_rgba(0,0,0,0.75)]" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    ${floralPatternDefs}
-                    <path d="M68 128 C58 155 56 190 60 218 L180 218 C184 190 182 155 170 128 Z" fill="url(#floralDress)" stroke="#1b262c" stroke-width="2.2"/>
-                    <path d="M74 92 C68 128 82 158 118 164 C152 158 170 128 168 92 Z" fill="#3b6074" stroke="#1b262c" stroke-width="2.2"/>
-                    <path d="M74 82 C74 38 166 38 166 86 C166 110 152 126 120 128 C88 126 74 108 74 82 Z" fill="#3b6074" stroke="#1b262c" stroke-width="2.4"/>
-                    <path d="M88 58 Q116 48 144 62" stroke="#231915" stroke-width="6" stroke-linecap="round"/>
-                    <path d="M88 62 C84 89 92 112 116 116 C140 112 148 89 144 62 C132 52 100 52 88 62 Z" fill="#f1c297" stroke="#1b262c" stroke-width="2.2"/>
-                    <path d="M92 70 Q101 66 110 70" stroke="#231915" stroke-width="2.3" stroke-linecap="round" fill="none"/>
-                    <path d="M122 70 Q131 66 140 70" stroke="#231915" stroke-width="2.3" stroke-linecap="round" fill="none"/>
-                    <circle cx="101" cy="82" r="6" fill="#ffffff" stroke="#1b262c" stroke-width="2"/>
-                    <circle cx="101" cy="83" r="3.5" fill="#2b1d14"/>
-                    <circle cx="130" cy="82" r="6" fill="#ffffff" stroke="#1b262c" stroke-width="2"/>
-                    <circle cx="130" cy="83" r="3.5" fill="#2b1d14"/>
-                    <ellipse cx="116" cy="101" rx="4" ry="5" fill="#8c3b32" stroke="#1b262c" stroke-width="1.8"/>
-
-                    <g class="animate-kitab">
-                        <rect x="52" y="136" width="136" height="72" rx="5" fill="#141418" stroke="#e60012" stroke-width="2.2"/>
-                        <rect x="60" y="144" width="120" height="56" rx="2" fill="#09090b" stroke="#27272a" stroke-width="1.5"/>
-                        <rect x="68" y="152" width="46" height="38" stroke="#e60012" stroke-width="1.3" stroke-dasharray="3 3" fill="none" class="animate-blank-page"/>
-                        <rect x="126" y="152" width="46" height="38" stroke="#e60012" stroke-width="1.3" stroke-dasharray="3 3" fill="none" class="animate-blank-page"/>
-                        <text x="76" y="175" fill="#e60012" font-family="JetBrains Mono" font-size="11" font-weight="bold" class="animate-blank-page">NULL</text>
-                        <text x="132" y="175" fill="#e60012" font-family="JetBrains Mono" font-size="11" font-weight="bold" class="animate-blank-page">EMPTY</text>
-                        <circle cx="120" cy="204" r="3.5" fill="#e60012"/>
-                        <circle cx="52" cy="172" r="7" fill="#f1c297" stroke="#1b262c" stroke-width="1.8"/>
-                        <circle cx="188" cy="172" r="7" fill="#f1c297" stroke="#1b262c" stroke-width="1.8"/>
-                    </g>
-                    <text x="172" y="54" fill="#e60012" font-family="JetBrains Mono" font-weight="bold" font-size="18" class="animate-pulse">!</text>
-                </svg>
-            `,
-            '503': `
-                <svg viewBox="0 0 240 240" class="w-full h-full drop-shadow-[0_12px_25px_rgba(0,0,0,0.75)]" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    ${floralPatternDefs}
-                    <path d="M68 134 C58 160 56 192 60 218 L180 218 C184 192 182 160 170 134 Z" fill="url(#floralDress)" stroke="#1b262c" stroke-width="2.2"/>
-                    <path d="M74 96 C68 132 82 162 118 168 C152 162 170 132 168 96 Z" fill="#3b6074" stroke="#1b262c" stroke-width="2.2"/>
-
-                    <g class="animate-nod">
-                        <path d="M74 86 C74 42 166 42 166 90 C166 114 152 130 120 132 C88 130 74 112 74 86 Z" fill="#3b6074" stroke="#1b262c" stroke-width="2.4"/>
-                        <path d="M88 62 Q116 52 144 66" stroke="#231915" stroke-width="6" stroke-linecap="round"/>
-                        <path d="M88 66 C84 93 92 116 116 120 C140 116 148 93 144 66 C132 56 100 56 88 66 Z" fill="#f1c297" stroke="#1b262c" stroke-width="2.2"/>
-                        <path d="M93 77 Q101 74 109 77" stroke="#231915" stroke-width="2.2" stroke-linecap="round" fill="none"/>
-                        <path d="M123 77 Q131 74 139 77" stroke="#231915" stroke-width="2.2" stroke-linecap="round" fill="none"/>
-                        <path d="M95 88 Q101 93 107 88" stroke="#1b262c" stroke-width="2.4" stroke-linecap="round" fill="none"/>
-                        <path d="M124 88 Q130 93 136 88" stroke="#1b262c" stroke-width="2.4" stroke-linecap="round" fill="none"/>
-                        <line x1="91" y1="96" x2="96" y2="94" stroke="#e08b75" stroke-width="1.6"/>
-                        <line x1="135" y1="94" x2="140" y2="96" stroke="#e08b75" stroke-width="1.6"/>
-                        <path d="M109 105 Q116 109 123 105" stroke="#1b262c" stroke-width="2" stroke-linecap="round" fill="none"/>
-                    </g>
-
-                    <path d="M58 206 L154 176 L158 184 L62 214 Z" fill="#78350f" stroke="#451a03" stroke-width="1.8"/>
-                    <path d="M154 206 L58 176 L54 184 L150 214 Z" fill="#92400e" stroke="#451a03" stroke-width="1.8"/>
-                    <path d="M48 178 L106 190 L164 178 L154 148 L106 158 L58 148 Z" fill="#fef08a" stroke="#ca8a04" stroke-width="2"/>
-                    <line x1="64" y1="159" x2="98" y2="165" stroke="#a16207" stroke-width="2" stroke-linecap="round"/>
-                    <line x1="62" y1="167" x2="98" y2="173" stroke="#a16207" stroke-width="2" stroke-linecap="round"/>
-                    <line x1="148" y1="159" x2="114" y2="165" stroke="#a16207" stroke-width="2" stroke-linecap="round"/>
-                    <line x1="150" y1="167" x2="114" y2="173" stroke="#a16207" stroke-width="2" stroke-linecap="round"/>
-                    <circle cx="122" cy="164" r="6" fill="#f1c297" stroke="#1b262c" stroke-width="1.8"/>
-
-                    <rect x="154" y="156" width="52" height="38" rx="3" fill="#121216" stroke="#52525b" stroke-width="2"/>
-                    <circle cx="196" cy="164" r="2.8" fill="#e60012" class="animate-ping"/>
-                    <circle cx="196" cy="164" r="2.8" fill="#e60012"/>
-                </svg>
-            `
-        };
-
-        /* ==========================================================================
-           1. ERROR STATE CONFIGURATION
-           ========================================================================== */
-        const errorStates = {
-            '403': {
-                code: '403',
-                badge: 'HTTP_STATUS: 403_FORBIDDEN',
-                title: 'Akses Ditolak',
-                desc: 'Maaf, Anda belum memiliki izin akses untuk membuka halaman khusus ini. Silakan kembali ke beranda.',
-                cmd: `GET ${window.location.pathname || '/restricted'} HTTP/1.1 — 403 Forbidden`,
-                color1: '#e60012',
-                color2: '#eab308',
-                badgeClass: 'text-amber-400',
-                dotClass: 'bg-amber-400',
-                btnActiveClass: 'bg-[#e60012]/20 text-white border-[#e60012]'
-            },
-            '404': {
-                code: '404',
-                badge: 'HTTP_STATUS: 404_NOT_FOUND',
-                title: 'Halaman Tidak Ditemukan',
-                desc: 'Halaman yang Anda tuju tidak tersedia atau telah dipindahkan.',
-                cmd: `GET ${window.location.pathname || '/unknown-path'} HTTP/1.1 — 404 Not Found`,
-                color1: '#e60012',
-                color2: '#0066cc',
-                badgeClass: 'text-red-400',
-                dotClass: 'bg-[#e60012]',
-                btnActiveClass: 'bg-[#e60012]/20 text-white border-[#e60012]'
-            },
-            '500': {
-                code: '500',
-                badge: 'HTTP_STATUS: 500_INTERNAL_SERVER_ERROR',
-                title: 'Server Eror',
-                desc: 'Terjadi kendala internal pada sistem! Halaman terbuka namun data gagal dimuat.',
-                cmd: 'HTTP/1.1 500 Internal Server Error',
-                color1: '#e60012',
-                color2: '#a855f7',
-                badgeClass: 'text-red-400',
-                dotClass: 'bg-[#e60012]',
-                btnActiveClass: 'bg-[#e60012]/20 text-white border-[#e60012]'
-            },
-            '503': {
-                code: '503',
-                badge: 'HTTP_STATUS: 503_SERVICE_UNAVAILABLE',
-                title: 'Sedang Sibuk',
-                desc: 'Layanan sedang dalam pemeliharaan sementara. Silakan coba beberapa saat lagi.',
-                cmd: 'HTTP/1.1 503 Service Unavailable (Retry-After: 3600)',
-                color1: '#0066cc',
-                color2: '#e60012',
-                badgeClass: 'text-sky-400',
-                dotClass: 'bg-sky-400',
-                btnActiveClass: 'bg-[#0066cc]/25 text-white border-[#0066cc]'
-            }
-        };
-
-        function switchErrorState(stateKey) {
-            const state = errorStates[stateKey];
-            if (!state) return;
-
-            const stageEl = document.getElementById('illustrationStage');
-            if (stageEl && santriIllustrations[stateKey]) {
-                stageEl.innerHTML = santriIllustrations[stateKey];
-            }
-
-            const glitchEl = document.getElementById('glitchNumber');
-            glitchEl.textContent = state.code;
-            glitchEl.setAttribute('data-text', state.code);
-
-            document.documentElement.style.setProperty('--glitch-color-1', state.color1);
-            document.documentElement.style.setProperty('--glitch-color-2', state.color2);
-
-            document.getElementById('errorCodeBadge').textContent = state.badge;
-            document.getElementById('errorCodeBadge').className = `${state.badgeClass} font-bold tracking-wider text-[11px] sm:text-xs`;
-            document.getElementById('statusDot').className = `animate-ping absolute inline-flex h-full w-full rounded-full ${state.dotClass} opacity-75`;
-            document.getElementById('statusDotSolid').className = `relative inline-flex rounded-full h-2 w-2 ${state.dotClass}`;
-
-            document.getElementById('errorTitle').textContent = state.title;
-            document.getElementById('errorDesc').textContent = state.desc;
-            document.getElementById('diagnosticCommand').textContent = state.cmd;
-            document.getElementById('footerStatus').textContent = `STATUS: ${state.code}`;
-            document.title = `${state.code} — ${state.title} | Think Aset`;
-
-            document.querySelectorAll('.err-tab').forEach(btn => {
-                btn.className = 'err-tab px-3.5 py-1.5 rounded-lg text-xs font-mono font-semibold text-zinc-400 hover:text-white bg-[#1c1c21] transition-all border border-[#2e2e36]';
-            });
-            const activeBtn = document.getElementById(`btn-${stateKey}`);
-            if (activeBtn) {
-                activeBtn.className = `err-tab px-3.5 py-1.5 rounded-lg text-xs font-mono font-semibold transition-all border shadow-[inset_0_1px_0_rgba(255,255,255,0.2)] ${state.btnActiveClass}`;
-            }
-        }
-
-        // Keyboard Shortcut F1-F4 atau Angka 1-4 untuk berpindah mode ala ThinkPad
-        document.addEventListener('keydown', (e) => {
-            if (e.key === '1' || e.key === 'F1') { if (e.key === 'F1') e.preventDefault(); switchErrorState('404'); }
-            if (e.key === '2' || e.key === 'F2') { if (e.key === 'F2') e.preventDefault(); switchErrorState('403'); }
-            if (e.key === '3' || e.key === 'F3') { if (e.key === 'F3') e.preventDefault(); switchErrorState('500'); }
-            if (e.key === '4' || e.key === 'F4') { if (e.key === 'F4') e.preventDefault(); switchErrorState('503'); }
+      function switchState(key) {
+        const s = STATES[key] || STATES['404'];
+        const dot = document.getElementById('ep-dot');
+        dot.className = 'status-dot' + (s.dotClass ? ' ' + s.dotClass : '');
+        document.getElementById('ep-badge').textContent = s.badge;
+        document.getElementById('ep-illustration').innerHTML = ILLUSTRATIONS[s.code];
+        document.getElementById('ep-code').textContent = s.code;
+        document.getElementById('ep-title').textContent = s.title;
+        document.getElementById('ep-desc').textContent = s.desc;
+        document.getElementById('ep-cmd').textContent = s.cmd;
+        document.getElementById('footerStatus').textContent = 'STATUS: ' + s.code;
+        document.title = s.code + ' — ' + s.title + ' | Think Aset';
+        document.querySelectorAll('[data-err-mode]').forEach(btn => {
+          btn.classList.toggle('active', btn.dataset.errMode === s.code);
         });
+      }
 
-        /* ==========================================================================
-           2. CLIPBOARD DIAGNOSTIC COPY
-           ========================================================================== */
-        async function copyDiagnostic() {
-            const cmdText = document.getElementById('diagnosticCommand').textContent;
-            let copied = false;
-            try {
-                if (navigator.clipboard?.writeText) {
-                    await navigator.clipboard.writeText(cmdText);
-                    copied = true;
-                }
-            } catch {}
-            if (!copied) {
-                const tempInput = document.createElement('textarea');
-                tempInput.value = cmdText;
-                document.body.appendChild(tempInput);
-                tempInput.select();
-                document.execCommand('copy');
-                document.body.removeChild(tempInput);
-            }
+      document.querySelectorAll('[data-err-mode]').forEach(btn => {
+        btn.addEventListener('click', () => switchState(btn.dataset.errMode));
+      });
 
-            const copyIcon = document.getElementById('copyIcon');
-            const copyText = document.getElementById('copyText');
-            copyIcon.className = 'fa-solid fa-check text-green-400';
-            copyText.textContent = 'Tersalin!';
-            setTimeout(() => {
-                copyIcon.className = 'fa-regular fa-copy';
-                copyText.textContent = 'Salin';
-            }, 2000);
+      document.getElementById('ep-back')?.addEventListener('click', () => {
+        if (window.history.length > 1) window.history.back();
+        else window.location.href = basePath + 'index.html';
+      });
+
+      document.getElementById('ep-copy')?.addEventListener('click', async () => {
+        const text = document.getElementById('ep-cmd')?.textContent || '';
+        try {
+          await navigator.clipboard?.writeText(text);
+        } catch {
+          const ta = document.createElement('textarea');
+          ta.value = text;
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand('copy');
+          ta.remove();
         }
-
-        /* ==========================================================================
-           3. 3D MOUSE PARALLAX & INTERACTIVE PARTICLE NETWORK
-           ========================================================================== */
-        const parallaxContainer = document.getElementById('parallaxContainer');
-        document.addEventListener('mousemove', (e) => {
-            const xAxis = (window.innerWidth / 2 - e.pageX) / 35;
-            const yAxis = (window.innerHeight / 2 - e.pageY) / 35;
-            if (parallaxContainer) {
-                parallaxContainer.style.transform = `rotateY(${xAxis}deg) rotateX(${yAxis}deg)`;
-            }
-        });
-
-        const canvas = document.getElementById('particleCanvas');
-        const ctx = canvas.getContext('2d');
-        let particles = [];
-
-        function resizeCanvas() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
+        const btn = document.getElementById('ep-copy');
+        if (btn) {
+          btn.textContent = 'Tersalin!';
+          setTimeout(() => { btn.textContent = 'Salin'; }, 1800);
         }
+      });
 
-        class Particle {
-            constructor() {
-                this.x = Math.random() * canvas.width;
-                this.y = Math.random() * canvas.height;
-                this.vx = (Math.random() - 0.5) * 0.4;
-                this.vy = (Math.random() - 0.5) * 0.4;
-                this.radius = Math.random() * 1.5 + 0.5;
-            }
-            update() {
-                this.x += this.vx;
-                this.y += this.vy;
-                if (this.x < 0 || this.x > canvas.width) this.vx = -this.vx;
-                if (this.y < 0 || this.y > canvas.height) this.vy = -this.vy;
-            }
-            draw() {
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-                ctx.fillStyle = 'rgba(230, 0, 18, 0.35)';
-                ctx.fill();
-            }
-        }
+      document.addEventListener('keydown', (e) => {
+        if (e.key === '1' || e.key === 'F1') { if (e.key === 'F1') e.preventDefault(); switchState('404'); }
+        else if (e.key === '2' || e.key === 'F2') { if (e.key === 'F2') e.preventDefault(); switchState('403'); }
+        else if (e.key === '3' || e.key === 'F3') { if (e.key === 'F3') e.preventDefault(); switchState('500'); }
+        else if (e.key === '4' || e.key === 'F4') { if (e.key === 'F4') e.preventDefault(); switchState('503'); }
+      });
 
-        function initParticles() {
-            particles = [];
-            const count = Math.min(Math.floor(window.innerWidth / 25), 55);
-            for (let i = 0; i < count; i++) {
-                particles.push(new Particle());
-            }
-        }
-
-        function animateParticles() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            for (let i = 0; i < particles.length; i++) {
-                particles[i].update();
-                particles[i].draw();
-                for (let j = i + 1; j < particles.length; j++) {
-                    const dx = particles[i].x - particles[j].x;
-                    const dy = particles[i].y - particles[j].y;
-                    const dist = Math.sqrt(dx * dx + dy * dy);
-                    if (dist < 120) {
-                        ctx.beginPath();
-                        ctx.moveTo(particles[i].x, particles[i].y);
-                        ctx.lineTo(particles[j].x, particles[j].y);
-                        ctx.strokeStyle = `rgba(230, 0, 18, ${0.12 * (1 - dist / 120)})`;
-                        ctx.stroke();
-                    }
-                }
-            }
-            requestAnimationFrame(animateParticles);
-        }
-
-        window.addEventListener('resize', () => {
-            resizeCanvas();
-            initParticles();
-        });
-
-        window.onload = function () {
-            resizeCanvas();
-            initParticles();
-            animateParticles();
-            const params = new URLSearchParams(window.location.search);
-            const qCode = params.get('code');
-            switchErrorState(errorStates[qCode] ? qCode : '404');
-        };
-    </script>
+      const params = new URLSearchParams(window.location.search);
+      const qCode = params.get('code');
+      switchState(STATES[qCode] ? qCode : '404');
+    })();
+  </script>
 </body>
 </html>

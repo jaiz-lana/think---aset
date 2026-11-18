@@ -4,12 +4,13 @@
  * Halaman TIDAK di-render di sini — halaman memakai `.content`.
  */
 import { getAdapter, signOut } from '../auth.js';
+import { config } from '../config.js';
 import { esc } from '../utils/dom.js';
 import { notify } from '../utils/toast.js';
 import { toggleTheme, getTheme } from '../theme.js';
 import { FEATURES, isFeatureAvailable } from '../features.js';
 import { openGuideModal } from './guide.js';
-import { openModal } from './modal.js';
+import { openModal, closeModal } from './modal.js';
 import { iconSvg } from './icons.js';
 import { getParentMenuPath } from './menu-hub.js';
 
@@ -50,12 +51,13 @@ export function renderLayout(root, router) {
       <aside class="app-sidebar" id="app-sidebar">
         <div class="sidebar-header">
           <div class="sidebar-brand">
-            <img src="icons/logo.svg" alt="Think Aset" />
+            <img src="icons/icon.svg" alt="Think Aset" />
+            <span class="sidebar-brand-name">Think Aset</span>
           </div>
-          
+
           <div class="sidebar-user-card">
-            ${userPicture 
-              ? `<img src="${esc(userPicture)}" class="user-avatar" alt="Avatar" />` 
+            ${userPicture
+              ? `<img src="${esc(userPicture)}" class="user-avatar" alt="Avatar" />`
               : `<div class="user-avatar text-avatar">${esc(userInitial)}</div>`}
             <div class="user-info">
               <span class="user-email" title="${esc(userEmail)}">${esc(userEmail)}</span>
@@ -71,6 +73,7 @@ export function renderLayout(root, router) {
         </nav>
 
         <div class="sidebar-footer" style="grid-template-columns:1fr">
+          <div class="sidebar-version">Think Aset v${esc(config.APP_VERSION)}</div>
           <button class="footer-btn btn-logout" id="btn-sidebar-logout" title="Keluar dari akun">
             <span class="logout-icon">${iconSvg('logout', 15)}</span>
             <span class="btn-text">Keluar</span>
@@ -79,7 +82,7 @@ export function renderLayout(root, router) {
       </aside>
       <div class="sidebar-overlay" id="sidebar-overlay"></div>
       <div class="app-main">
-        <header class="app-topbar">
+        <header class="app-topbar" id="app-topbar">
           <button class="sidebar-toggle" id="sidebar-toggle" aria-label="Buka menu navigasi">☰</button>
           <button type="button" class="btn btn-ghost btn-sm topbar-back hidden" id="btn-topbar-back" aria-label="Kembali" title="Kembali">← Kembali</button>
           <div class="topbar-title" id="topbar-title">Dashboard</div>
@@ -92,10 +95,46 @@ export function renderLayout(root, router) {
         </header>
         <main class="app-content" id="app-content"></main>
       </div>
+      <nav class="mobile-bottom-nav" id="mobile-bottom-nav" aria-label="Navigasi seluler">
+        <a href="#/dashboard" class="mobile-nav-item" data-mobile-path="/dashboard">
+          <span class="mobile-nav-icon">${iconSvg('dashboard', 20)}</span>
+          <span class="mobile-nav-label">Dashboard</span>
+        </a>
+        <a href="#/aset" class="mobile-nav-item" data-mobile-path="/aset">
+          <span class="mobile-nav-icon">${iconSvg('assets', 20)}</span>
+          <span class="mobile-nav-label">Aset</span>
+        </a>
+        <a href="#/menu/master" class="mobile-nav-item" data-mobile-path="/menu/master">
+          <span class="mobile-nav-icon">${iconSvg('master', 20)}</span>
+          <span class="mobile-nav-label">Master</span>
+        </a>
+        <a href="#/menu/operasional" class="mobile-nav-item" data-mobile-path="/menu/operasional">
+          <span class="mobile-nav-icon">${iconSvg('operasional', 20)}</span>
+          <span class="mobile-nav-label">Operasional</span>
+        </a>
+        <button type="button" class="mobile-nav-item" id="btn-mobile-more" data-mobile-path="more">
+          <span class="mobile-nav-icon">${iconSvg('moreHorizontal', 20)}</span>
+          <span class="mobile-nav-label">Lainnya</span>
+        </button>
+      </nav>
       <button type="button" class="help-fab" id="btn-help-fab" aria-label="Panduan penggunaan" title="Panduan penggunaan">
         <span class="help-fab-icon" aria-hidden="true">?</span>
       </button>
     </div>`;
+
+  // Sinkronkan tinggi topbar untuk header sticky di Data Aset
+  const topbarEl = document.getElementById('app-topbar');
+  const syncTopbarHeight = () => {
+    if (!topbarEl) return;
+    const h = Math.round(topbarEl.getBoundingClientRect().height);
+    if (h > 0) document.documentElement.style.setProperty('--topbar-h', `${h}px`);
+  };
+  syncTopbarHeight();
+  if (topbarEl && typeof ResizeObserver !== 'undefined') {
+    new ResizeObserver(syncTopbarHeight).observe(topbarEl);
+  } else {
+    window.addEventListener('resize', syncTopbarHeight);
+  }
 
   applyWorkspaceBranding(adapter).catch(error => console.warn('Branding workspace gagal dimuat:', error));
   initNotificationCenter(adapter).catch(error => console.warn('Notifikasi gagal dimuat:', error));
@@ -127,11 +166,67 @@ export function renderLayout(root, router) {
   });
 
   // Logout dari sidebar
-  document.getElementById('btn-sidebar-logout')?.addEventListener('click', async () => {
+  const handleLogout = async () => {
     if (confirm('Apakah Anda yakin ingin keluar dari Think Aset?')) {
       await signOut();
       window.location.reload();
     }
+  };
+  document.getElementById('btn-sidebar-logout')?.addEventListener('click', handleLogout);
+
+  // Sheet menu "Lainnya" di mobile bottom bar
+  document.getElementById('btn-mobile-more')?.addEventListener('click', () => {
+    const body = document.createElement('div');
+    body.className = 'mobile-more-sheet';
+    body.innerHTML = `
+      <div class="sidebar-user-card" style="margin-top:0;margin-bottom:12px">
+        ${userPicture
+          ? `<img src="${esc(userPicture)}" class="user-avatar" alt="Avatar" />`
+          : `<div class="user-avatar text-avatar">${esc(userInitial)}</div>`}
+        <div class="user-info">
+          <span class="user-email" title="${esc(userEmail)}">${esc(userEmail)}</span>
+          <span class="user-role badge ${adapter.role === 'owner' ? 'badge-primary' : 'badge-muted'}">
+            ${adapter.mode === 'google' ? `${esc(adapter.role)}` : 'Mode Lokal'}
+          </span>
+        </div>
+      </div>
+      <div class="mobile-more-links">
+        <a href="#/menu/laporan" class="mobile-more-link" data-more-nav>
+          <span class="mobile-more-link-icon">${iconSvg('laporan', 18)}</span>
+          <span>Laporan</span>
+        </a>
+        <a href="#/menu/pengaturan" class="mobile-more-link" data-more-nav>
+          <span class="mobile-more-link-icon">${iconSvg('pengaturan', 18)}</span>
+          <span>Pengaturan</span>
+        </a>
+        <a href="#/qr" class="mobile-more-link" data-more-nav>
+          <span class="mobile-more-link-icon">${iconSvg('qr', 18)}</span>
+          <span>Cetak QR &amp; Label</span>
+        </a>
+        <a href="#/scan" class="mobile-more-link" data-more-nav>
+          <span class="mobile-more-link-icon">${iconSvg('scan', 18)}</span>
+          <span>Pindai QR</span>
+        </a>
+      </div>
+      <div class="sidebar-version" style="margin-top:14px">Think Aset v${esc(config.APP_VERSION)}</div>
+      <button type="button" class="footer-btn btn-logout" id="btn-mobile-logout" style="width:100%;margin-top:8px">
+        <span class="logout-icon">${iconSvg('logout', 15)}</span>
+        <span class="btn-text">Keluar</span>
+      </button>
+    `;
+    body.querySelectorAll('[data-more-nav]').forEach(el => {
+      el.addEventListener('click', () => closeModal());
+    });
+    body.querySelector('#btn-mobile-logout')?.addEventListener('click', async () => {
+      closeModal();
+      await handleLogout();
+    });
+    openModal({
+      title: 'Menu Lainnya',
+      size: 'modal-sm',
+      body,
+      actions: [{ label: 'Tutup', class: 'btn btn-ghost' }]
+    });
   });
 
   // Tangani klik item menu yang belum siap
@@ -171,6 +266,12 @@ export function renderLayout(root, router) {
       document.querySelectorAll('.sidebar-item').forEach(a => {
         a.classList.toggle('active', a.dataset.path === activePath);
       });
+      const mobileActive = (activePath === '/menu/laporan' || activePath === '/menu/pengaturan')
+        ? 'more'
+        : activePath;
+      document.querySelectorAll('.mobile-nav-item').forEach(item => {
+        item.classList.toggle('active', item.dataset.mobilePath === mobileActive);
+      });
       const backBtn = document.getElementById('btn-topbar-back');
       if (backBtn) {
         backBtn.classList.toggle('hidden', !path || path === '/' || path === '/dashboard');
@@ -190,10 +291,9 @@ async function applyWorkspaceBranding(adapter) {
   const logoId = get('branding_logo_id');
   const brand = document.querySelector('.sidebar-brand');
   if (!brand) return;
+  const brandNameEl = brand.querySelector('.sidebar-brand-name');
   if (name) {
-    const heading = document.createElement('strong');
-    heading.textContent = name;
-    brand.prepend(heading);
+    if (brandNameEl) brandNameEl.textContent = name;
     document.title = `${name} — Aplikasi`;
   }
   if (logoId) {

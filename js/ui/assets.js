@@ -9,6 +9,7 @@ import { iconSvg, emptyIconHtml } from './icons.js';
 import { renderHolderContactLinks } from './holders.js';
 
 const PAGE_SIZE = 20;
+const ASSETS_VIEW_KEY = 'ta_assets_view';
 const KONDISI_LIST = ['baik', 'rusak_ringan', 'rusak_berat'];
 const STATUS_LIST = ['aktif', 'nonaktif'];
 
@@ -27,6 +28,10 @@ let state = {
   sortKey: 'kode',
   sortDir: 'asc',
   page: 1,
+  view: (() => {
+    try { return localStorage.getItem(ASSETS_VIEW_KEY) === 'grid' ? 'grid' : 'list'; }
+    catch { return 'list'; }
+  })(),
   selected: new Set()
 };
 
@@ -129,31 +134,43 @@ export async function renderAssets(layout, { query } = {}) {
     ].filter(Boolean).length;
 
     layout.content.innerHTML = `
-      <div class="page-header">
-        <h1>Data Aset <span class="text-sm text-muted">(${state.assets.length} total)</span></h1>
-        <div class="row" style="gap:6px;flex-wrap:wrap">
-          ${canWrite ? `<button class="btn btn-ghost btn-sm" id="btn-import">${iconSvg('import', 15)} Impor Excel</button>` : ''}
-          <button class="btn btn-ghost btn-sm" id="btn-export">${iconSvg('export', 15)} Ekspor Excel</button>
-          ${canWrite ? `<button class="btn btn-primary btn-sm" id="btn-add">+ Tambah Aset</button>` : ''}
+      <div class="assets-sticky-head">
+        <div class="page-header">
+          <h1>Data Aset <span class="text-sm text-muted">(${state.assets.length} total)</span></h1>
+          <div class="row" style="gap:6px;flex-wrap:wrap">
+            ${canWrite ? `<button class="btn btn-ghost btn-sm" id="btn-import">${iconSvg('import', 15)} Impor Excel</button>` : ''}
+            <button class="btn btn-ghost btn-sm" id="btn-export">${iconSvg('export', 15)} Ekspor Excel</button>
+            ${canWrite ? `<button class="btn btn-primary btn-sm" id="btn-add">+ Tambah Aset</button>` : ''}
+          </div>
         </div>
-      </div>
 
-      <div class="filter-bar" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
-        <input class="form-input" id="f-search" type="search" style="flex:1;min-width:200px"
-          placeholder="Cari kode, nama, serial, vendor…" value="${esc(state.search)}" />
-        <button type="button" class="btn btn-ghost btn-sm" id="btn-more-filters">
-          🔎 Cari selebihnya${activeFilterCount > 0 ? ` <span class="badge badge-primary" style="margin-left:4px">${activeFilterCount}</span>` : ''}
-        </button>
-        ${(state.search || activeFilterCount > 0) ? '<button class="btn btn-ghost btn-sm" id="f-reset">Reset</button>' : ''}
-      </div>
+        <div class="filter-bar">
+          <input class="form-input" id="f-search" type="search" style="flex:1;min-width:180px"
+            placeholder="Cari kode, nama, serial, vendor…" value="${esc(state.search)}" />
+          <div class="filter-bar-actions">
+            <button type="button" class="btn btn-ghost btn-sm" id="btn-more-filters">
+              ${iconSvg('search', 14)} Cari selebihnya${activeFilterCount > 0 ? ` <span class="badge badge-primary" style="margin-left:2px">${activeFilterCount}</span>` : ''}
+            </button>
+            ${(state.search || activeFilterCount > 0) ? '<button class="btn btn-ghost btn-sm" id="f-reset">Reset</button>' : ''}
+            <div class="view-toggle" role="group" aria-label="Mode tampilan data aset">
+              <button type="button" class="view-toggle-btn ${state.view === 'list' ? 'active' : ''}" data-view="list" aria-pressed="${state.view === 'list'}" title="Tampilan Daftar">
+                ${iconSvg('list', 15)} <span>Daftar</span>
+              </button>
+              <button type="button" class="view-toggle-btn ${state.view === 'grid' ? 'active' : ''}" data-view="grid" aria-pressed="${state.view === 'grid'}" title="Tampilan Kotak">
+                ${iconSvg('grid', 15)} <span>Kotak</span>
+              </button>
+            </div>
+          </div>
+        </div>
 
-      ${state.selected.size > 0 && canWrite ? renderBulkBar() : ''}
+        ${state.selected.size > 0 && canWrite ? renderBulkBar() : ''}
+      </div>
 
       ${sorted.length === 0
         ? (state.assets.length === 0
             ? renderEmpty(canWrite)
             : `<div class="empty-state">${emptyIconHtml('search')}<div class="empty-state-title">Tidak ada aset yang cocok dengan filter</div></div>`)
-        : renderTable(pageRows, canWrite)}
+        : (state.view === 'grid' ? renderGrid(pageRows, canWrite) : renderTable(pageRows, canWrite))}
 
       ${sorted.length > PAGE_SIZE ? renderPagination(state.page, totalPages, sorted.length) : ''}
     `;
@@ -249,6 +266,16 @@ export async function renderAssets(layout, { query } = {}) {
         selected: new Set()
       };
       renderList();
+    });
+
+    $$('[data-view]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const nextView = btn.dataset.view === 'grid' ? 'grid' : 'list';
+        if (state.view === nextView) return;
+        state.view = nextView;
+        try { localStorage.setItem(ASSETS_VIEW_KEY, nextView); } catch {}
+        renderList();
+      });
     });
 
     // Tombol header
@@ -419,6 +446,61 @@ export async function renderAssets(layout, { query } = {}) {
       </div>`;
   }
 
+  function renderGrid(pageRows, canWrite) {
+    const catMap = new Map(state.categories.map(c => [c.id, c]));
+    const locMap = new Map(state.locations.map(l => [l.id, l]));
+    const holdMap = new Map(state.holders.map(h => [h.id, h]));
+
+    return `
+      <div class="asset-grid">
+        ${pageRows.map(a => {
+          const cat = catMap.get(a.category_id);
+          const loc = locMap.get(a.location_id);
+          const hold = holdMap.get(a.holder_id);
+          const d = computeDepreciation(a);
+          const thumbId = getFirstPhotoId(a);
+          const isChecked = state.selected.has(a.id);
+          return `
+            <article class="asset-card${isChecked ? ' selected' : ''}">
+              <div class="asset-card-media">
+                <div class="asset-card-thumb" data-thumb="${esc(thumbId || '')}">${thumbId ? '…' : iconSvg('assets', 30)}</div>
+                ${canWrite ? `
+                  <label class="asset-card-check" title="Pilih aset">
+                    <input type="checkbox" data-chk-row="${esc(a.id)}" ${isChecked ? 'checked' : ''} />
+                  </label>` : ''}
+                <div class="asset-card-badges">
+                  <span class="badge badge-${kondisiBadge(a.kondisi)}">${labelKondisi(a.kondisi)}</span>
+                  <span class="badge badge-${a.status === 'nonaktif' ? 'danger' : 'success'}">${labelStatus(a.status)}</span>
+                </div>
+              </div>
+              <div class="asset-card-body">
+                <div class="asset-card-code">${esc(a.kode || '—')}</div>
+                <a href="#/aset/${esc(a.id)}" class="asset-card-title">${esc(a.nama || '—')}</a>
+                <div class="asset-card-meta">${esc(cat?.nama || 'Tanpa kategori')} · ${esc(loc?.nama || 'Tanpa lokasi')}</div>
+                ${hold ? `
+                  <div class="asset-card-holder">
+                    <span class="text-xs text-muted">PJ: <strong style="color:var(--text)">${esc(hold.nama || '—')}</strong></span>
+                    ${hold.kontak ? `<div>${renderHolderContactLinks(hold.kontak, { compact: true })}</div>` : ''}
+                  </div>` : ''}
+              </div>
+              <div class="asset-card-foot">
+                <div>
+                  <div class="text-xs text-muted">Nilai Kini</div>
+                  <strong class="asset-card-price">${esc(formatRupiahFull(d.nilai_buku))}</strong>
+                </div>
+                <div class="cell-actions">
+                  <button class="btn btn-ghost btn-sm" data-row-action="view" data-id="${esc(a.id)}">Lihat</button>
+                  ${canWrite ? `
+                    <button class="btn btn-ghost btn-sm" data-row-action="edit" data-id="${esc(a.id)}">Edit</button>
+                    <button class="btn btn-ghost btn-sm" data-row-action="delete" data-id="${esc(a.id)}" style="color:var(--accent-danger)">Hapus</button>
+                  ` : ''}
+                </div>
+              </div>
+            </article>`;
+        }).join('')}
+      </div>`;
+  }
+
   function renderPagination(current, total, totalRows) {
     const buttons = [];
     buttons.push(`<button data-page="1" ${current === 1 ? 'disabled' : ''}>«</button>`);
@@ -441,21 +523,24 @@ export async function renderAssets(layout, { query } = {}) {
     for (const a of rows) {
       const id = getFirstPhotoId(a);
       if (!id) continue;
-      const cell = document.querySelector(`[data-thumb="${cssEscape(id)}"]`);
-      if (!cell) continue;
+      const cells = document.querySelectorAll(`[data-thumb="${cssEscape(id)}"]`);
+      if (!cells.length) continue;
       if (photoUrlCache.has(id)) {
-        cell.innerHTML = `<img src="${esc(photoUrlCache.get(id))}" alt="" />`;
+        const url = photoUrlCache.get(id);
+        cells.forEach(cell => { cell.innerHTML = `<img src="${esc(url)}" alt="" />`; });
         continue;
       }
       try {
         const url = await adapter.getFileUrl(id);
         if (url) {
           photoUrlCache.set(id, url);
-          cell.innerHTML = `<img src="${esc(url)}" alt="" />`;
+          cells.forEach(cell => { cell.innerHTML = `<img src="${esc(url)}" alt="" />`; });
         } else {
-          cell.textContent = '📦';
+          cells.forEach(cell => { cell.textContent = '📦'; });
         }
-      } catch { cell.textContent = '📦'; }
+      } catch {
+        cells.forEach(cell => { cell.textContent = '📦'; });
+      }
     }
   }
 
@@ -595,7 +680,7 @@ export async function renderAssets(layout, { query } = {}) {
           if (!Number.isFinite(parsed)) throw new Error(`${label} bukan angka yang valid`);
           return parsed;
         };
-        const harga = number('Harga', get('harga'));
+        const harga = number('Harga', get('harga', 'hargapembelian', 'hargaperolehan'));
         const jumlah = number('Jumlah', get('jumlah'), 1);
         const umurEkonomis = number('Umur ekonomis', get('umurekonomis', 'umurekonomisbln'));
         const nilaiResidu = number('Nilai residu', get('nilairesidu', 'nilairesidurp'));
@@ -845,14 +930,14 @@ export async function openAssetForm({ asset = null, onSaved } = {}) {
           </div>
         </div>
 
-        <div class="form-section-title">Perolehan</div>
+        <div class="form-section-title">Pembelian</div>
         <div class="form-row">
           <div class="form-group">
             <label class="form-label">Tanggal Beli</label>
             <input class="form-input" id="a-tgl" type="date" value="${esc(asset?.tgl_beli || '')}" />
           </div>
           <div class="form-group">
-            <label class="form-label">Harga Perolehan (Rp)</label>
+            <label class="form-label">Harga Pembelian (Rp)</label>
             <input class="form-input" id="a-harga" type="number" min="0" step="1" value="${esc(asset?.harga || '0')}" />
           </div>
         </div>

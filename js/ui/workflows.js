@@ -7,6 +7,7 @@ import { formatRupiahFull, computeDepreciation } from '../utils/depreciation.js'
 import { qrToken } from '../utils/uuid.js';
 import { iconSvg, emptyIconHtml } from './icons.js';
 import { resizeLogoProp } from '../utils/image.js';
+import { buildAssetQrUrl, createQrScannerSession, extractQrCode } from '../utils/qr-scanner.js';
 
 const WORKFLOWS = {
   history: {
@@ -332,7 +333,7 @@ async function renderReports(layout) {
       { key: 'category_id', label: 'Kategori', format: id => categories.find(c => c.id === id)?.nama || '' },
       { key: 'location_id', label: 'Lokasi', format: id => locations.find(l => l.id === id)?.nama || '' },
       { key: 'kondisi', label: 'Kondisi' }, { key: 'status', label: 'Status' },
-      { key: 'harga', label: 'Harga perolehan' },
+      { key: 'harga', label: 'Harga pembelian' },
       { key: 'nilai_kini', label: 'Nilai buku', format: (_, row) => computeDepreciation(row).nilai_buku }
     ];
     exportToCSV(assets, columns, 'laporan-aset.csv');
@@ -852,7 +853,7 @@ async function renderQrCards(layout, query) {
           Object.assign(asset, updated);
         }
         const qr = qrcode(0, 'H');
-        qr.addData(`TA:${token}`);
+        qr.addData(buildAssetQrUrl(token));
         qr.make();
         labels.push(`
           <div class="qr-sticker">
@@ -932,84 +933,58 @@ async function renderScanner(layout) {
       <form id="scan-manual" class="form-group mt-3"><label class="form-label" for="scan-code">Atau masukkan kode aset / QR</label><div class="row"><input class="form-input" id="scan-code" autocomplete="off" /><button class="btn btn-secondary" type="submit">Cari aset</button></div></form>
       <p id="scan-status" class="text-sm text-muted mt-3" aria-live="polite">Akses kamera memerlukan HTTPS atau localhost dan izin kamera.</p>
     </div>`;
-  let stream = null, detector = null, frame = 0;
+
   const video = layout.content.querySelector('#scan-video');
-  const stop = () => {
-    cancelAnimationFrame(frame);
-    stream?.getTracks().forEach(track => track.stop());
-    stream = null;
-    video.srcObject = null;
-    video.style.display = 'none';
-    const stopButton = layout.content.querySelector('#scan-stop');
-    if (stopButton) stopButton.disabled = true;
-  };
-  layout.content.querySelector('#scan-start').addEventListener('click', async () => {
-    try {
-      let useJsQr = false;
-      if ('BarcodeDetector' in window) {
-        detector = new BarcodeDetector({ formats: ['qr_code'] });
-      } else {
-        await loadJsQrLibrary();
-        useJsQr = true;
-      }
-      stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
-      video.srcObject = stream; video.style.display = 'block'; await video.play();
-      layout.content.querySelector('#scan-stop').disabled = false;
-      layout.content.querySelector('#scan-status').textContent = 'Arahkan kamera ke QR aset.';
-      const canvas = useJsQr ? document.createElement('canvas') : null;
-      const ctx = canvas ? canvas.getContext('2d', { willReadFrequently: true }) : null;
-      const scan = async () => {
-        if (!stream) return;
-        try {
-          if (!useJsQr && detector) {
-            const codes = await detector.detect(video);
-            if (codes.length) { stop(); resolveScannedCode(codes[0].rawValue); return; }
-          } else if (useJsQr && window.jsQR && video.readyState >= 2 && video.videoWidth > 0) {
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
-            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-            const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-            const code = window.jsQR(imgData.data, imgData.width, imgData.height, { inversionAttempts: 'dontInvert' });
-            if (code?.data) { stop(); resolveScannedCode(code.data); return; }
-          }
-        } catch (error) { layout.content.querySelector('#scan-status').textContent = `Pemindaian gagal: ${error.message}`; stop(); return; }
-        frame = requestAnimationFrame(scan);
-      };
-      scan();
-    } catch (error) { layout.content.querySelector('#scan-status').textContent = error.message; }
-  });
-  layout.content.querySelector('#scan-stop').addEventListener('click', stop);
-  layout.content.querySelector('#scan-manual').addEventListener('submit', event => { event.preventDefault(); resolveScannedCode(layout.content.querySelector('#scan-code').value); });
-  const onHashChange = () => stop();
-  window.addEventListener('hashchange', onHashChange, { once: true });
-  function resolveScannedCode(value) {
-    let code = value.trim();
-    try {
-      if (/^https?:/i.test(code)) {
-        const url = new URL(code);
-        const match = url.hash.match(/^#\/aset\/([^?]+)/);
-        if (match) code = decodeURIComponent(match[1]);
-      }
-      const hashMatch = code.match(/^#\/aset\/([^?]+)/);
-      if (hashMatch) code = decodeURIComponent(hashMatch[1]);
-    } catch {}
-    if (code.startsWith('TA:')) code = code.slice(3);
+  const startBtn = layout.content.querySelector('#scan-start');
+  const stopBtn = layout.content.querySelector('#scan-stop');
+  const statusEl = layout.content.querySelector('#scan-status');
+
+  const resolveScannedCode = (value) => {
+    const code = extractQrCode(value);
     const asset = assets.find(row => row.id === code || row.qr_token === code || row.kode?.toLowerCase() === code.toLowerCase());
     if (asset) window.location.hash = `/aset/${encodeURIComponent(asset.id)}`;
-    else layout.content.querySelector('#scan-status').textContent = `Aset tidak ditemukan untuk kode “${code}”.`;
-  }
-}
+    else if (statusEl) statusEl.textContent = `Aset tidak ditemukan untuk kode “${code}”.`;
+  };
 
-function loadJsQrLibrary() {
-  if (window.jsQR) return Promise.resolve(window.jsQR);
-  return new Promise((resolve, reject) => {
-    const s = document.createElement('script');
-    s.src = 'https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js';
-    s.crossOrigin = 'anonymous';
-    s.onload = () => window.jsQR ? resolve(window.jsQR) : reject(new Error('Library jsQR gagal dimuat'));
-    s.onerror = () => reject(new Error('Pemindaian kamera tidak didukung & gagal memuat jsQR. Gunakan kolom kode manual.'));
-    document.head.appendChild(s);
+  const session = createQrScannerSession({
+    videoEl: video,
+    onDetected: (raw) => {
+      if (stopBtn) stopBtn.disabled = true;
+      if (startBtn) startBtn.disabled = false;
+      resolveScannedCode(raw);
+    },
+    onStatus: (msg) => {
+      if (statusEl) statusEl.textContent = msg;
+    },
+    onError: (error) => {
+      if (stopBtn) stopBtn.disabled = true;
+      if (startBtn) startBtn.disabled = false;
+      if (statusEl) statusEl.textContent = `Pemindaian gagal: ${error?.message || error}`;
+    }
   });
+
+  const stop = () => {
+    session.stop();
+    if (stopBtn) stopBtn.disabled = true;
+    if (startBtn) startBtn.disabled = false;
+  };
+
+  startBtn?.addEventListener('click', async () => {
+    try {
+      startBtn.disabled = true;
+      await session.start();
+      if (stopBtn) stopBtn.disabled = false;
+    } catch (error) {
+      startBtn.disabled = false;
+      if (statusEl) statusEl.textContent = error.message;
+    }
+  });
+  stopBtn?.addEventListener('click', stop);
+  layout.content.querySelector('#scan-manual').addEventListener('submit', event => {
+    event.preventDefault();
+    resolveScannedCode(layout.content.querySelector('#scan-code').value);
+  });
+  window.addEventListener('hashchange', stop, { once: true });
 }
 
 export async function renderAssetTab(container, tab, asset) {

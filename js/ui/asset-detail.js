@@ -7,6 +7,7 @@ import {
   getFirstPhotoId
 } from './assets.js';
 import { computeDepreciation, formatRupiahFull } from '../utils/depreciation.js';
+import { buildAssetQrUrl } from '../utils/qr-scanner.js';
 import { renderAssetTab } from './workflows.js';
 import { renderHolderContactLinks } from './holders.js';
 import { iconSvg, emptyIconHtml } from './icons.js';
@@ -241,7 +242,7 @@ function renderInfoTab(container, { asset, cat, loc, hold, dep }) {
       <div class="card" style="flex:1;min-width:240px">
         <h3 style="margin-top:0">Nilai &amp; Penyusutan</h3>
         <div class="kv-row"><span class="text-muted">Tanggal Beli</span><strong>${esc(asset.tgl_beli || '—')}</strong></div>
-        <div class="kv-row"><span class="text-muted">Harga Perolehan</span><strong>${esc(formatRupiahFull(dep.harga))}</strong></div>
+        <div class="kv-row"><span class="text-muted">Harga Pembelian</span><strong>${esc(formatRupiahFull(dep.harga))}</strong></div>
         <div class="kv-row"><span class="text-muted">Nilai Residu</span><strong>${esc(formatRupiahFull(dep.residu))}</strong></div>
         <div class="kv-row"><span class="text-muted">Metode</span><strong>${dep.metode === 'saldo_menurun' ? 'Saldo Menurun' : 'Garis Lurus'}</strong></div>
         <div class="kv-row"><span class="text-muted">Umur Ekonomis</span><strong>${esc(dep.umur_bulan)} bulan</strong></div>
@@ -275,7 +276,7 @@ async function renderDetailQrPreview(container, token) {
       });
     }
     const qr = window.qrcode(0, 'M');
-    qr.addData('TA:' + token);
+    qr.addData(buildAssetQrUrl(token));
     qr.make();
     container.innerHTML = qr.createSvgTag(4, 0);
   } catch {

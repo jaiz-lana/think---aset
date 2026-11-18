@@ -20,6 +20,7 @@ import { renderHolders } from './ui/holders.js';
 import { renderSettings } from './ui/settings.js';
 import { renderWorkflow } from './ui/workflows.js';
 import { renderMenuHub } from './ui/menu-hub.js';
+import { renderErrorPage } from './ui/error-page.js';
 import { getBgPattern, applyBgPattern } from './bg-pattern.js';
 
 initTheme();
@@ -69,18 +70,13 @@ router.add('/', () => {
   if (!isSignedIn()) return showAuthScreen();
   router.navigate('/dashboard');
 });
-router.setNotFound(() => {
+router.setNotFound((ctx) => {
   if (!isSignedIn()) return showAuthScreen();
-  layout.content.innerHTML = `
-    <div class="empty-state">
-      <span class="empty-state-icon">🔍</span>
-      <div class="empty-state-title">Halaman tidak ditemukan</div>
-      <div class="empty-state-desc">Rute yang Anda tuju tidak tersedia.</div>
-      <div class="row" style="gap:8px;justify-content:center;flex-wrap:wrap">
-        <a href="#/dashboard" class="btn btn-primary">Kembali ke Dashboard</a>
-        <a href="404.html?code=404" class="btn btn-ghost">Tampilan ThinkError (404)</a>
-      </div>
-    </div>`;
+  if (!layout) layout = renderLayout(root, router);
+  layout.setActive('');
+  layout.setTitle('Halaman Tidak Ditemukan');
+  layout.setActions('');
+  renderErrorPage(layout.content, { code: '404', path: ctx?.path || window.location.hash });
 });
 
 function withLayout(fn) {
@@ -90,16 +86,13 @@ function withLayout(fn) {
   }
   const renderError = (e) => {
     console.error(e);
-    layout.content.innerHTML = `
-      <div class="empty-state">
-        <span class="empty-state-icon">⚠️</span>
-        <div class="empty-state-title">Terjadi kesalahan</div>
-        <div class="empty-state-desc">${esc(e?.message || String(e))}</div>
-        <div class="row" style="gap:8px;justify-content:center;flex-wrap:wrap">
-          <a href="#/dashboard" class="btn btn-primary">Kembali ke Dashboard</a>
-          <a href="404.html?code=500" class="btn btn-ghost">Tampilan ThinkError (500)</a>
-        </div>
-      </div>`;
+    layout.setTitle('Terjadi Kesalahan');
+    layout.setActions('');
+    renderErrorPage(layout.content, {
+      code: '500',
+      path: window.location.hash || window.location.pathname,
+      message: e?.message || String(e)
+    });
   };
   try {
     const a = getAdapter();

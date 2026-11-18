@@ -1,5 +1,5 @@
 const CACHE_PREFIX = 'thinkaset-';
-const CACHE_VERSION = 'thinkaset-v0.4.27';
+const CACHE_VERSION = 'thinkaset-v0.4.28';
 const STATIC_ASSETS = [
   './',
   './index.html',
@@ -37,6 +37,7 @@ const STATIC_ASSETS = [
   './js/ui/workflows.js',
   './js/ui/modal.js',
   './js/ui/profile.js',
+  './js/ui/error-page.js',
   './js/storage/adapter.js',
   './js/storage/google.js',
   './js/storage/local.js',
@@ -47,6 +48,7 @@ const STATIC_ASSETS = [
   './js/utils/excel.js',
   './js/utils/depreciation.js',
   './js/utils/external-libs.js',
+  './js/utils/qr-scanner.js',
   './pages/manfaat.html',
   './pages/fitur.html',
   './pages/panduan.html',

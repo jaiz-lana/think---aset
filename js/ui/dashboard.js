@@ -108,7 +108,7 @@ function renderDashboardHTML({ assets, categories, locations, agendas, activity,
         <div class="dash-card-sub">${activeAssets.length} aktif · ${inactiveCount} nonaktif</div>
       </div>
       <div class="dash-card">
-        <div class="dash-card-label">Total Nilai Perolehan</div>
+        <div class="dash-card-label">Total Nilai Pembelian</div>
         <div class="dash-card-value">${esc(formatRupiah(summary.total_harga))}</div>
         <div class="dash-card-sub">${esc(formatRupiahFull(summary.total_harga))}</div>
       </div>
