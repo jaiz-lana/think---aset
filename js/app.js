@@ -76,7 +76,10 @@ router.setNotFound(() => {
       <span class="empty-state-icon">🔍</span>
       <div class="empty-state-title">Halaman tidak ditemukan</div>
       <div class="empty-state-desc">Rute yang Anda tuju tidak tersedia.</div>
-      <a href="#/dashboard" class="btn btn-primary">Kembali ke Dashboard</a>
+      <div class="row" style="gap:8px;justify-content:center;flex-wrap:wrap">
+        <a href="#/dashboard" class="btn btn-primary">Kembali ke Dashboard</a>
+        <a href="404.html?code=404" class="btn btn-ghost">Tampilan ThinkError (404)</a>
+      </div>
     </div>`;
 });
 
@@ -92,7 +95,10 @@ function withLayout(fn) {
         <span class="empty-state-icon">⚠️</span>
         <div class="empty-state-title">Terjadi kesalahan</div>
         <div class="empty-state-desc">${esc(e?.message || String(e))}</div>
-        <a href="#/dashboard" class="btn btn-primary">Kembali ke Dashboard</a>
+        <div class="row" style="gap:8px;justify-content:center;flex-wrap:wrap">
+          <a href="#/dashboard" class="btn btn-primary">Kembali ke Dashboard</a>
+          <a href="404.html?code=500" class="btn btn-ghost">Tampilan ThinkError (500)</a>
+        </div>
       </div>`;
   };
   try {

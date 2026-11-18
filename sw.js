@@ -1,9 +1,10 @@
 const CACHE_PREFIX = 'thinkaset-';
-const CACHE_VERSION = 'thinkaset-v0.4.26';
+const CACHE_VERSION = 'thinkaset-v0.4.27';
 const STATIC_ASSETS = [
   './',
   './index.html',
   './app.html',
+  './404.html',
   './manifest.json',
   './css/variables.css',
   './css/base.css',
